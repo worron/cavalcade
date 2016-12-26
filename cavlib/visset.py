@@ -10,7 +10,8 @@ class VisualPage(GuiBase):
 		elements = (
 			"maingrid", "st_maximize_switch", "st_desktop_switch", "statebox2", "st_below_switch",
 			"st_stick_switch", "st_byscreen_switch", "st_transparent_switch", "fg_colorbutton",
-			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton",
+			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
+			"left_spinbutton", "right_spinbutton",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -23,6 +24,9 @@ class VisualPage(GuiBase):
 
 		self.gui["scale_spinbutton"].set_value(self.canvas.config["scale"])
 		self.gui["padding_spinbutton"].set_value(self.canvas.config["padding"])
+
+		for w in ("top", "bottom", "right", "left"):
+			self.gui[w + "_spinbutton"].set_value(self.canvas.config[w + "_offset"])
 
 		# signals
 		self.gui["st_desktop_switch"].connect("notify::active", self.on_st_desktop_switch)
@@ -37,6 +41,9 @@ class VisualPage(GuiBase):
 
 		self.gui["scale_spinbutton"].connect("value-changed", self.on_scale_spinbutton_changed)
 		self.gui["padding_spinbutton"].connect("value-changed", self.on_padding_spinbutton_changed)
+
+		for w in ("top", "bottom", "right", "left"):
+			self.gui[w + "_spinbutton"].connect("value-changed", self.on_offset_spinbutton_changed)
 
 	# window state
 	# TODO(?): universal handler
@@ -76,3 +83,10 @@ class VisualPage(GuiBase):
 	def on_padding_spinbutton_changed(self, button):
 		self.canvas.config["padding"] = int(button.get_value())
 		self.canvas.draw.size_update()
+
+	def on_offset_spinbutton_changed(self, button):
+		for w in ("top", "bottom", "right", "left"):
+			if self.gui[w + "_spinbutton"] == button:
+				self.canvas.config[w + "_offset"] = int(button.get_value())
+				self.canvas.draw.size_update()
+				break
