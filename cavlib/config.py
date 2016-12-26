@@ -8,6 +8,12 @@ from gi.repository import Gdk
 from cavlib.logger import logger
 
 
+def hex_rgba(hex_):
+	"""Transform html color to gtk rgba"""
+	nums = [int(hex_[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
+	return Gdk.RGBA(*nums)
+
+
 class ConfigBase(dict):
 	"""Read some setting from ini file"""
 	system_paths = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"),)
@@ -59,7 +65,6 @@ class MainConfig(ConfigBase):
 		super().__init__("main.ini", dict(state=winstate))
 
 	def read_data(self):
-		self["source"] = self.parser.getint("System", "source")
 		self["padding"] = self.parser.getint("Draw", "padding")
 		self["scale"] = self.parser.getfloat("Draw", "scale")
 
@@ -67,9 +72,8 @@ class MainConfig(ConfigBase):
 			self[key + "_offset"] = self.parser.getint("Offset", key)
 
 		# color
-		hex_ = self.parser.get("Draw", "rgba").lstrip("#")
-		nums = [int(hex_[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
-		self["rgba"] = Gdk.RGBA(*nums)
+		self["foreground"] = hex_rgba(self.parser.get("Color", "foreground").lstrip("#"))
+		self["background"] = hex_rgba(self.parser.get("Color", "background").lstrip("#"))
 
 		# window state
 		for prop in self["state"]:

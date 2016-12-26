@@ -39,7 +39,6 @@ class Canvas:
 	def desktop(self, value):
 		# window rebuild needed
 		self.config["state"]["desktop"] = value
-		# self.window.set_type_hint(Gdk.WindowTypeHint.DESKTOP if value else Gdk.WindowTypeHint.NORMAL)
 		self.window.set_type_hint(Gdk.WindowTypeHint.DESKTOP if value else self.hint)
 
 	@property
@@ -88,7 +87,11 @@ class Canvas:
 
 	@transparent.setter
 	def transparent(self, value):
-		rgba = Gdk.RGBA(0, 0, 0, 0) if value else Gdk.RGBA(0, 0, 0, 1)
+		self.config["state"]["transparent"] = value
+		rgba = Gdk.RGBA(0, 0, 0, 0) if value else self.config["background"]
+		self._set_bg_rgba(rgba)
+
+	def _set_bg_rgba(self, rgba):
 		self.window.override_background_color(Gtk.StateFlags.NORMAL, rgba)
 
 	def _rebuild_window(self):

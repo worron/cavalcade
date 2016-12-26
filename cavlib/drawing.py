@@ -42,7 +42,7 @@ class Spectrum:
 
 	def redraw(self, widget, cr):
 		"""Draw spectrum graph"""
-		cr.set_source_rgba(*self.config["rgba"])
+		cr.set_source_rgba(*self.config["foreground"])
 
 		dx = self.config["left_offset"]
 		for i, value in enumerate(self.audio_sample):
