@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 
 class AttributeDict(dict):
@@ -21,10 +21,13 @@ class Spectrum:
 
 		self.area = Gtk.DrawingArea()
 		self.area.connect("draw", self.redraw)
+		self.area.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
 
 		self.sizes = AttributeDict()
 		self.sizes.area = AttributeDict()
 		self.sizes.bar = AttributeDict()
+
+		self.area.connect("configure-event", self.size_update)
 
 	def is_silence(self, value):
 		"""Check if volume level critically low during last iterations"""

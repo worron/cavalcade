@@ -55,7 +55,7 @@ class ConfigBase(dict):
 
 class MainConfig(ConfigBase):
 	def __init__(self):
-		winstate = dict(desktop=False, maximize=False)
+		winstate = dict(desktop=False, maximize=False, below=False, stick=False, byscreen=False, transparent=False)
 		super().__init__("main.ini", dict(state=winstate))
 
 	def read_data(self):
@@ -74,6 +74,9 @@ class MainConfig(ConfigBase):
 		# window state
 		for prop in self["state"]:
 			self["state"][prop] = self.parser.getboolean("Window", prop)
+
+		# window hint
+		self["hint"] = getattr(Gdk.WindowTypeHint, self.parser.get("Misc", "hint"))
 
 
 class CavaConfig(ConfigBase):
