@@ -10,7 +10,7 @@ class VisualPage(GuiBase):
 		elements = (
 			"maingrid", "st_maximize_switch", "st_desktop_switch", "statebox2", "st_below_switch",
 			"st_stick_switch", "st_byscreen_switch", "st_transparent_switch", "fg_colorbutton",
-			"bg_colorbutton",
+			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -20,6 +20,9 @@ class VisualPage(GuiBase):
 
 		self.gui["fg_colorbutton"].set_rgba(self.canvas.config["foreground"])
 		self.gui["bg_colorbutton"].set_rgba(self.canvas.config["background"])
+
+		self.gui["scale_spinbutton"].set_value(self.canvas.config["scale"])
+		self.gui["padding_spinbutton"].set_value(self.canvas.config["padding"])
 
 		# signals
 		self.gui["st_desktop_switch"].connect("notify::active", self.on_st_desktop_switch)
@@ -31,6 +34,9 @@ class VisualPage(GuiBase):
 
 		self.gui["fg_colorbutton"].connect("color-set", self.on_fg_color_set)
 		self.gui["bg_colorbutton"].connect("color-set", self.on_bg_color_set)
+
+		self.gui["scale_spinbutton"].connect("value-changed", self.on_scale_spinbutton_changed)
+		self.gui["padding_spinbutton"].connect("value-changed", self.on_padding_spinbutton_changed)
 
 	# window state
 	# TODO(?): universal handler
@@ -63,3 +69,10 @@ class VisualPage(GuiBase):
 			self.gui["st_transparent_switch"].set_active(False)
 		else:
 			self.canvas._set_bg_rgba(self.canvas.config["background"])
+
+	def on_scale_spinbutton_changed(self, button):
+		self.canvas.config["scale"] = float(button.get_value())
+
+	def on_padding_spinbutton_changed(self, button):
+		self.canvas.config["padding"] = int(button.get_value())
+		self.canvas.draw.size_update()
