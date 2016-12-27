@@ -1,5 +1,4 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-# from gi.repository import Gtk
 from cavlib.base import GuiBase
 
 

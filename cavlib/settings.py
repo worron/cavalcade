@@ -1,6 +1,7 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 from gi.repository import Gtk
 from cavlib.visset import VisualPage
+from cavlib.cavaset import CavaPage
 from cavlib.base import GuiBase
 
 
@@ -18,8 +19,9 @@ class SettingsWindow(GuiBase):
 		self.visualpage = VisualPage(canvas)
 		stack.add_titled(self.visualpage.gui["maingrid"], "visset", "Visual")
 
-		label = Gtk.Label("Test")
-		stack.add_titled(label, "cavaset", "CAVA")
+		# label = Gtk.Label("Test")
+		self.cavapage = CavaPage(canvas)
+		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
 		stack_switcher.set_stack(stack)

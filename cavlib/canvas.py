@@ -19,17 +19,14 @@ class Canvas:
 		self.default_size = (1280, 720)  # TODO: Move to config
 		self.hint = self.config["hint"]
 
-		# init drawing widget
-		self.draw = Spectrum(self.config, self.cavaconfig)
+		# init app structure
+		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
+		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
+		self._rebuild_window()  # graph window
+		self.settings = SettingsWindow(self)  # settings window
 
 		# start spectrum analyzer
-		self.cava = Cava(self.cavaconfig, self.draw.update)
-
-		# init window
-		self._rebuild_window()
-
-		# init settings window
-		self.settings = SettingsWindow(self)
+		self.cava.start()
 
 	@property
 	def desktop(self):

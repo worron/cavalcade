@@ -10,43 +10,75 @@ from cavlib.logger import logger
 
 
 class Cava:
+	NONE = 0
+	RUNNING = 1
+	RESTARTING = 2
+	CLOSING = 3
+
 	def __init__(self, cavaconfig, handler):
 		self.cavaconfig = cavaconfig
 		self.path = "/tmp/cava.fifo"
-		self.handler = handler
+		self.data_handler = handler
 		self.command = ["cava", "-p", self.cavaconfig._file]
+		self.state = self.NONE
 
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)
 
-		logger.debug("Acticate cava stream handler")
-		thread = threading.Thread(target=self._read_output)
-		thread.daemon = True
-		thread.start()
-
+	def _run_process(self):
 		logger.debug("Launching cava process...")
 		try:
 			self.process = subprocess.Popen(self.command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 			logger.debug("cava successfully launched!")
+			self.state = self.RUNNING
 		except Exception:
 			logger.exception("Fail to launch cava")
+
+	def _start_reader_thread(self):
+		logger.debug("Acticate cava stream handler")
+		self.thread = threading.Thread(target=self._read_output)
+		self.thread.daemon = True
+		self.thread.start()
 
 	def _read_output(self):
 		fifo = open(self.path, "rb")
 		while True:
-			data = fifo.read(2 * 32)
+			data = fifo.read(2 * self.cavaconfig["bars"])
 			sample = [i[0] / 65535 for i in struct.iter_unpack("H", data)]
 			if sample:
-				GLib.idle_add(self.handler, sample)
+				GLib.idle_add(self.data_handler, sample)
 			else:
-				GLib.idle_add(self._on_stop)
 				break
 		fifo.close()
+		GLib.idle_add(self._on_stop)
 
 	def _on_stop(self, ):
 		logger.debug("Cava stream handler deactivated")
+		if self.state == self.RESTARTING:
+			if not self.thread.isAlive():
+				self.start()
+			else:
+				logger.error("Can't restart cava, old hadler still alive")
+		elif self.state == self.RUNNING:
+			self.state = self.NONE
+			logger.error("Cava process was unexpectedy terminated.")
+
+	def start(self):
+		self._start_reader_thread()
+		self._run_process()
+
+	def restart(self):
+		if self.state == self.RUNNING:
+			logger.debug("Restarting cava process (normal mode) ...")
+			self.state = self.RESTARTING
+			if self.process.poll() is None:
+				self.process.kill()
+		elif self.state == self.NONE:
+			logger.warning("Restarting cava process (after crash) ...")
+			self.start()
 
 	def close(self):
+		self.state = self.CLOSING
 		if self.process.poll() is None:
 			self.process.kill()
 		os.remove(self.path)

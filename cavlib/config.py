@@ -22,6 +22,7 @@ class ConfigBase(dict):
 	def __init__(self, name, data={}):
 		self.name = name
 		self.update(data)
+		self.is_fallback = False
 
 		# default config file
 		for path in self.system_paths:
@@ -48,6 +49,7 @@ class ConfigBase(dict):
 			self.read_data()
 			logger.debug("User config '%s' successfully loaded." % self.name)
 		except Exception:
+			self.is_fallback = True
 			logger.exception("Fail to read '%s' user config:" % self.name)
 			logger.info("Trying with default config...")
 			self.parser.read(self.defconfig)
@@ -85,7 +87,28 @@ class MainConfig(ConfigBase):
 
 class CavaConfig(ConfigBase):
 	def __init__(self):
+		self.valid = dict(
+			method = ["raw"]
+		)
 		super().__init__("cava.ini")
 
 	def read_data(self):
-		self["bars"] = self.parser.getint("general", "bars")
+		for gw in ("framerate", "bars", "sensitivity"):
+			self[gw] = self.parser.getint("general", gw)
+
+		for ow in ("raw_target", "method"):
+			self[ow] = self.parser.get("output", ow)
+
+		self["gravity"] = self.parser.getint("smoothing", "gravity")
+
+		for key, valid_values in self.valid.items():
+			if self[key] not in valid_values:
+				raise Exception("Bad value for '%s' option" % key)
+
+	def write_data(self):
+		for section, ini_data in self.parser.items():
+			for key in (option for option in ini_data.keys() if option in self.keys()):
+				self.parser[section][key] = str(self[key])
+
+		with open(self._file, 'w') as configfile:
+			self.parser.write(configfile)
