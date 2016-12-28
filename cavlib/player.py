@@ -56,9 +56,10 @@ class Player(GObject.GObject):
 				if not success:
 					logger.warning("Couldn't fetch song duration")
 					self.duration = None
-			success, position = self.player.query_position(Gst.Format.PERCENT)
+					return True
+			success, position = self.player.query_position(Gst.Format.TIME)
 			if success:
-				self.emit("progress", int(position / 10000))
+				self.emit("progress", (position / self.duration * 1000))
 			else:
 				logger.warning("Couldn't fetch current song position to update slider")
 		return True
@@ -84,8 +85,8 @@ class Player(GObject.GObject):
 		self.playlist = files
 		self.playqueue = list(self.playlist)
 		if files:
-			self.load_file(files[0])
 			self.emit("playlist-update", self.playlist)
+			self.load_file(files[0])
 
 	def load_file(self, file_):
 		if self.is_playing:
@@ -97,9 +98,9 @@ class Player(GObject.GObject):
 		if file_ not in self.playqueue:
 			self.playqueue.append(file_)
 
-	def seek(self, perc):
+	def seek(self, value):
 		if self.duration is not None:
-			point = int(self.duration * perc / 100)
+			point = int(self.duration * value / 1000)
 			self.player.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, point)
 
 	def stop(self):

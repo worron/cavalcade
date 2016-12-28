@@ -56,12 +56,12 @@ class PlayerPage(GuiBase):
 		self._canvas.player.play_pause()
 
 	def on_seekscale_changed(self, widget):
-		perc = self.gui["seekscale"].get_value()
-		self._canvas.player.seek(perc)
+		value = self.gui["seekscale"].get_value()
+		self._canvas.player.seek(value)
 
-	def on_audio_progress(self, player, perc):
+	def on_audio_progress(self, player, value):
 		with self.gui["seekscale"].handler_block(self.seek_handler_id):
-			self.gui["seekscale"].set_value(perc)
+			self.gui["seekscale"].set_value(value)
 
 	def on_current_change(self, player, current):
 		if current is not None:
