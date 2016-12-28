@@ -19,7 +19,7 @@ if __name__ == "__main__":
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 	logger.info("Start cavalcade")
-	Canvas()
+	Canvas(sys.argv)
 	Gtk.main()
 	logger.info("Exit cavalcade")
 	exit()

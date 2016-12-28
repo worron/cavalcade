@@ -1,16 +1,18 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 
 from gi.repository import Gtk, Gdk
+import cavlib.pixbuf as pixbuf
 
 from cavlib.config import MainConfig, CavaConfig
 from cavlib.drawing import Spectrum
 from cavlib.cava import Cava
 from cavlib.settings import SettingsWindow
+from cavlib.player import Player
 
 
 class Canvas:
 	"""Base window for spectrum display"""
-	def __init__(self):
+	def __init__(self, argv):
 
 		# load config
 		self.config = MainConfig()
@@ -20,10 +22,23 @@ class Canvas:
 		self.hint = self.config["hint"]
 
 		# init app structure
+		self.player = Player(self)  # gstreamer
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
-		self._rebuild_window()  # graph window
 		self.settings = SettingsWindow(self)  # settings window
+
+		# window setup
+		self.overlay = Gtk.Overlay()
+		self.image = Gtk.Image()
+		self.overlay.add(self.image)
+		self.overlay.add_overlay(self.draw.area)
+
+		self._rebuild_window()  # graph window
+
+		# player
+		files = [file_ for file_ in argv[1:] if file_.endswith(".mp3")]
+		self.player.load_playlist(*files)
+		self.player.play_pause()
 
 		# start spectrum analyzer
 		self.cava.start()
@@ -94,7 +109,7 @@ class Canvas:
 	def _rebuild_window(self):
 		# destroy old window
 		if hasattr(self, "window"):
-			self.window.remove(self.draw.area)
+			self.window.remove(self.overlay)
 			self.window.destroy()
 
 		# init new
@@ -109,7 +124,7 @@ class Canvas:
 			setattr(self, prop, value)
 
 		# set drawing widget
-		self.window.add(self.draw.area)
+		self.window.add(self.overlay)
 
 		# signals
 		self.window.connect("delete-event", self.close)
@@ -117,6 +132,10 @@ class Canvas:
 
 		# show
 		self.window.show_all()
+
+	def update_image(self, bytedata):
+		pb = pixbuf.from_bytes(bytedata)
+		self.image.set_from_pixbuf(pb)
 
 	def on_click(self, widget, event):
 		"""Show settings window"""

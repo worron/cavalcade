@@ -2,6 +2,7 @@
 from gi.repository import Gtk
 from cavlib.visset import VisualPage
 from cavlib.cavaset import CavaPage
+from cavlib.playset import PlayerPage
 from cavlib.base import GuiBase
 
 
@@ -15,13 +16,14 @@ class SettingsWindow(GuiBase):
 		stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 		stack.set_transition_duration(500)
 
-		# checkbutton = Gtk.CheckButton("Click me!")
 		self.visualpage = VisualPage(canvas)
 		stack.add_titled(self.visualpage.gui["maingrid"], "visset", "Visual")
 
-		# label = Gtk.Label("Test")
 		self.cavapage = CavaPage(canvas)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
+
+		self.playerpage = PlayerPage(canvas)
+		stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
 		stack_switcher.set_stack(stack)
