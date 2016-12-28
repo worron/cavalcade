@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-import os
 import gi
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gst, Gio, GLib, GdkPixbuf, GObject
+from gi.repository import Gst, GLib, GObject
 from cavlib.logger import logger
 
 Gst.init(None)
@@ -14,6 +13,7 @@ class Player(GObject.GObject):
 	__gsignals__ = {
 		"progress": (GObject.SIGNAL_RUN_FIRST, None, (int,)),
 		"playlist-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"current": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
 	def __init__(self, canvas):
@@ -25,7 +25,7 @@ class Player(GObject.GObject):
 		self.is_playing = False
 		self.is_image_updated = True
 		self.duration = None
-		self.current = None
+		self._current = None
 
 		self.player = Gst.ElementFactory.make('playbin', 'player')
 
@@ -37,6 +37,15 @@ class Player(GObject.GObject):
 		bus.connect("message", self._on_message)
 		bus.connect("message::tag", self._on_message_tag)
 		# bus.enable_sync_message_emission()
+
+	@property
+	def current(self):
+		return self._current
+
+	@current.setter
+	def current(self, value):
+		self._current = value
+		self.emit("current", value)
 
 	def _progress(self):
 		if not self.is_playing:
@@ -76,8 +85,7 @@ class Player(GObject.GObject):
 		self.playqueue = list(self.playlist)
 		if files:
 			self.load_file(files[0])
-			playdata = {os.path.basename(f): {"file": f} for f in files}
-			self.emit("playlist-update", playdata)
+			self.emit("playlist-update", self.playlist)
 
 	def load_file(self, file_):
 		if self.is_playing:
