@@ -16,7 +16,7 @@ def hex_rgba(hex_):
 
 class ConfigBase(dict):
 	"""Read some setting from ini file"""
-	system_paths = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data"),)
+	system_paths = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
 	config_path = os.path.expanduser("~/.config/cavalcade")
 
 	def __init__(self, name, data={}):
@@ -63,26 +63,27 @@ class ConfigBase(dict):
 
 class MainConfig(ConfigBase):
 	def __init__(self):
-		winstate = dict(desktop=False, maximize=False, below=False, stick=False, byscreen=False, transparent=False)
-		super().__init__("main.ini", dict(state=winstate))
+		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}))
 
 	def read_data(self):
-		self["padding"] = self.parser.getint("Draw", "padding")
-		self["scale"] = self.parser.getfloat("Draw", "scale")
+		# graph
+		self["draw"]["padding"] = self.parser.getint("Draw", "padding")
+		self["draw"]["scale"] = self.parser.getfloat("Draw", "scale")
 
+		# offset
 		for key in ("left", "right", "top", "bottom"):
-			self[key + "_offset"] = self.parser.getint("Offset", key)
+			self["offset"][key] = self.parser.getint("Offset", key)
 
 		# color
-		self["foreground"] = hex_rgba(self.parser.get("Color", "foreground").lstrip("#"))
-		self["background"] = hex_rgba(self.parser.get("Color", "background").lstrip("#"))
+		for key in ("bg", "fg"):
+			self["color"][key] = hex_rgba(self.parser.get("Color", key).lstrip("#"))
 
 		# window state
-		for prop in self["state"]:
-			self["state"][prop] = self.parser.getboolean("Window", prop)
+		for key in ("desktop", "maximize", "below", "stick", "byscreen", "transparent"):
+			self["state"][key] = self.parser.getboolean("Window", key)
 
-		# window hint
-		self["hint"] = getattr(Gdk.WindowTypeHint, self.parser.get("Misc", "hint"))
+		# misc
+		self["hint"] = getattr(Gdk.WindowTypeHint, self.parser.get("Misc", "hint"))  # window hint
 
 
 class CavaConfig(ConfigBase):

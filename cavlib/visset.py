@@ -14,29 +14,25 @@ class VisualPage(GuiBase):
 		)
 		super().__init__("visset.glade", elements)
 
-		# winstate
-		for prop, value in self.canvas.config["state"].items():
-			self.gui["st_%s_switch" % prop].set_active(value)
-			self.gui["st_%s_switch" % prop].connect("notify::active", self.on_winstate_switch, prop)
+		# window state
+		for key, value in self.canvas.config["state"].items():
+			self.gui["st_%s_switch" % key].set_active(value)
+			self.gui["st_%s_switch" % key].connect("notify::active", self.on_winstate_switch, key)
 
 		# color
-		self.gui["fg_colorbutton"].set_rgba(self.canvas.config["foreground"])
-		self.gui["fg_colorbutton"].connect("color-set", self.on_fg_color_set)
+		for key, value in self.canvas.config["color"].items():
+			self.gui["%s_colorbutton" % key].set_rgba(value)
+			self.gui["%s_colorbutton" % key].connect("color-set", getattr(self, "on_%s_color_set" % key))
 
-		self.gui["bg_colorbutton"].set_rgba(self.canvas.config["background"])
-		self.gui["bg_colorbutton"].connect("color-set", self.on_bg_color_set)
-
-		# basr
-		self.gui["scale_spinbutton"].set_value(self.canvas.config["scale"])
-		self.gui["padding_spinbutton"].set_value(self.canvas.config["padding"])
-
-		self.gui["scale_spinbutton"].connect("value-changed", self.on_scale_spinbutton_changed)
-		self.gui["padding_spinbutton"].connect("value-changed", self.on_padding_spinbutton_changed)
+		# graph
+		for key, value in self.canvas.config["draw"].items():
+			self.gui["%s_spinbutton" % key].set_value(value)
+			self.gui["%s_spinbutton" % key].connect("value-changed", getattr(self, "on_%s_spinbutton_changed" % key))
 
 		# offset
-		for w in ("top", "bottom", "right", "left"):
-			self.gui[w + "_spinbutton"].set_value(self.canvas.config[w + "_offset"])
-			self.gui[w + "_spinbutton"].connect("value-changed", self.on_offset_spinbutton_changed, w)
+		for key, value in self.canvas.config["offset"].items():
+			self.gui["%s_spinbutton" % key].set_value(value)
+			self.gui["%s_spinbutton" % key].connect("value-changed", self.on_offset_spinbutton_changed, key)
 
 	def on_winstate_switch(self, switch, active, key):
 		setattr(self.canvas, key, switch.get_active())
@@ -44,22 +40,22 @@ class VisualPage(GuiBase):
 			self.canvas._rebuild_window()
 
 	def on_fg_color_set(self, button):
-		self.canvas.config["foreground"] = button.get_rgba()
+		self.canvas.config["color"]["fg"] = button.get_rgba()
 
 	def on_bg_color_set(self, button):
-		self.canvas.config["background"] = button.get_rgba()
+		self.canvas.config["color"]["bg"] = button.get_rgba()
 		if self.canvas.transparent:
 			self.gui["st_transparent_switch"].set_active(False)
 		else:
-			self.canvas._set_bg_rgba(self.canvas.config["background"])
+			self.canvas._set_bg_rgba(self.canvas.config["color"]["bg"])
 
 	def on_scale_spinbutton_changed(self, button):
-		self.canvas.config["scale"] = float(button.get_value())
+		self.canvas.config["draw"]["scale"] = float(button.get_value())
 
 	def on_padding_spinbutton_changed(self, button):
-		self.canvas.config["padding"] = int(button.get_value())
+		self.canvas.config["draw"]["padding"] = int(button.get_value())
 		self.canvas.draw.size_update()
 
 	def on_offset_spinbutton_changed(self, button, key):
-		self.canvas.config[key + "_offset"] = int(button.get_value())
+		self.canvas.config["offset"][key] = int(button.get_value())
 		self.canvas.draw.size_update()

@@ -108,7 +108,7 @@ class Canvas:
 	@transparent.setter
 	def transparent(self, value):
 		self.config["state"]["transparent"] = value
-		rgba = Gdk.RGBA(0, 0, 0, 0) if value else self.config["background"]
+		rgba = Gdk.RGBA(0, 0, 0, 0) if value else self.config["color"]["bg"]
 		self._set_bg_rgba(rgba)
 
 	def _set_bg_rgba(self, rgba):

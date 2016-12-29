@@ -42,12 +42,12 @@ class Spectrum:
 
 	def redraw(self, widget, cr):
 		"""Draw spectrum graph"""
-		cr.set_source_rgba(*self.config["foreground"])
+		cr.set_source_rgba(*self.config["color"]["fg"])
 
-		dx = self.config["left_offset"]
+		dx = self.config["offset"]["left"]
 		for i, value in enumerate(self.audio_sample):
 			width = self.sizes.bar.width + int(i < self.sizes.wcpi)
-			height = self.sizes.bar.height * min(self.config["scale"] * value, 1)
+			height = self.sizes.bar.height * min(self.config["draw"]["scale"] * value, 1)
 			cr.rectangle(dx, self.sizes.area.height, width, - height)
 			dx += width + self.sizes.padding
 		cr.fill()
@@ -55,12 +55,12 @@ class Spectrum:
 	def size_update(self, *args):
 		"""Update drawing geometry"""
 		self.sizes.number = self.cavaconfig["bars"]
-		self.sizes.padding = self.config["padding"]
+		self.sizes.padding = self.config["draw"]["padding"]
 
-		self.sizes.area.width = self.area.get_allocated_width() - self.config["right_offset"]
-		self.sizes.area.height = self.area.get_allocated_height() - self.config["bottom_offset"]
+		self.sizes.area.width = self.area.get_allocated_width() - self.config["offset"]["right"]
+		self.sizes.area.height = self.area.get_allocated_height() - self.config["offset"]["bottom"]
 
-		tw = (self.sizes.area.width - self.config["left_offset"]) - self.sizes.padding * (self.sizes.number - 1)
+		tw = (self.sizes.area.width - self.config["offset"]["left"]) - self.sizes.padding * (self.sizes.number - 1)
 		self.sizes.bar.width = max(int(tw / self.sizes.number), 1)
-		self.sizes.bar.height = self.sizes.area.height - self.config["top_offset"]
+		self.sizes.bar.height = self.sizes.area.height - self.config["offset"]["top"]
 		self.sizes.wcpi = tw % self.sizes.number  # width correnction point index
