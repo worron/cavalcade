@@ -33,10 +33,12 @@ class Player(GObject.GObject):
 		self.playlist = []
 		self.playqueue = []
 
-		self.is_playing = False
+		# self.is_playing = False
 		self.is_image_updated = True
 		self.duration = None
+		self.timer_id = None
 		self._current = None
+		self._is_playing = False
 
 		self.player = Gst.ElementFactory.make('playbin', 'player')
 
@@ -60,21 +62,31 @@ class Player(GObject.GObject):
 		self._current = value
 		self.emit("current", value)
 
-	def _progress(self):
-		if not self.is_playing:
-			return False  # cancel timeout
-		else:
-			if self.duration is None:
-				success, self.duration = self.player.query_duration(Gst.Format.TIME)
-				if not success:
-					logger.warning("Couldn't fetch song duration")
-					self.duration = None
-					return True
-			success, position = self.player.query_position(Gst.Format.TIME)
-			if success:
-				self.emit("progress", (position / self.duration * 1000))
+	@property
+	def is_playing(self):
+		return self._is_playing
+
+	@is_playing.setter
+	def is_playing(self, value):
+		if self._is_playing != value:
+			self._is_playing = value
+			if value:
+				self.timer_id = GLib.timeout_add(1000, self._progress)
 			else:
-				logger.warning("Couldn't fetch current song position to update slider")
+				GLib.source_remove(self.timer_id)
+
+	def _progress(self):
+		if self.duration is None:
+			success, self.duration = self.player.query_duration(Gst.Format.TIME)
+			if not success:
+				logger.warning("Couldn't fetch song duration")
+				self.duration = None
+				return True
+		success, position = self.player.query_position(Gst.Format.TIME)
+		if success:
+			self.emit("progress", (position / self.duration * 1000))
+		else:
+			logger.warning("Couldn't fetch current song position to update slider")
 		return True
 
 	def _on_message(self, bus, message):
@@ -139,7 +151,6 @@ class Player(GObject.GObject):
 		if not self.is_playing:
 			self.player.set_state(Gst.State.PLAYING)
 			self.is_playing = True
-			GLib.timeout_add(1000, self._progress)
 		else:
 			self.player.set_state(Gst.State.PAUSED)
 			self.is_playing = False

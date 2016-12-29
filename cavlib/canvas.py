@@ -30,7 +30,10 @@ class Canvas:
 		# window setup
 		self.overlay = Gtk.Overlay()
 		self.image = Gtk.Image()
-		self.overlay.add(self.image)
+		self.scrolled = Gtk.ScrolledWindow()
+		self.scrolled.add(self.image)
+
+		self.overlay.add(self.scrolled)
 		self.overlay.add_overlay(self.draw.area)
 
 		self._rebuild_window()  # graph window
