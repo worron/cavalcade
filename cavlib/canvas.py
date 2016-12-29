@@ -40,6 +40,9 @@ class Canvas:
 		self.player.load_playlist(*files)
 		self.player.play_pause()
 
+		# signals
+		self.player.connect("image-update", self.on_image_update)
+
 		# start spectrum analyzer
 		self.cava.start()
 
@@ -133,7 +136,7 @@ class Canvas:
 		# show
 		self.window.show_all()
 
-	def update_image(self, bytedata):
+	def on_image_update(self, player, bytedata):
 		pb = pixbuf.from_bytes(bytedata)
 		self.image.set_from_pixbuf(pb)
 

@@ -9,11 +9,22 @@ from cavlib.logger import logger
 Gst.init(None)
 
 
+def image_data_from_message(message):
+	taglist = message.parse_tag()
+	gstbuffer = taglist.get_sample("image").sample.get_buffer()
+	mapinfo = gstbuffer.map(Gst.MapFlags.READ)[1]
+	data = mapinfo.data
+	gstbuffer.unmap(mapinfo)
+	return data
+
+
 class Player(GObject.GObject):
 	__gsignals__ = {
 		"progress": (GObject.SIGNAL_RUN_FIRST, None, (int,)),
 		"playlist-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"current": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"preview-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
 	def __init__(self, canvas):
@@ -29,14 +40,16 @@ class Player(GObject.GObject):
 
 		self.player = Gst.ElementFactory.make('playbin', 'player')
 
-		# sink = Gst.ElementFactory.make('directsoundsink', 'sink')
-		# self.player.set_property('audio-sink', sink)
-
 		bus = self.player.get_bus()
 		bus.add_signal_watch()
 		bus.connect("message", self._on_message)
 		bus.connect("message::tag", self._on_message_tag)
-		# bus.enable_sync_message_emission()
+
+		# this is ugly and shuold be rewritten
+		self._fake_player = Gst.ElementFactory.make('playbin', 'player')
+		bus = self._fake_player.get_bus()
+		bus.add_signal_watch()
+		bus.connect("message::tag", self._on_fake_message)
 
 	@property
 	def current(self):
@@ -75,11 +88,8 @@ class Player(GObject.GObject):
 	def _on_message_tag(self, bus, message):
 		if not self.is_image_updated:
 			self.is_image_updated = True
-			taglist = message.parse_tag()
-
-			sample = taglist.get_sample("image").sample
-			mapinfo = sample.get_buffer().map_range(0, -1, Gst.MapFlags.READ)[1]
-			self._canvas.update_image(mapinfo.data)
+			data = image_data_from_message(message)
+			self.emit("image-update", data)
 
 	def load_playlist(self, *files):
 		self.playlist = files
@@ -133,3 +143,12 @@ class Player(GObject.GObject):
 		else:
 			self.player.set_state(Gst.State.PAUSED)
 			self.is_playing = False
+
+	def _fake_tag_reader(self, file_):
+		self._fake_player.set_property('uri', 'file:///' + file_)
+		self._fake_player.set_state(Gst.State.PAUSED)
+
+	def _on_fake_message(self, bus, message):
+		data = image_data_from_message(message)
+		self.emit("preview-update", data)
+		self._fake_player.set_state(Gst.State.NULL)
