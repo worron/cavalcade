@@ -19,6 +19,8 @@ class Canvas:
 		self.cavaconfig = CavaConfig()
 
 		self.default_size = (1280, 720)  # TODO: Move to config
+		self.last_size = (-1, -1)
+		self.tag_image_bytedata = None
 		self.hint = self.config["hint"]
 
 		# init app structure
@@ -135,13 +137,25 @@ class Canvas:
 		# signals
 		self.window.connect("delete-event", self.close)
 		self.draw.area.connect("button-press-event", self.on_click)
+		self.window.connect("check-resize", self.on_size_update)
 
 		# show
 		self.window.show_all()
 
+	def _rebuild_background(self):
+		if self.tag_image_bytedata is not None:
+			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *self.last_size)
+			self.image.set_from_pixbuf(pb)
+
 	def on_image_update(self, player, bytedata):
-		pb = pixbuf.from_bytes(bytedata)
-		self.image.set_from_pixbuf(pb)
+		self.tag_image_bytedata = bytedata
+		self._rebuild_background()
+
+	def on_size_update(self, window):
+		size = window.get_size()
+		if self.last_size != size:
+			self.last_size = size
+			self._rebuild_background()
 
 	def on_click(self, widget, event):
 		"""Show settings window"""

@@ -8,7 +8,7 @@ def from_bytes(data):
 	return pixbuf
 
 
-def from_bytes_at_size(data, width, height, aspect=True):
+def from_bytes_at_scale(data, width, height, aspect=True):
 	stream = Gio.MemoryInputStream.new_from_bytes(GLib.Bytes.new(data))
 	pixbuf = GdkPixbuf.Pixbuf.new_from_stream_at_scale(stream, width, height, aspect)
 	return pixbuf

@@ -82,5 +82,5 @@ class PlayerPage(GuiBase):
 			self._canvas.player._fake_tag_reader(file_)
 
 	def on_preview_update(self, player, bytedata):
-		pb = pixbuf.from_bytes_at_size(bytedata, -1, self.preview_size)
+		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size)
 		self.gui["preview_image"].set_from_pixbuf(pb)
