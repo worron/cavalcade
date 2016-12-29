@@ -165,4 +165,5 @@ class Canvas:
 	def close(self, *args):
 		"""Program exit"""
 		self.cava.close()
+		self.settings.gui["window"].destroy()
 		Gtk.main_quit()

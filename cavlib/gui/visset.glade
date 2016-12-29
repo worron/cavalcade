@@ -40,104 +40,20 @@
     <property name="step_increment">5</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkGrid" id="maingrid">
+  <object class="GtkBox" id="mainbox">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="row_spacing">12</property>
-    <child>
-      <object class="GtkBox" id="colorbox">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="spacing">20</property>
-        <property name="homogeneous">True</property>
-        <child>
-          <object class="GtkBox" id="colorbox1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkLabel" id="colorlabel1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Foreground</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="fg_colorbutton">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_alpha">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="colorbox2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkLabel" id="colorlabel2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Background</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkColorButton" id="bg_colorbutton">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_alpha">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">3</property>
-      </packing>
-    </child>
+    <property name="orientation">vertical</property>
+    <property name="spacing">12</property>
     <child>
       <object class="GtkSeparator" id="separator1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">0</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
       </packing>
     </child>
     <child>
@@ -357,8 +273,9 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">1</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
       </packing>
     </child>
     <child>
@@ -367,8 +284,96 @@
         <property name="can_focus">False</property>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">2</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="colorbox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">20</property>
+        <property name="homogeneous">True</property>
+        <child>
+          <object class="GtkBox" id="colorbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="colorlabel1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Foreground</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton" id="fg_colorbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_alpha">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="colorbox2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="colorlabel2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Background</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton" id="bg_colorbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_alpha">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">3</property>
       </packing>
     </child>
     <child>
@@ -377,18 +382,9 @@
         <property name="can_focus">False</property>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">4</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="separator4">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">6</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
       </packing>
     </child>
     <child>
@@ -474,18 +470,20 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">5</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">5</property>
       </packing>
     </child>
     <child>
-      <object class="GtkSeparator" id="separator5">
+      <object class="GtkSeparator" id="separator4">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">8</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">6</property>
       </packing>
     </child>
     <child>
@@ -638,8 +636,60 @@
         </child>
       </object>
       <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">7</property>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">7</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator" id="separator5">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">8</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="buttonbox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">20</property>
+        <property name="homogeneous">True</property>
+        <child>
+          <object class="GtkButton" id="exit_button">
+            <property name="label" translatable="yes">Exit </property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="hide_button">
+            <property name="label" translatable="yes">Hide</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="pack_type">end</property>
+        <property name="position">9</property>
       </packing>
     </child>
   </object>

@@ -17,7 +17,7 @@ class SettingsWindow(GuiBase):
 		stack.set_transition_duration(500)
 
 		self.visualpage = VisualPage(canvas)
-		stack.add_titled(self.visualpage.gui["maingrid"], "visset", "Visual")
+		stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
 		self.cavapage = CavaPage(canvas)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
@@ -33,6 +33,8 @@ class SettingsWindow(GuiBase):
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
+		self.visualpage.gui["hide_button"].connect("clicked", self.hide)
+		self.visualpage.gui["exit_button"].connect("clicked", canvas.close)
 
 	def show(self, *args):
 		self.gui["window"].show_all()
