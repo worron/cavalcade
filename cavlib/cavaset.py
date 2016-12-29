@@ -5,8 +5,8 @@ from cavlib.logger import logger
 
 class CavaPage(GuiBase):
 	"""Settings window"""
-	def __init__(self, canvas):
-		self.canvas = canvas
+	def __init__(self, mainapp):
+		self._mainapp = mainapp
 		elements = (
 			"mainbox", "restart_button", "bars_spinbutton", "sensitivity_spinbutton", "framerate_spinbutton",
 		)
@@ -16,16 +16,16 @@ class CavaPage(GuiBase):
 		self.sp_buttons = ("bars", "sensitivity", "framerate")
 
 		for w in self.sp_buttons:
-			self.gui[w + "_spinbutton"].set_value(self.canvas.cavaconfig[w])
+			self.gui[w + "_spinbutton"].set_value(self._mainapp.cavaconfig[w])
 
 	def on_restart_button_click(self, button):
-		if self.canvas.cavaconfig.is_fallback:
+		if self._mainapp.cavaconfig.is_fallback:
 			logger.error("This changes not permitted while system config file active.")
 			return
 
 		for w in self.sp_buttons:
-			self.canvas.cavaconfig[w] = int(self.gui[w + "_spinbutton"].get_value())
+			self._mainapp.cavaconfig[w] = int(self.gui[w + "_spinbutton"].get_value())
 
-		self.canvas.cavaconfig.write_data()
-		self.canvas.cava.restart()
-		self.canvas.draw.size_update()
+		self._mainapp.cavaconfig.write_data()
+		self._mainapp.cava.restart()
+		self._mainapp.draw.size_update()

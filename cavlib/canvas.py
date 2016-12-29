@@ -8,26 +8,56 @@ from cavlib.drawing import Spectrum
 from cavlib.cava import Cava
 from cavlib.settings import SettingsWindow
 from cavlib.player import Player
+from cavlib.logger import logger
 
 
-class Canvas:
-	"""Base window for spectrum display"""
+class MainApp:
+	"""Base app class"""
 	def __init__(self, argv):
-
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
-		self.default_size = (1280, 720)  # TODO: Move to config
-		self.last_size = (-1, -1)
-		self.tag_image_bytedata = None
-		self.hint = self.config["hint"]
-
 		# init app structure
-		self.player = Player(self)  # gstreamer
+		self.player = Player()  # gstreamer
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
+		self.canvas = Canvas(self, self.config, self.draw)  # main window
+
+		# player
+		files = [file_ for file_ in argv[1:] if file_.endswith(".mp3")]
+		self.player.load_playlist(*files)
+		self.player.play_pause()
+
+		# signals
+		self.player.connect("image-update", self.canvas.on_image_update)
+
+		# start spectrum analyzer
+		self.cava.start()
+
+	def on_click(self, widget, event):
+		"""Show settings window"""
+		if event.type == Gdk.EventType._2BUTTON_PRESS:
+			self.settings.show()
+
+	def close(self, *args):
+		"""Program exit"""
+		self.cava.close()
+		Gtk.main_quit()
+
+
+class Canvas:
+	"""Helper to work with main window"""
+	def __init__(self, mainapp, config, draw_widget):
+		self._mainapp = mainapp
+		self.config = config
+		self.draw = draw_widget
+
+		self.default_size = (1280, 720)  # TODO: Move to config
+		self.last_size = (-1, -1)
+		self.hint = self.config["hint"]
+		self.tag_image_bytedata = None
 
 		# window setup
 		self.overlay = Gtk.Overlay()
@@ -38,75 +68,41 @@ class Canvas:
 		self.overlay.add(self.scrolled)
 		self.overlay.add_overlay(self.draw.area)
 
-		self._rebuild_window()  # graph window
+		self.rebuild_window()
 
-		# player
-		files = [file_ for file_ in argv[1:] if file_.endswith(".mp3")]
-		self.player.load_playlist(*files)
-		self.player.play_pause()
+	def set_property(self, name, value):
+		settler = "_set_%s" % name
+		if hasattr(self, settler):
+			getattr(self, settler)(value)
+		else:
+			logger.warning("Wrong window property '%s'" % name)
 
-		# signals
-		self.player.connect("image-update", self.on_image_update)
-
-		# start spectrum analyzer
-		self.cava.start()
-
-	@property
-	def desktop(self):
-		return self.config["state"]["desktop"]
-
-	@desktop.setter
-	def desktop(self, value):
+	def _set_desktop(self, value):
 		# window rebuild needed
 		self.config["state"]["desktop"] = value
 		self.window.set_type_hint(Gdk.WindowTypeHint.DESKTOP if value else self.hint)
 
-	@property
-	def maximize(self):
-		return self.config["state"]["maximize"]
-
-	@maximize.setter
-	def maximize(self, value):
+	def _set_maximize(self, value):
 		self.config["state"]["maximize"] = value
 		action = self.window.maximize if value else self.window.unmaximize
 		action()
 
-	@property
-	def stick(self):
-		return self.config["state"]["stick"]
-
-	@stick.setter
-	def stick(self, value):
+	def _set_stick(self, value):
 		self.config["state"]["stick"] = value
 		action = self.window.stick if value else self.window.unstick
 		action()
 
-	@property
-	def below(self):
-		return self.config["state"]["below"]
-
-	@below.setter
-	def below(self, value):
+	def _set_below(self, value):
 		self.config["state"]["below"] = value
 		self.window.set_keep_below(value)
 
-	@property
-	def byscreen(self):
-		return self.config["state"]["byscreen"]
-
-	@byscreen.setter
-	def byscreen(self, value):
+	def _set_byscreen(self, value):
 		self.config["state"]["byscreen"] = value
 		size = (self.screen.get_width(), self.screen.get_height()) if value else self.default_size
 		self.window.move(0, 0)
 		self.window.resize(*size)
 
-	@property
-	def transparent(self):
-		return self.config["state"]["transparent"]
-
-	@transparent.setter
-	def transparent(self, value):
+	def _set_transparent(self, value):
 		self.config["state"]["transparent"] = value
 		rgba = Gdk.RGBA(0, 0, 0, 0) if value else self.config["color"]["bg"]
 		self._set_bg_rgba(rgba)
@@ -114,7 +110,7 @@ class Canvas:
 	def _set_bg_rgba(self, rgba):
 		self.window.override_background_color(Gtk.StateFlags.NORMAL, rgba)
 
-	def _rebuild_window(self):
+	def rebuild_window(self):
 		# destroy old window
 		if hasattr(self, "window"):
 			self.window.remove(self.overlay)
@@ -128,16 +124,16 @@ class Canvas:
 		self.window.set_default_size(*self.default_size)
 
 		# set window state according config settings
-		for prop, value in self.config["state"].items():
-			setattr(self, prop, value)
+		for name, value in self.config["state"].items():
+			self.set_property(name, value)
 
 		# set drawing widget
 		self.window.add(self.overlay)
 
 		# signals
-		self.window.connect("delete-event", self.close)
-		self.draw.area.connect("button-press-event", self.on_click)
-		self.window.connect("check-resize", self.on_size_update)
+		self.window.connect("delete-event", self._mainapp.close)
+		self.draw.area.connect("button-press-event", self._mainapp.on_click)
+		self.window.connect("check-resize", self._on_size_update)
 
 		# show
 		self.window.show_all()
@@ -147,23 +143,12 @@ class Canvas:
 			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *self.last_size)
 			self.image.set_from_pixbuf(pb)
 
-	def on_image_update(self, player, bytedata):
-		self.tag_image_bytedata = bytedata
-		self._rebuild_background()
-
-	def on_size_update(self, window):
+	def _on_size_update(self, window):
 		size = window.get_size()
 		if self.last_size != size:
 			self.last_size = size
 			self._rebuild_background()
 
-	def on_click(self, widget, event):
-		"""Show settings window"""
-		if event.type == Gdk.EventType._2BUTTON_PRESS:
-			self.settings.show()
-
-	def close(self, *args):
-		"""Program exit"""
-		self.cava.close()
-		self.settings.gui["window"].destroy()
-		Gtk.main_quit()
+	def on_image_update(self, player, bytedata):
+		self.tag_image_bytedata = bytedata
+		self._rebuild_background()

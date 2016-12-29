@@ -27,9 +27,8 @@ class Player(GObject.GObject):
 		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
-	def __init__(self, canvas):
+	def __init__(self):
 		super().__init__()
-		self._canvas = canvas
 		self.playlist = []
 		self.playqueue = []
 

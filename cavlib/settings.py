@@ -10,6 +10,7 @@ class SettingsWindow(GuiBase):
 	"""Settings window"""
 	def __init__(self, canvas):
 		super().__init__("settings.glade", ("window", "mainbox"))
+		self.gui["window"].set_keep_above(True)
 
 		# build stack
 		stack = Gtk.Stack()

@@ -13,8 +13,8 @@ def name_from_file(file_):
 
 class PlayerPage(GuiBase):
 	"""Settings window"""
-	def __init__(self, canvas):
-		self._canvas = canvas
+	def __init__(self, mainapp):
+		self._mainapp = mainapp
 		self.playlist_data = OrderedDict()
 		elements = (
 			"mainbox", "playbutton", "seekscale", "playlist_treeview", "playlist_selection", "preview_image",
@@ -40,16 +40,16 @@ class PlayerPage(GuiBase):
 		self.gui['playlist_selection'].connect("changed", self.on_track_selection_changed)
 		self.seek_handler_id = self.gui["seekscale"].connect("value-changed", self.on_seekscale_changed)
 
-		self._canvas.player.connect("progress", self.on_audio_progress)
-		self._canvas.player.connect("playlist-update", self.on_playlist_update)
-		self._canvas.player.connect("current", self.on_current_change)
-		self._canvas.player.connect("preview-update", self.on_preview_update)
+		self._mainapp.player.connect("progress", self.on_audio_progress)
+		self._mainapp.player.connect("playlist-update", self.on_playlist_update)
+		self._mainapp.player.connect("current", self.on_current_change)
+		self._mainapp.player.connect("preview-update", self.on_preview_update)
 
 	def on_track_activated(self, tree, path, colomn):
 		treeiter = self.store.get_iter(path)
 		name = self.store[treeiter][0]
-		self._canvas.player.load_file(self.playlist_data[name]["file"])
-		self._canvas.player.play_pause()
+		self._mainapp.player.load_file(self.playlist_data[name]["file"])
+		self._mainapp.player.play_pause()
 
 	def on_playlist_update(self, player, plist):
 		self.playlist_data = OrderedDict(zip([name_from_file(f) for f in plist], [{"file": f} for f in plist]))
@@ -60,11 +60,11 @@ class PlayerPage(GuiBase):
 		self.treeview.set_cursor(0)
 
 	def on_playbutton_click(self, button):
-		self._canvas.player.play_pause()
+		self._mainapp.player.play_pause()
 
 	def on_seekscale_changed(self, widget):
 		value = self.gui["seekscale"].get_value()
-		self._canvas.player.seek(value)
+		self._mainapp.player.seek(value)
 
 	def on_audio_progress(self, player, value):
 		with self.gui["seekscale"].handler_block(self.seek_handler_id):
@@ -79,7 +79,7 @@ class PlayerPage(GuiBase):
 		model, sel = selection.get_selected()
 		if sel is not None:
 			file_ = self.playlist_data[model[sel][0]]["file"]
-			self._canvas.player._fake_tag_reader(file_)
+			self._mainapp.player._fake_tag_reader(file_)
 
 	def on_preview_update(self, player, bytedata):
 		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size)
