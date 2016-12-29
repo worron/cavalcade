@@ -56,7 +56,6 @@ class Canvas:
 
 		self.default_size = (1280, 720)  # TODO: Move to config
 		self.last_size = (-1, -1)
-		self.hint = self.config["hint"]
 		self.tag_image_bytedata = None
 
 		# window setup
@@ -76,6 +75,10 @@ class Canvas:
 			getattr(self, settler)(value)
 		else:
 			logger.warning("Wrong window property '%s'" % name)
+
+	def set_hint(self, value):
+		self.config["hint"] = value
+		self.rebuild_window()
 
 	def _set_desktop(self, value):
 		# window rebuild needed
@@ -126,6 +129,7 @@ class Canvas:
 		# set window state according config settings
 		for name, value in self.config["state"].items():
 			self.set_property(name, value)
+		self.window.set_type_hint(self.config["hint"])
 
 		# set drawing widget
 		self.window.add(self.overlay)

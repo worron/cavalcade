@@ -2,6 +2,11 @@
 import os
 from gi.repository import Gtk
 
+WINDOW_HINTS = (
+	"NORMAL", "DIALOG", "MENU", "TOOLBAR", "SPLASHSCREEN", "UTILITY", "DOCK", "DESKTOP",
+	"TOOLTIP", "NOTIFICATION"
+)
+
 
 class GuiBase:
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")

@@ -6,6 +6,7 @@ import shutil
 from configparser import ConfigParser
 from gi.repository import Gdk
 from cavlib.logger import logger
+from cavlib.base import WINDOW_HINTS
 
 
 def hex_rgba(hex_):
@@ -79,11 +80,15 @@ class MainConfig(ConfigBase):
 			self["color"][key] = hex_rgba(self.parser.get("Color", key).lstrip("#"))
 
 		# window state
-		for key in ("desktop", "maximize", "below", "stick", "byscreen", "transparent"):
+		for key in ("maximize", "below", "stick", "byscreen", "transparent"):
 			self["state"][key] = self.parser.getboolean("Window", key)
 
 		# misc
-		self["hint"] = getattr(Gdk.WindowTypeHint, self.parser.get("Misc", "hint"))  # window hint
+		hint = self.parser.get("Misc", "hint")
+		if hint in WINDOW_HINTS:
+			self["hint"] = getattr(Gdk.WindowTypeHint, hint)
+		else:
+			raise Exception("Wrong window type hint '%s'" % hint)
 
 
 class CavaConfig(ConfigBase):
