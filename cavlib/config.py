@@ -80,7 +80,7 @@ class MainConfig(ConfigBase):
 			self["color"][key] = hex_rgba(self.parser.get("Color", key).lstrip("#"))
 
 		# window state
-		for key in ("maximize", "below", "stick", "byscreen", "transparent"):
+		for key in ("maximize", "below", "stick", "winbyscreen", "transparent", "imagebyscreen"):
 			self["state"][key] = self.parser.getboolean("Window", key)
 
 		# misc

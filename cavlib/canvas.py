@@ -99,11 +99,15 @@ class Canvas:
 		self.config["state"]["below"] = value
 		self.window.set_keep_below(value)
 
-	def _set_byscreen(self, value):
-		self.config["state"]["byscreen"] = value
-		size = (self.screen.get_width(), self.screen.get_height()) if value else self.default_size
+	def _set_winbyscreen(self, value):
+		self.config["state"]["winbyscreen"] = value
+		size = self._screen_size() if value else self.default_size
 		self.window.move(0, 0)
 		self.window.resize(*size)
+
+	def _set_imagebyscreen(self, value):
+		self.config["state"]["imagebyscreen"] = value
+		self._rebuild_background()
 
 	def _set_transparent(self, value):
 		self.config["state"]["transparent"] = value
@@ -142,16 +146,21 @@ class Canvas:
 		# show
 		self.window.show_all()
 
+	def _screen_size(self):
+		return (self.screen.get_width(), self.screen.get_height())
+
 	def _rebuild_background(self):
 		if self.tag_image_bytedata is not None:
-			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *self.last_size)
+			size = self._screen_size() if self.config["state"]["imagebyscreen"] else self.last_size
+			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *size)
 			self.image.set_from_pixbuf(pb)
 
-	def _on_size_update(self, window):
-		size = window.get_size()
+	def _on_size_update(self, *args):
+		size = self.window.get_size()
 		if self.last_size != size:
-			self.last_size = size
-			self._rebuild_background()
+				self.last_size = size
+				if not self.config["state"]["imagebyscreen"]:
+					self._rebuild_background()
 
 	def on_image_update(self, player, bytedata):
 		self.tag_image_bytedata = bytedata

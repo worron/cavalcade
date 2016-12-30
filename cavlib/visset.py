@@ -8,8 +8,8 @@ class VisualPage(GuiBase):
 	def __init__(self, mainapp):
 		self._mainapp = mainapp
 		elements = (
-			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox",
-			"st_stick_switch", "st_byscreen_switch", "st_transparent_switch", "fg_colorbutton",
+			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox", "st_imagebyscreen_switch",
+			"st_stick_switch", "st_winbyscreen_switch", "st_transparent_switch", "fg_colorbutton",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button",
 		)
