@@ -64,7 +64,7 @@ class ConfigBase(dict):
 
 class MainConfig(ConfigBase):
 	def __init__(self):
-		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}))
+		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}, image={}))
 
 	def read_data(self):
 		# graph
@@ -82,6 +82,16 @@ class MainConfig(ConfigBase):
 		# window state
 		for key in ("maximize", "below", "stick", "winbyscreen", "transparent", "imagebyscreen"):
 			self["state"][key] = self.parser.getboolean("Window", key)
+
+		# image
+		self["image"]["show"] = self.parser.getboolean("Image", "show")
+		self["image"]["usetag"] = self.parser.getboolean("Image", "usetag")
+
+		image = self.parser.get("Image", "default")
+		if not image:
+			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "default.svg")
+		elif not os.path.isfile(image):
+			raise Exception("Wrong default image value")
 
 		# misc
 		hint = self.parser.get("Misc", "hint")

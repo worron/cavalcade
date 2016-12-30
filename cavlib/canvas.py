@@ -38,7 +38,10 @@ class MainApp:
 
 	def on_click(self, widget, event):
 		"""Show settings window"""
-		if event.type == Gdk.EventType._2BUTTON_PRESS:
+		if event.type == Gdk.EventType.BUTTON_PRESS:
+			if self.settings.gui["window"].get_property("visible"):
+				self.settings.hide()
+		elif event.type == Gdk.EventType._2BUTTON_PRESS:
 			self.settings.show()
 
 	def close(self, *args):
@@ -68,6 +71,9 @@ class Canvas:
 		self.overlay.add_overlay(self.draw.area)
 
 		self.rebuild_window()
+		# fix this
+		if not self.config["image"]["show"]:
+			self.overlay.remove(self.scrolled)
 
 	def set_property(self, name, value):
 		settler = "_set_%s" % name
@@ -75,6 +81,15 @@ class Canvas:
 			getattr(self, settler)(value)
 		else:
 			logger.warning("Wrong window property '%s'" % name)
+
+	def show_image(self, value):
+		if self.config["image"]["show"] != value:
+			self.config["image"]["show"] = value
+			if value:
+				self.overlay.add(self.scrolled)
+				self._rebuild_background()
+			else:
+				self.overlay.remove(self.scrolled)
 
 	def set_hint(self, value):
 		self.config["hint"] = value
@@ -150,17 +165,19 @@ class Canvas:
 		return (self.screen.get_width(), self.screen.get_height())
 
 	def _rebuild_background(self):
-		if self.tag_image_bytedata is not None:
-			size = self._screen_size() if self.config["state"]["imagebyscreen"] else self.last_size
+		size = self._screen_size() if self.config["state"]["imagebyscreen"] else self.last_size
+		if not self.config["image"]["usetag"] or self.tag_image_bytedata is None:
+			pb = pixbuf.from_file_at_scale(self.config["image"]["default"], *size)
+		else:
 			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *size)
-			self.image.set_from_pixbuf(pb)
+		self.image.set_from_pixbuf(pb)
 
 	def _on_size_update(self, *args):
 		size = self.window.get_size()
 		if self.last_size != size:
-				self.last_size = size
-				if not self.config["state"]["imagebyscreen"]:
-					self._rebuild_background()
+			self.last_size = size
+			if not self.config["state"]["imagebyscreen"] and self.config["image"]["show"]:
+				self._rebuild_background()
 
 	def on_image_update(self, player, bytedata):
 		self.tag_image_bytedata = bytedata

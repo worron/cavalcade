@@ -11,7 +11,8 @@ class VisualPage(GuiBase):
 			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox", "st_imagebyscreen_switch",
 			"st_stick_switch", "st_winbyscreen_switch", "st_transparent_switch", "fg_colorbutton",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
-			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button",
+			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
+			"st_image_usetag_switch",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -35,6 +36,13 @@ class VisualPage(GuiBase):
 			self.gui["%s_spinbutton" % key].set_value(value)
 			self.gui["%s_spinbutton" % key].connect("value-changed", self.on_offset_spinbutton_changed, key)
 
+		# image
+		self.gui["st_image_show_switch"].set_active(self._mainapp.config["image"]["show"])
+		self.gui["st_image_show_switch"].connect("notify::active", self.on_image_show_switch)
+
+		self.gui["st_image_usetag_switch"].set_active(self._mainapp.config["image"]["usetag"])
+		self.gui["st_image_usetag_switch"].connect("notify::active", self.on_image_usetag_switch)
+
 		# misc
 		for hint in WINDOW_HINTS:
 			self.gui["hint_combobox"].append_text(hint)
@@ -52,7 +60,7 @@ class VisualPage(GuiBase):
 		if self._mainapp.config["state"]["transparent"]:
 			self.gui["st_transparent_switch"].set_active(False)
 		else:
-			self._mainapp._set_bg_rgba(self._mainapp.config["color"]["bg"])
+			self._mainapp.canvas._set_bg_rgba(self._mainapp.config["color"]["bg"])
 
 	def on_scale_spinbutton_changed(self, button):
 		self._mainapp.config["draw"]["scale"] = float(button.get_value())
@@ -69,3 +77,10 @@ class VisualPage(GuiBase):
 		text = combo.get_active_text()
 		hint = getattr(Gdk.WindowTypeHint, text)
 		self._mainapp.canvas.set_hint(hint)
+
+	def on_image_show_switch(self, switch, active):
+		self._mainapp.canvas.show_image(switch.get_active())
+
+	def on_image_usetag_switch(self, switch, active):
+		self._mainapp.config["image"]["usetag"] = switch.get_active()
+		self._mainapp.canvas._rebuild_background()
