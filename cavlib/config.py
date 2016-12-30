@@ -89,7 +89,7 @@ class MainConfig(ConfigBase):
 
 		image = self.parser.get("Image", "default")
 		if not image:
-			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "default.svg")
+			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "DefaultWallpaper.svg")
 		elif not os.path.isfile(image):
 			raise Exception("Wrong default image value")
 

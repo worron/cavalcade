@@ -8,6 +8,10 @@ WINDOW_HINTS = (
 )
 
 
+def name_from_file(file_):
+	return os.path.splitext(os.path.basename(file_))[0]
+
+
 class GuiBase:
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")
 

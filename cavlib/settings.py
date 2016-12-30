@@ -8,7 +8,7 @@ from cavlib.base import GuiBase
 
 class SettingsWindow(GuiBase):
 	"""Settings window"""
-	def __init__(self, canvas):
+	def __init__(self, mainapp):
 		super().__init__("settings.glade", ("window", "mainbox"))
 		self.gui["window"].set_keep_above(True)
 
@@ -17,13 +17,13 @@ class SettingsWindow(GuiBase):
 		stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 		stack.set_transition_duration(500)
 
-		self.visualpage = VisualPage(canvas)
+		self.visualpage = VisualPage(mainapp, self.gui["window"])
 		stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
-		self.cavapage = CavaPage(canvas)
+		self.cavapage = CavaPage(mainapp)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
-		self.playerpage = PlayerPage(canvas)
+		self.playerpage = PlayerPage(mainapp)
 		stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
@@ -35,7 +35,7 @@ class SettingsWindow(GuiBase):
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
 		self.visualpage.gui["hide_button"].connect("clicked", self.hide)
-		self.visualpage.gui["exit_button"].connect("clicked", canvas.close)
+		self.visualpage.gui["exit_button"].connect("clicked", mainapp.close)
 
 	def show(self, *args):
 		self.gui["window"].show_all()

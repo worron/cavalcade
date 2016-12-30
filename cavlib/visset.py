@@ -1,18 +1,19 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavlib.base import GuiBase, WINDOW_HINTS
-from gi.repository import Gdk
+from cavlib.base import GuiBase, WINDOW_HINTS, name_from_file
+from gi.repository import Gdk, Gtk
 
 
 class VisualPage(GuiBase):
 	"""Settings window"""
-	def __init__(self, mainapp):
+	def __init__(self, mainapp, settings_window):
 		self._mainapp = mainapp
+		self.window = settings_window
 		elements = (
 			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox", "st_imagebyscreen_switch",
 			"st_stick_switch", "st_winbyscreen_switch", "st_transparent_switch", "fg_colorbutton",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
-			"st_image_usetag_switch",
+			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -40,8 +41,15 @@ class VisualPage(GuiBase):
 		self.gui["st_image_show_switch"].set_active(self._mainapp.config["image"]["show"])
 		self.gui["st_image_show_switch"].connect("notify::active", self.on_image_show_switch)
 
-		self.gui["st_image_usetag_switch"].set_active(self._mainapp.config["image"]["usetag"])
-		self.gui["st_image_usetag_switch"].connect("notify::active", self.on_image_usetag_switch)
+		self.gui["imagelabel"].set_text("Image: %s" % name_from_file(self._mainapp.config["image"]["default"]))
+
+		image_rb = "image_tag_rbutton" if self._mainapp.config["image"]["usetag"] else "image_file_rbutton"
+		self.gui[image_rb].set_active(True)
+
+		self.gui["image_tag_rbutton"].connect("notify::active", self.on_image_rbutton_switch, True)
+		self.gui["image_file_rbutton"].connect("notify::active", self.on_image_rbutton_switch, False)
+
+		self.gui["image_open_button"].connect("clicked", self.on_image_open_button_click)
 
 		# misc
 		for hint in WINDOW_HINTS:
@@ -81,6 +89,22 @@ class VisualPage(GuiBase):
 	def on_image_show_switch(self, switch, active):
 		self._mainapp.canvas.show_image(switch.get_active())
 
-	def on_image_usetag_switch(self, switch, active):
-		self._mainapp.config["image"]["usetag"] = switch.get_active()
-		self._mainapp.canvas._rebuild_background()
+	def on_image_rbutton_switch(self, button, active, usetag):
+		if button.get_active():
+			self._mainapp.config["image"]["usetag"] = usetag
+			self._mainapp.canvas._rebuild_background()
+
+	def on_image_open_button_click(self, *args):
+		dialog = Gtk.FileChooserDialog(
+			"Select image file", self.window, Gtk.FileChooserAction.OPEN,
+			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+		)
+
+		response = dialog.run()
+		if response == Gtk.ResponseType.OK:
+			file_ = dialog.get_filename()
+			self._mainapp.config["image"]["default"] = file_
+			self._mainapp.canvas._rebuild_background()
+			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
+
+		dialog.destroy()
