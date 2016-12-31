@@ -84,8 +84,8 @@ class MainConfig(ConfigBase):
 			self["state"][key] = self.parser.getboolean("Window", key)
 
 		# image
-		self["image"]["show"] = self.parser.getboolean("Image", "show")
-		self["image"]["usetag"] = self.parser.getboolean("Image", "usetag")
+		for key in ("va", "ha", "usetag", "show"):
+			self["image"][key] = self.parser.getboolean("Image", key)
 
 		image = self.parser.get("Image", "default")
 		if not image:

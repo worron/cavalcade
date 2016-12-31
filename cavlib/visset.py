@@ -2,6 +2,13 @@
 from cavlib.base import GuiBase, WINDOW_HINTS, name_from_file
 from gi.repository import Gdk, Gtk
 
+CORNERS = (
+	("TOP_LEFT", (False, False)),
+	("TOP_RIGHT", (True, False)),
+	("BOTTOM_LEFT", (False, True)),
+	("BOTTOM_RIGHT", (True, True)),
+)
+
 
 class VisualPage(GuiBase):
 	"""Settings window"""
@@ -13,7 +20,7 @@ class VisualPage(GuiBase):
 			"st_stick_switch", "st_winbyscreen_switch", "st_transparent_switch", "fg_colorbutton",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
-			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button",
+			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "corner_combobox",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -57,6 +64,13 @@ class VisualPage(GuiBase):
 		self.gui["hint_combobox"].set_active(WINDOW_HINTS.index(self._mainapp.config["hint"].value_nick.upper()))
 		self.gui["hint_combobox"].connect("changed", self.on_hint_combo_changed)
 
+		for corner in CORNERS:
+			self.gui["corner_combobox"].append_text(corner[0])
+		states = [corner[1] for corner in CORNERS]
+		state = (self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
+		self.gui["corner_combobox"].set_active(states.index(state))
+		self.gui["corner_combobox"].connect("changed", self.on_corner_combo_changed)
+
 	def on_winstate_switch(self, switch, active, key):
 		self._mainapp.canvas.set_property(key, switch.get_active())
 
@@ -85,6 +99,10 @@ class VisualPage(GuiBase):
 		text = combo.get_active_text()
 		hint = getattr(Gdk.WindowTypeHint, text)
 		self._mainapp.canvas.set_hint(hint)
+
+	def on_corner_combo_changed(self, combo):
+		text = combo.get_active_text()
+		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = dict(CORNERS)[text]
 
 	def on_image_show_switch(self, switch, active):
 		self._mainapp.canvas.show_image(switch.get_active())

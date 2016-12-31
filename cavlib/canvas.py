@@ -70,6 +70,9 @@ class Canvas:
 		self.overlay.add(self.scrolled)
 		self.overlay.add_overlay(self.draw.area)
 
+		self.va = self.scrolled.get_vadjustment()
+		self.ha = self.scrolled.get_hadjustment()
+
 		self.rebuild_window()
 		# fix this
 		if not self.config["image"]["show"]:
@@ -95,11 +98,6 @@ class Canvas:
 		self.config["hint"] = value
 		self.rebuild_window()
 
-	def _set_desktop(self, value):
-		# window rebuild needed
-		self.config["state"]["desktop"] = value
-		self.window.set_type_hint(Gdk.WindowTypeHint.DESKTOP if value else self.hint)
-
 	def _set_maximize(self, value):
 		self.config["state"]["maximize"] = value
 		action = self.window.maximize if value else self.window.unmaximize
@@ -123,6 +121,13 @@ class Canvas:
 	def _set_imagebyscreen(self, value):
 		self.config["state"]["imagebyscreen"] = value
 		self._rebuild_background()
+
+		if self.config["image"]["va"]:
+			self.va.set_upper(self.screen.get_height())
+			self.va.set_value(self.screen.get_height())
+		if self.config["image"]["ha"]:
+			self.ha.set_upper(self.screen.get_width())
+			self.ha.set_value(self.screen.get_width())
 
 	def _set_transparent(self, value):
 		self.config["state"]["transparent"] = value
@@ -176,8 +181,12 @@ class Canvas:
 		size = self.window.get_size()
 		if self.last_size != size:
 			self.last_size = size
-			if not self.config["state"]["imagebyscreen"] and self.config["image"]["show"]:
-				self._rebuild_background()
+			if self.config["image"]["show"]:
+				if self.config["state"]["imagebyscreen"]:
+					self.va.set_value(self.screen.get_height() if self.config["image"]["va"] else 0)
+					self.ha.set_value(self.screen.get_width() if self.config["image"]["ha"] else 0)
+				else:
+					self._rebuild_background()
 
 	def on_image_update(self, player, bytedata):
 		self.tag_image_bytedata = bytedata

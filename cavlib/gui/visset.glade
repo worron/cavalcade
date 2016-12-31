@@ -13,6 +13,12 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-file</property>
   </object>
+  <object class="GtkLabel" id="hint_label1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="label" translatable="yes">Window appearance setup</property>
+    <property name="xalign">0</property>
+  </object>
   <object class="GtkAdjustment" id="left_adjustment">
     <property name="upper">1000</property>
     <property name="value">1</property>
@@ -80,14 +86,40 @@
         <property name="column_spacing">20</property>
         <property name="column_homogeneous">True</property>
         <child>
-          <object class="GtkBox" id="statebox5">
+          <object class="GtkBox" id="hintbox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">20</property>
+            <property name="homogeneous">True</property>
             <child>
-              <object class="GtkLabel" id="statelabel5">
+              <object class="GtkBox" id="statebox5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Frame to screen</property>
+                <child>
+                  <object class="GtkLabel" id="statelabel5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Frame to screen</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSwitch" id="st_winbyscreen_switch">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="valign">center</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack_type">end</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -96,12 +128,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSwitch" id="st_winbyscreen_switch">
+              <object class="GtkComboBoxText" id="hint_combobox">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
                 <property name="position">1</property>
@@ -110,7 +142,8 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">3</property>
+            <property name="top_attach">0</property>
+            <property name="width">2</property>
           </packing>
         </child>
         <child>
@@ -144,7 +177,7 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
-            <property name="top_attach">2</property>
+            <property name="top_attach">3</property>
           </packing>
         </child>
         <child>
@@ -178,46 +211,7 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
-            <property name="top_attach">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="hintbox">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_bottom">8</property>
-            <property name="spacing">20</property>
-            <property name="homogeneous">True</property>
-            <child>
-              <object class="GtkLabel" id="hint_label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Window appearance setup</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBoxText" id="hint_combobox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-            <property name="width">2</property>
+            <property name="top_attach">2</property>
           </packing>
         </child>
         <child>
@@ -241,6 +235,7 @@
               <object class="GtkSwitch" id="st_imagebyscreen_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="valign">center</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -251,8 +246,8 @@
             </child>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">3</property>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
           </packing>
         </child>
         <child>
@@ -286,7 +281,7 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">2</property>
+            <property name="top_attach">3</property>
           </packing>
         </child>
         <child>
@@ -321,6 +316,16 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="corner_combobox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
             <property name="top_attach">1</property>
           </packing>
         </child>
