@@ -11,8 +11,25 @@ from cavlib.base import WINDOW_HINTS
 
 def hex_rgba(hex_):
 	"""Transform html color to gtk rgba"""
-	nums = [int(hex_[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
+	purehex = hex_.lstrip("#")
+	nums = [int(purehex[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
 	return Gdk.RGBA(*nums)
+
+
+def num_to_str(value):
+	if isinstance(value, int):
+		return str(value)
+	elif isinstance(value, float):
+		return "{:.2f}".format(value)
+
+
+def bool_to_str(value):
+	return str(int(value))
+
+
+def rgba_to_str(rgba):
+	"""Translate color from Gdk.RGBA to html hex format"""
+	return "#%02X%02X%02X%02X" % tuple(int(getattr(rgba, name) * 255) for name in ("red", "green", "blue", "alpha"))
 
 
 class ConfigBase(dict):
@@ -78,12 +95,12 @@ class MainConfig(ConfigBase):
 
 		# color
 		for key in ("bg", "fg", "autofg"):
-			self["color"][key] = hex_rgba(self.parser.get("Color", key).lstrip("#"))
+			self["color"][key] = hex_rgba(self.parser.get("Color", key))
 		self["color"]["auto"] = self.parser.getboolean("Color", "auto")
 
 		# autocolor
 		for key in ("black", "white", "gray"):
-			self["acl"][key] = self.parser.getint("AutoColorLimit", key)
+			self["acl"][key] = self.parser.getint("ACL", key)
 
 		# window state
 		for key in ("maximize", "below", "stick", "winbyscreen", "bgpaint", "imagebyscreen", "fullscreen"):
@@ -98,6 +115,8 @@ class MainConfig(ConfigBase):
 			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "DefaultWallpaper.svg")
 		elif not os.path.isfile(image):
 			raise Exception("Wrong default image value")
+		else:
+			self["image"]["default"] = image
 
 		# misc
 		hint = self.parser.get("Misc", "hint")
@@ -105,6 +124,34 @@ class MainConfig(ConfigBase):
 			self["hint"] = getattr(Gdk.WindowTypeHint, hint)
 		else:
 			raise Exception("Wrong window type hint '%s'" % hint)
+
+	def write_data(self):
+		# nums
+		for section in ("Draw", "Offset"):
+			for key, value in self[section.lower()].items():
+				self.parser[section][key] = num_to_str(value)
+
+		# bools
+		for key, value in self["state"].items():
+			self.parser["Window"][key] = bool_to_str(value)
+
+		for key, value in self["image"].items():
+			if key != "default":
+				self.parser["Image"][key] = bool_to_str(value)
+
+		self.parser["Color"]["auto"] = bool_to_str(self["color"]["auto"])
+
+		# colors
+		for key, value in self["color"].items():
+			if key not in ("auto", "autofg"):
+				self.parser["Color"][key] = rgba_to_str(value)
+
+		# misc
+		self.parser["Image"]["default"] = self["image"]["default"]
+		self.parser["Misc"]["hint"] = self["hint"].value_nick.upper()
+
+		with open(self._file, 'w') as configfile:
+			self.parser.write(configfile)
 
 
 class CavaConfig(ConfigBase):

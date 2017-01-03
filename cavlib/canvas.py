@@ -64,6 +64,10 @@ class MainApp:
 	def close(self, *args):
 		"""Program exit"""
 		self.cava.close()
+		if not self.config.is_fallback:
+			self.config.write_data()
+		else:
+			logger.warning("Application worked with system config file, all settings changes will be lost")
 		Gtk.main_quit()
 
 
