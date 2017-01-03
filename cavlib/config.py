@@ -64,7 +64,7 @@ class ConfigBase(dict):
 
 class MainConfig(ConfigBase):
 	def __init__(self):
-		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}, image={}))
+		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}, image={}, acl = {}))
 
 	def read_data(self):
 		# graph
@@ -76,11 +76,16 @@ class MainConfig(ConfigBase):
 			self["offset"][key] = self.parser.getint("Offset", key)
 
 		# color
-		for key in ("bg", "fg"):
+		for key in ("bg", "fg", "autofg"):
 			self["color"][key] = hex_rgba(self.parser.get("Color", key).lstrip("#"))
+		self["color"]["auto"] = self.parser.getboolean("Color", "auto")
+
+		# autocolor
+		for key in ("black", "white", "gray"):
+			self["acl"][key] = self.parser.getint("AutoColorLimit", key)
 
 		# window state
-		for key in ("maximize", "below", "stick", "winbyscreen", "transparent", "imagebyscreen"):
+		for key in ("maximize", "below", "stick", "winbyscreen", "bgpaint", "imagebyscreen", "fullscreen"):
 			self["state"][key] = self.parser.getboolean("Window", key)
 
 		# image

@@ -13,12 +13,6 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-file</property>
   </object>
-  <object class="GtkLabel" id="hint_label1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="label" translatable="yes">Window appearance setup</property>
-    <property name="xalign">0</property>
-  </object>
   <object class="GtkAdjustment" id="left_adjustment">
     <property name="upper">1000</property>
     <property name="value">1</property>
@@ -258,7 +252,7 @@
               <object class="GtkLabel" id="statelabel6">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Transparent</property>
+                <property name="label" translatable="yes">Fullscreen</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -267,7 +261,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSwitch" id="st_transparent_switch">
+              <object class="GtkSwitch" id="st_fullscreen_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
               </object>
@@ -357,11 +351,12 @@
           <object class="GtkBox" id="colorbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">20</property>
             <child>
               <object class="GtkLabel" id="colorlabel1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Foreground</property>
+                <property name="label" translatable="yes">FG</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -370,17 +365,33 @@
               </packing>
             </child>
             <child>
-              <object class="GtkColorButton" id="fg_colorbutton">
+              <object class="GtkSwitch" id="autocolor_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_alpha">True</property>
+                <property name="halign">end</property>
+                <property name="valign">center</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton" id="fg_colorbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="halign">center</property>
+                <property name="hexpand">True</property>
+                <property name="use_alpha">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -394,11 +405,12 @@
           <object class="GtkBox" id="colorbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">20</property>
             <child>
               <object class="GtkLabel" id="colorlabel2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Background</property>
+                <property name="label" translatable="yes">BG</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -407,17 +419,32 @@
               </packing>
             </child>
             <child>
-              <object class="GtkColorButton" id="bg_colorbutton">
+              <object class="GtkSwitch" id="st_bgpaint_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_alpha">True</property>
+                <property name="valign">center</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkColorButton" id="bg_colorbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="halign">center</property>
+                <property name="hexpand">True</property>
+                <property name="use_alpha">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

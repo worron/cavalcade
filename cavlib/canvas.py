@@ -9,6 +9,7 @@ from cavlib.cava import Cava
 from cavlib.settings import SettingsWindow
 from cavlib.player import Player
 from cavlib.logger import logger
+from cavlib.autocolor import AutoColor
 
 
 class MainApp:
@@ -24,6 +25,7 @@ class MainApp:
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
 		self.canvas = Canvas(self, self.config, self.draw)  # main window
+		self.autocolor = AutoColor(self)  # image analyzer
 
 		# player
 		files = [file_ for file_ in argv[1:] if file_.endswith(".mp3")]
@@ -31,10 +33,25 @@ class MainApp:
 		self.player.play_pause()
 
 		# signals
-		self.player.connect("image-update", self.canvas.on_image_update)
+		self.player.connect("image-update", self.on_image_update)
+		self.autocolor.connect("ac-update", self.on_autocolor_update)
 
 		# start spectrum analyzer
 		self.cava.start()
+
+	def autocolor_switch(self, value):
+		self.config["color"]["auto"] = value
+		color = self.config["color"]["autofg"] if value else self.config["color"]["fg"]
+		self.settings.visualpage.fg_color_manual_set(color)
+
+	def on_image_update(self, sender, bytedata):
+		self.canvas.on_image_update(bytedata)
+		self.autocolor.color_update(bytedata)
+
+	def on_autocolor_update(self, sender, rgba):
+		self.config["color"]["autofg"] = rgba
+		if self.config["color"]["auto"]:
+			self.settings.visualpage.fg_color_manual_set(rgba)
 
 	def on_click(self, widget, event):
 		"""Show settings window"""
@@ -129,10 +146,15 @@ class Canvas:
 			self.ha.set_upper(self.screen.get_width())
 			self.ha.set_value(self.screen.get_width())
 
-	def _set_transparent(self, value):
-		self.config["state"]["transparent"] = value
-		rgba = Gdk.RGBA(0, 0, 0, 0) if value else self.config["color"]["bg"]
+	def _set_bgpaint(self, value):
+		self.config["state"]["bgpaint"] = value
+		rgba = self.config["color"]["bg"] if value else Gdk.RGBA(0, 0, 0, 0)
 		self._set_bg_rgba(rgba)
+
+	def _set_fullscreen(self, value):
+		self.config["state"]["fullscreen"] = value
+		action = self.window.fullscreen if value else self.window.unfullscreen
+		action()
 
 	def _set_bg_rgba(self, rgba):
 		self.window.override_background_color(Gtk.StateFlags.NORMAL, rgba)
@@ -188,6 +210,6 @@ class Canvas:
 				else:
 					self._rebuild_background()
 
-	def on_image_update(self, player, bytedata):
+	def on_image_update(self, bytedata):
 		self.tag_image_bytedata = bytedata
 		self._rebuild_background()

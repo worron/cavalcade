@@ -18,6 +18,7 @@ class Spectrum:
 		self.config = config
 		self.cavaconfig = cavaconfig
 		self.audio_sample = []
+		self.color = None
 
 		self.area = Gtk.DrawingArea()
 		self.area.connect("draw", self.redraw)
@@ -28,6 +29,7 @@ class Spectrum:
 		self.sizes.bar = AttributeDict()
 
 		self.area.connect("configure-event", self.size_update)
+		self.color_update()
 
 	def is_silence(self, value):
 		"""Check if volume level critically low during last iterations"""
@@ -42,7 +44,7 @@ class Spectrum:
 
 	def redraw(self, widget, cr):
 		"""Draw spectrum graph"""
-		cr.set_source_rgba(*self.config["color"]["fg"])
+		cr.set_source_rgba(*self.color)
 
 		dx = self.config["offset"]["left"]
 		for i, value in enumerate(self.audio_sample):
@@ -64,3 +66,6 @@ class Spectrum:
 		self.sizes.bar.width = max(int(tw / self.sizes.number), 1)
 		self.sizes.bar.height = self.sizes.area.height - self.config["offset"]["top"]
 		self.sizes.wcpi = tw % self.sizes.number  # width correnction point index
+
+	def color_update(self):
+		self.color = self.config["color"]["autofg"] if self.config["color"]["auto"] else self.config["color"]["fg"]

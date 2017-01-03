@@ -17,10 +17,11 @@ class VisualPage(GuiBase):
 		self.window = settings_window
 		elements = (
 			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox", "st_imagebyscreen_switch",
-			"st_stick_switch", "st_winbyscreen_switch", "st_transparent_switch", "fg_colorbutton",
+			"st_stick_switch", "st_winbyscreen_switch", "st_bgpaint_switch", "fg_colorbutton", "st_fullscreen_switch",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
 			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "corner_combobox",
+			"autocolor_switch",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -31,8 +32,12 @@ class VisualPage(GuiBase):
 
 		# color
 		for key, value in self._mainapp.config["color"].items():
-			self.gui["%s_colorbutton" % key].set_rgba(value)
-			self.gui["%s_colorbutton" % key].connect("color-set", getattr(self, "on_%s_color_set" % key))
+			if key in ("fg", "bg"):
+				self.gui["%s_colorbutton" % key].set_rgba(value)
+				self.gui["%s_colorbutton" % key].connect("color-set", getattr(self, "on_%s_color_set" % key))
+			elif key == "auto":
+				self.gui["autocolor_switch"].set_active(not value)  # autocolor
+				self.gui["autocolor_switch"].connect("notify::active", self.on_autocolor_switch)
 
 		# graph
 		for key, value in self._mainapp.config["draw"].items():
@@ -71,11 +76,17 @@ class VisualPage(GuiBase):
 		self.gui["corner_combobox"].set_active(states.index(state))
 		self.gui["corner_combobox"].connect("changed", self.on_corner_combo_changed)
 
+	def fg_color_manual_set(self, rgba):
+		self.gui["fg_colorbutton"].set_rgba(rgba)
+		self._mainapp.draw.color_update()
+
 	def on_winstate_switch(self, switch, active, key):
 		self._mainapp.canvas.set_property(key, switch.get_active())
 
 	def on_fg_color_set(self, button):
-		self._mainapp.config["color"]["fg"] = button.get_rgba()
+		key = "autofg" if self._mainapp.config["color"]["auto"] else "fg"
+		self._mainapp.config["color"][key] = button.get_rgba()
+		self._mainapp.draw.color_update()
 
 	def on_bg_color_set(self, button):
 		self._mainapp.config["color"]["bg"] = button.get_rgba()
@@ -83,6 +94,9 @@ class VisualPage(GuiBase):
 			self.gui["st_transparent_switch"].set_active(False)
 		else:
 			self._mainapp.canvas._set_bg_rgba(self._mainapp.config["color"]["bg"])
+
+	def on_autocolor_switch(self, switch, active):
+		self._mainapp.autocolor_switch(not switch.get_active())
 
 	def on_scale_spinbutton_changed(self, button):
 		self._mainapp.config["draw"]["scale"] = float(button.get_value())
