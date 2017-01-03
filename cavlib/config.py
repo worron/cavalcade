@@ -68,7 +68,8 @@ class MainConfig(ConfigBase):
 
 	def read_data(self):
 		# graph
-		self["draw"]["padding"] = self.parser.getint("Draw", "padding")
+		for key in ("padding", "zero", "silence"):
+			self["draw"][key] = self.parser.getint("Draw", key)
 		self["draw"]["scale"] = self.parser.getfloat("Draw", "scale")
 
 		# offset

@@ -34,12 +34,15 @@ class Spectrum:
 	def is_silence(self, value):
 		"""Check if volume level critically low during last iterations"""
 		self.silence_value = 0 if value > 0 else self.silence_value + 1
-		return self.silence_value > 10
+		return self.silence_value > self.config["draw"]["silence"]
 
 	def update(self, data):
 		"""Audio data processing"""
 		self.audio_sample = data
 		if not self.is_silence(self.audio_sample[0]):
+			self.area.queue_draw()
+		elif self.silence_value == (self.config["draw"]["silence"] + 1):
+			self.audio_sample = [0] * self.sizes.number
 			self.area.queue_draw()
 
 	def redraw(self, widget, cr):
@@ -49,7 +52,7 @@ class Spectrum:
 		dx = self.config["offset"]["left"]
 		for i, value in enumerate(self.audio_sample):
 			width = self.sizes.bar.width + int(i < self.sizes.wcpi)
-			height = self.sizes.bar.height * min(self.config["draw"]["scale"] * value, 1)
+			height = max(self.sizes.bar.height * min(self.config["draw"]["scale"] * value, 1), self.sizes.zero)
 			cr.rectangle(dx, self.sizes.area.height, width, - height)
 			dx += width + self.sizes.padding
 		cr.fill()
@@ -58,6 +61,7 @@ class Spectrum:
 		"""Update drawing geometry"""
 		self.sizes.number = self.cavaconfig["bars"]
 		self.sizes.padding = self.config["draw"]["padding"]
+		self.sizes.zero = self.config["draw"]["zero"]
 
 		self.sizes.area.width = self.area.get_allocated_width() - self.config["offset"]["right"]
 		self.sizes.area.height = self.area.get_allocated_height() - self.config["offset"]["bottom"]

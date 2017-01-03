@@ -21,7 +21,7 @@ class VisualPage(GuiBase):
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
 			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "corner_combobox",
-			"autocolor_switch",
+			"autocolor_switch", "zero_spinbutton", "silence_spinbutton",
 		)
 		super().__init__("visset.glade", elements)
 
@@ -104,6 +104,13 @@ class VisualPage(GuiBase):
 	def on_padding_spinbutton_changed(self, button):
 		self._mainapp.config["draw"]["padding"] = int(button.get_value())
 		self._mainapp.draw.size_update()
+
+	def on_zero_spinbutton_changed(self, button):
+		self._mainapp.config["draw"]["zero"] = int(button.get_value())
+		self._mainapp.draw.size_update()
+
+	def on_silence_spinbutton_changed(self, button):
+		self._mainapp.config["draw"]["silence"] = int(button.get_value())
 
 	def on_offset_spinbutton_changed(self, button, key):
 		self._mainapp.config["offset"][key] = int(button.get_value())
