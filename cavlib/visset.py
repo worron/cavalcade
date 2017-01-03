@@ -90,10 +90,10 @@ class VisualPage(GuiBase):
 
 	def on_bg_color_set(self, button):
 		self._mainapp.config["color"]["bg"] = button.get_rgba()
-		if self._mainapp.config["state"]["transparent"]:
-			self.gui["st_transparent_switch"].set_active(False)
-		else:
+		if self._mainapp.config["state"]["bgpaint"]:
 			self._mainapp.canvas._set_bg_rgba(self._mainapp.config["color"]["bg"])
+		else:
+			self.gui["st_bgpaint_switch"].set_active(True)
 
 	def on_autocolor_switch(self, switch, active):
 		self._mainapp.autocolor_switch(not switch.get_active())
