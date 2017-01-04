@@ -1,6 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import io
-import threading
+import multiprocessing
 import random
 import math
 import colorsys
@@ -92,9 +92,12 @@ class AutoColor(GObject.GObject):
 		super().__init__()
 		self._mainapp = mainapp
 		self.config = mainapp.config
-		self.thread = None
+		self.process = None
 
-	def calculate(self, bytedata, options):
+		self.pc, self.cc = multiprocessing.Pipe()  # fix this
+		self.watcher = None
+
+	def calculate(self, bytedata, options, conn):
 		file_ = io.BytesIO(bytedata)
 		img = Image.open(file_)
 		img.thumbnail((options["isize"][0], options["isize"][1]))
@@ -102,16 +105,23 @@ class AutoColor(GObject.GObject):
 		points = get_points(img, options)
 		clusters = kmeans(points, options["clusters"], options["diff"])
 		cv = selection(clusters, options["hvr"])
-		GLib.idle_add(self.color_setup, cv)
+		conn.send(cv)
 
-	def color_setup(self, color_values):
-		rgba = Gdk.RGBA(*color_values, self.config["color"]["autofg"].alpha)
-		self.emit("ac-update", rgba)
+	def color_setup(self, conn, flag):
+		if flag == GLib.IO_IN:
+			color_values = conn.recv()
+			rgba = Gdk.RGBA(*color_values, self.config["color"]["autofg"].alpha)
+			self.emit("ac-update", rgba)
+			return True
+		else:
+			logger.error("Autocolor multiprocessing error: connection was unexpectedy terminated")
+			self.watcher = None
 
 	def color_update(self, data):
-		if self.thread is None or not self.thread.isAlive():
-			self.thread = threading.Thread(target=self.calculate, args=(data, self.config["aco"]))
-			# self.thread.daemon = True
-			self.thread.start()
+		if self.process is None or not self.process.is_alive():
+			if self.watcher is None:
+				self.watcher = GLib.io_add_watch(self.pc, GLib.IO_IN | GLib.IO_HUP, self.color_setup)
+			self.process = multiprocessing.Process(target=self.calculate, args=(data, self.config["aco"], self.cc))
+			self.process.start()
 		else:
-			logger.error("Autocolor threading error")
+			logger.error("Autocolor threading error: previus process still running, refusing to start new one")
