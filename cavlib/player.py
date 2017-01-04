@@ -32,7 +32,6 @@ class Player(GObject.GObject):
 		self.playlist = []
 		self.playqueue = []
 
-		# self.is_playing = False
 		self.is_image_updated = True
 		self.duration = None
 		self.timer_id = None
@@ -153,6 +152,9 @@ class Player(GObject.GObject):
 		else:
 			self.player.set_state(Gst.State.PAUSED)
 			self.is_playing = False
+
+	def set_volume(self, value):
+		self.player.set_property('volume', value)
 
 	def _fake_tag_reader(self, file_):
 		self._fake_player.set_property('uri', 'file:///' + file_)

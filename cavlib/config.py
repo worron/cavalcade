@@ -81,7 +81,7 @@ class ConfigBase(dict):
 
 class MainConfig(ConfigBase):
 	def __init__(self):
-		super().__init__("main.ini", dict(state={}, draw = {}, offset = {}, color = {}, image={}, aco = {}))
+		super().__init__("main.ini", dict(state={}, draw={}, offset={}, color={}, image={}, aco={}, player={}))
 
 	def read_data(self):
 		# graph
@@ -109,6 +109,9 @@ class MainConfig(ConfigBase):
 		for key in ("maximize", "below", "stick", "winbyscreen", "bgpaint", "imagebyscreen", "fullscreen"):
 			self["state"][key] = self.parser.getboolean("Window", key)
 
+		# player
+		self["player"]["volume"] = self.parser.getfloat("Player", "volume")
+
 		# image
 		for key in ("va", "ha", "usetag", "show"):
 			self["image"][key] = self.parser.getboolean("Image", key)
@@ -130,7 +133,7 @@ class MainConfig(ConfigBase):
 
 	def write_data(self):
 		# nums
-		for section in ("Draw", "Offset"):
+		for section in ("Draw", "Offset", "Player"):
 			for key, value in self[section.lower()].items():
 				self.parser[section][key] = num_to_str(value)
 

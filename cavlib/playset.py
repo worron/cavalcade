@@ -13,6 +13,7 @@ class PlayerPage(GuiBase):
 		self.playlist_data = OrderedDict()
 		elements = (
 			"mainbox", "playbutton", "seekscale", "playlist_treeview", "playlist_selection", "preview_image",
+			"volumebutton",
 		)
 		super().__init__("playset.glade", elements)
 
@@ -33,12 +34,16 @@ class PlayerPage(GuiBase):
 		self.gui["playbutton"].connect("clicked", self.on_playbutton_click)
 		self.gui["playlist_treeview"].connect("row_activated", self.on_track_activated)
 		self.gui['playlist_selection'].connect("changed", self.on_track_selection_changed)
+		self.gui["volumebutton"].connect("value-changed", self.on_volumebuton_changed)
 		self.seek_handler_id = self.gui["seekscale"].connect("value-changed", self.on_seekscale_changed)
 
 		self._mainapp.player.connect("progress", self.on_audio_progress)
 		self._mainapp.player.connect("playlist-update", self.on_playlist_update)
 		self._mainapp.player.connect("current", self.on_current_change)
 		self._mainapp.player.connect("preview-update", self.on_preview_update)
+
+		# gui setup
+		self.gui["volumebutton"].set_value(self._mainapp.config["player"]["volume"])
 
 	def on_track_activated(self, tree, path, colomn):
 		treeiter = self.store.get_iter(path)
@@ -60,6 +65,10 @@ class PlayerPage(GuiBase):
 	def on_seekscale_changed(self, widget):
 		value = self.gui["seekscale"].get_value()
 		self._mainapp.player.seek(value)
+
+	def on_volumebuton_changed(self, widget, value):
+		self._mainapp.config["player"]["volume"] = value
+		self._mainapp.player.set_volume(value)
 
 	def on_audio_progress(self, player, value):
 		with self.gui["seekscale"].handler_block(self.seek_handler_id):
