@@ -151,6 +151,46 @@ audio-volume-medium-symbolic</property>
       </packing>
     </child>
     <child>
+      <object class="GtkSeparator" id="separator3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="listtoolbox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="margin_top">4</property>
+        <property name="margin_bottom">8</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkSearchEntry" id="list_search_entry">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hexpand">True</property>
+            <property name="primary_icon_name">edit-find-symbolic</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">5</property>
+      </packing>
+    </child>
+    <child>
       <object class="GtkScrolledWindow" id="playlist_scrolledwindow">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
@@ -170,7 +210,7 @@ audio-volume-medium-symbolic</property>
       <packing>
         <property name="expand">True</property>
         <property name="fill">True</property>
-        <property name="position">4</property>
+        <property name="position">6</property>
       </packing>
     </child>
   </object>
