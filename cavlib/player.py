@@ -127,6 +127,26 @@ class Player(GObject.GObject):
 			self.playqueue.append(file_)
 		self.emit("queue-update", self.playqueue)
 
+	def add_to_queue(self, *files):
+		updated = False
+		for file_ in files:
+			if file_ not in self.playqueue:
+				self.playqueue.append(file_)
+				updated = True
+
+		if updated:
+			self.emit("queue-update", self.playqueue)
+
+	def remove_from_queue(self, *files):
+		updated = False
+		for file_ in files:
+			if file_ in self.playqueue:
+				self.playqueue.remove(file_)
+				updated = True
+
+		if updated:
+			self.emit("queue-update", self.playqueue)
+
 	def seek(self, value):
 		if self.duration is not None:
 			point = int(self.duration * value / 1000)
@@ -143,15 +163,18 @@ class Player(GObject.GObject):
 		if current is None:
 			logger.debug("No audio file selected")
 		else:
-			i = self.playqueue.index(current)
-			self.playqueue.remove(current)
+			if current in self.playqueue:
+				i = self.playqueue.index(current)
+				self.playqueue.remove(current)
+			else:
+				i = 1
 			if self.playqueue:
 				if i < len(self.playqueue):
 					self.load_file(self.playqueue[i])
 				else:
 					self.load_file(self.playqueue[0])
 				self.play_pause()
-			self.emit("queue-update", self.playqueue)
+			self.emit("queue-update", self.playqueue)  # fix false update if current not in queue
 
 	def play_pause(self):
 		if self.current is None:
