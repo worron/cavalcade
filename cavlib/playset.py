@@ -79,7 +79,6 @@ class PlayerPage(GuiBase):
 			self.store["playlist"].clear()
 			for i, file_ in enumerate(plist):
 				self.store["playlist"].append([i, name_from_file(file_), file_])
-		self.treeview.set_cursor(0)
 
 	def on_playbutton_click(self, button):
 		self._mainapp.player.play_pause()

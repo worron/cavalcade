@@ -1,6 +1,6 @@
-#!/usr/bin/python3
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import gi
+import random
 gi.require_version('Gst', '1.0')
 
 from gi.repository import Gst, GLib, GObject
@@ -27,8 +27,9 @@ class Player(GObject.GObject):
 		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
-	def __init__(self):
+	def __init__(self, config):
 		super().__init__()
+		self.config = config
 		self.playlist = []
 		self.playqueue = []
 
@@ -103,13 +104,18 @@ class Player(GObject.GObject):
 
 	def load_playlist(self, *files):
 		self.playlist = files
+
 		self.playqueue = list(self.playlist)
+		if self.config["player"]["shuffle"]:
+			random.shuffle(self.playqueue)
+
 		if files:
 			self.emit("playlist-update", self.playlist)
-			self.load_file(files[0])
+			self.load_file(self.playqueue[0])
 
 	def load_file(self, file_):
 		if self.is_playing:
+			self.playqueue.remove(self.current)
 			self.stop()
 
 		self.is_image_updated = False
@@ -134,11 +140,13 @@ class Player(GObject.GObject):
 		if current is None:
 			logger.debug("No audio file selected")
 		else:
-			ni = self.playqueue.index(current) + 1
-			if ni < len(self.playqueue):
-				nf = self.playqueue[ni]
-				self.playqueue.remove(current)
-				self.load_file(nf)
+			i = self.playqueue.index(current)
+			self.playqueue.remove(current)
+			if self.playqueue:
+				if i < len(self.playqueue):
+					self.load_file(self.playqueue[i])
+				else:
+					self.load_file(self.playqueue[0])
 				self.play_pause()
 
 	def play_pause(self):

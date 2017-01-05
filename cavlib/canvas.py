@@ -20,7 +20,7 @@ class MainApp:
 		self.cavaconfig = CavaConfig()
 
 		# init app structure
-		self.player = Player()  # gstreamer
+		self.player = Player(self.config)  # gstreamer
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
