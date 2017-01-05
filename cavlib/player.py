@@ -22,6 +22,7 @@ class Player(GObject.GObject):
 	__gsignals__ = {
 		"progress": (GObject.SIGNAL_RUN_FIRST, None, (int,)),
 		"playlist-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"queue-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"current": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"preview-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
@@ -103,14 +104,15 @@ class Player(GObject.GObject):
 			self.emit("image-update", data)
 
 	def load_playlist(self, *files):
-		self.playlist = files
-
-		self.playqueue = list(self.playlist)
-		if self.config["player"]["shuffle"]:
-			random.shuffle(self.playqueue)
-
 		if files:
+			self.playlist = files
+
+			self.playqueue = list(self.playlist)
+			if self.config["player"]["shuffle"]:
+				random.shuffle(self.playqueue)
+
 			self.emit("playlist-update", self.playlist)
+			self.emit("queue-update", self.playqueue)
 			self.load_file(self.playqueue[0])
 
 	def load_file(self, file_):
@@ -123,6 +125,7 @@ class Player(GObject.GObject):
 		self.player.set_property('uri', 'file:///' + file_)
 		if file_ not in self.playqueue:
 			self.playqueue.append(file_)
+		self.emit("queue-update", self.playqueue)
 
 	def seek(self, value):
 		if self.duration is not None:
@@ -148,6 +151,7 @@ class Player(GObject.GObject):
 				else:
 					self.load_file(self.playqueue[0])
 				self.play_pause()
+			self.emit("queue-update", self.playqueue)
 
 	def play_pause(self):
 		if self.current is None:

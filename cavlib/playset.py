@@ -10,10 +10,12 @@ class PlayerPage(GuiBase):
 	def __init__(self, mainapp):
 		self._mainapp = mainapp
 		self.current = None
+		self.playlist = []
+		self.playqueue = []
 
 		elements = (
 			"mainbox", "playbutton", "seekscale", "playlist_treeview", "playlist_selection", "preview_image",
-			"volumebutton", "list_search_entry",
+			"volumebutton", "list_search_entry", "queue_rbutton", "list_rbutton",
 		)
 		super().__init__("playset.glade", elements)
 
@@ -30,12 +32,21 @@ class PlayerPage(GuiBase):
 			if i != 1:
 				column.set_visible(False)
 
-		self.store = dict(playlist=Gtk.ListStore(int, str, str))
-		self.storefilter = dict(playlist=self.store["playlist"].filter_new())
-		self.storefilter["playlist"].set_visible_func(self.playlist_filter_func)
+		# self.store = dict(playlist=Gtk.ListStore(int, str, str))
+		self.store = Gtk.ListStore(int, str, str)
+		self.storefilter = self.store.filter_new()
+		# self.storefilter = dict(playlist=self.store.filter_new())
+		# self.storefilter["playlist"].set_visible_func(self.playlist_filter_func)
+		self.storefilter.set_visible_func(self.playlist_filter_func)
 		self.search_text = None
 
-		self.treeview.set_model(self.storefilter["playlist"])
+		self.treeview.set_model(self.storefilter)
+
+		# list view button
+		self.gui["list_rbutton"].set_active(True)
+
+		self.gui["queue_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, True)
+		self.gui["list_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, False)
 
 		# signals
 		self.gui["playbutton"].connect("clicked", self.on_playbutton_click)
@@ -48,6 +59,7 @@ class PlayerPage(GuiBase):
 
 		self._mainapp.player.connect("progress", self.on_audio_progress)
 		self._mainapp.player.connect("playlist-update", self.on_playlist_update)
+		self._mainapp.player.connect("queue-update", self.on_playqueue_update)
 		self._mainapp.player.connect("current", self.on_current_change)
 		self._mainapp.player.connect("preview-update", self.on_preview_update)
 
@@ -61,24 +73,41 @@ class PlayerPage(GuiBase):
 			return self.search_text.lower() in model[treeiter][1].lower()
 
 	def hilight_current(self):
-		files = [row[2] for row in self.storefilter["playlist"]]
+		files = [row[2] for row in self.storefilter]
 		if self.current in files:
 			index = files.index(self.current)
 			self.treeview.set_cursor(index)
 		else:
 			self.gui["playlist_selection"].unselect_all()
 
+	def refilter_by_search(self):
+		self.search_text = self.gui['list_search_entry'].get_text()
+		with self.gui["playlist_selection"].handler_block(self.sel_handler_id):
+			self.storefilter.refilter()
+			self.gui["playlist_selection"].unselect_all()
+
+	def rebuild_store(self, data):
+		with self.treelock:
+			self.store.clear()
+			for i, file_ in enumerate(data):
+				self.store.append([i, name_from_file(file_), file_])
+		self.hilight_current()
+
 	def on_track_activated(self, tree, path, colomn):
-		treeiter = self.storefilter["playlist"].get_iter(path)
-		file_ = self.storefilter["playlist"][treeiter][2]
+		treeiter = self.storefilter.get_iter(path)
+		file_ = self.storefilter[treeiter][2]
 		self._mainapp.player.load_file(file_)
 		self._mainapp.player.play_pause()
 
 	def on_playlist_update(self, player, plist):
-		with self.treelock:
-			self.store["playlist"].clear()
-			for i, file_ in enumerate(plist):
-				self.store["playlist"].append([i, name_from_file(file_), file_])
+		self.playlist = plist
+		if not self._mainapp.config["player"]["showqueue"]:
+			self.rebuild_store(plist)
+
+	def on_playqueue_update(self, player, pqueue):
+		self.playqueue = pqueue
+		if self._mainapp.config["player"]["showqueue"]:
+			self.rebuild_store(pqueue)
 
 	def on_playbutton_click(self, button):
 		self._mainapp.player.play_pause()
@@ -110,9 +139,14 @@ class PlayerPage(GuiBase):
 		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size)
 		self.gui["preview_image"].set_from_pixbuf(pb)
 
-	def on_search_active(self, entry, *args):
-		self.search_text = entry.get_text()
-		with self.gui["playlist_selection"].handler_block(self.sel_handler_id):
-			self.storefilter["playlist"].refilter()
-			self.gui["playlist_selection"].unselect_all()
+	def on_search_active(self, entry):
+		self.refilter_by_search()
 		self.hilight_current()
+
+	def on_listview_rbutton_switch(self, button, active, showqueue):
+		if button.get_active():
+			self._mainapp.config["player"]["showqueue"] = showqueue
+			self.gui['list_search_entry'].set_text("")
+			self.refilter_by_search()
+			data = self.playqueue if showqueue else self.playlist
+			self.rebuild_store(data)

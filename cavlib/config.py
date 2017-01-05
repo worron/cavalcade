@@ -111,7 +111,8 @@ class MainConfig(ConfigBase):
 
 		# player
 		self["player"]["volume"] = self.parser.getfloat("Player", "volume")
-		self["player"]["shuffle"] = self.parser.getboolean("Player", "shuffle")
+		for key in ("shuffle", "showqueue"):
+			self["player"][key] = self.parser.getboolean("Player", key)
 
 		# image
 		for key in ("va", "ha", "usetag", "show"):
