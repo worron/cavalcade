@@ -17,10 +17,13 @@ class Cava:
 
 	def __init__(self, cavaconfig, handler):
 		self.cavaconfig = cavaconfig
-		self.path = "/tmp/cava.fifo"
+		self.path = self.cavaconfig["raw_target"]
 		self.data_handler = handler
 		self.command = ["cava", "-p", self.cavaconfig._file]
 		self.state = self.NONE
+
+		self.env = dict(os.environ)
+		self.env["LC_ALL"] = "en_US.UTF-8"
 
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)
@@ -28,7 +31,9 @@ class Cava:
 	def _run_process(self):
 		logger.debug("Launching cava process...")
 		try:
-			self.process = subprocess.Popen(self.command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			self.process = subprocess.Popen(
+				self.command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=self.env
+			)
 			logger.debug("cava successfully launched!")
 			self.state = self.RUNNING
 		except Exception:

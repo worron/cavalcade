@@ -135,9 +135,11 @@ class MainConfig(ConfigBase):
 
 	def write_data(self):
 		# nums
-		for section in ("Draw", "Offset", "Player"):
+		for section in ("Draw", "Offset"):
 			for key, value in self[section.lower()].items():
 				self.parser[section][key] = num_to_str(value)
+
+		self.parser["Player"]["volume"] = num_to_str(self["player"]["volume"])
 
 		# bools
 		for key, value in self["state"].items():
@@ -170,22 +172,39 @@ class CavaConfig(ConfigBase):
 		super().__init__("cava.ini")
 
 	def read_data(self):
-		for gw in ("framerate", "bars", "sensitivity"):
+		# nums
+		for gw in ("framerate", "bars", "sensitivity", "higher_cutoff_freq", "lower_cutoff_freq"):
 			self[gw] = self.parser.getint("general", gw)
 
-		for ow in ("raw_target", "method"):
-			self[ow] = self.parser.get("output", ow)
+		self["ignore"] = self.parser.getint("smoothing", "ignore")
 
-		self["gravity"] = self.parser.getint("smoothing", "gravity")
+		for sw in ("integral", "gravity"):
+			self[sw] = self.parser.getfloat("smoothing", sw)
+
+		# bool
+		self["monstercat"] = self.parser.getboolean("smoothing", "monstercat")
+		self["autosens"] = self.parser.getboolean("general", "autosens")
+
+		# raw
+		for ow in ("raw_target", "method", "style"):
+			self[ow] = self.parser.get("output", ow)
 
 		for key, valid_values in self.valid.items():
 			if self[key] not in valid_values:
 				raise Exception("Bad value for '%s' option" % key)
 
 	def write_data(self):
+		num_keys = (
+			"framerate", "bars", "sensitivity", "higher_cutoff_freq", "lower_cutoff_freq", "gravity", "ignore",
+			"integral",
+		)
 		for section, ini_data in self.parser.items():
-			for key in (option for option in ini_data.keys() if option in self.keys()):
-				self.parser[section][key] = str(self[key])
+			for key in (option for option in ini_data.keys() if option in num_keys):
+				self.parser[section][key] = num_to_str(self[key])
+
+		self.parser["smoothing"]["monstercat"] = bool_to_str(self["monstercat"])
+		self.parser["general"]["autosens"] = bool_to_str(self["autosens"])
+		self.parser["output"]["style"] = self["style"]
 
 		with open(self._file, 'w') as configfile:
 			self.parser.write(configfile)
