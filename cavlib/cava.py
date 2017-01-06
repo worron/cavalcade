@@ -23,7 +23,7 @@ class Cava:
 		self.state = self.NONE
 
 		self.env = dict(os.environ)
-		self.env["LC_ALL"] = "en_US.UTF-8"
+		# self.env["LC_ALL"] = "en_US.UTF-8"
 
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)

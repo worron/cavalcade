@@ -185,13 +185,15 @@ class CavaConfig(ConfigBase):
 		self["monstercat"] = self.parser.getboolean("smoothing", "monstercat")
 		self["autosens"] = self.parser.getboolean("general", "autosens")
 
-		# raw
+		# misc
 		for ow in ("raw_target", "method", "style"):
 			self[ow] = self.parser.get("output", ow)
 
 		for key, valid_values in self.valid.items():
 			if self[key] not in valid_values:
 				raise Exception("Bad value for '%s' option" % key)
+
+		self["eq"] = [float(v) for v in self.parser["eq"].values()]
 
 	def write_data(self):
 		num_keys = (
@@ -205,6 +207,9 @@ class CavaConfig(ConfigBase):
 		self.parser["smoothing"]["monstercat"] = bool_to_str(self["monstercat"])
 		self.parser["general"]["autosens"] = bool_to_str(self["autosens"])
 		self.parser["output"]["style"] = self["style"]
+
+		for i, key in enumerate(self.parser["eq"].keys()):
+			self.parser["eq"][key] = num_to_str(self["eq"][i])
 
 		with open(self._file, 'w') as configfile:
 			self.parser.write(configfile)
