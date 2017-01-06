@@ -50,7 +50,7 @@ class CavaPage(GuiBase):
 		self.gui['eq_treeview'].set_model(self.eq_store)
 
 		for i, value in enumerate(self._mainapp.cavaconfig["eq"]):
-			self.eq_store.append(["frequency band %d" % (i + 1), value])
+			self.eq_store.append(["Frequency band %d" % (i + 1), value])
 
 	def on_restart_button_click(self, button):
 		if self._mainapp.cavaconfig.is_fallback:
