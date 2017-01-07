@@ -99,10 +99,10 @@ class MainConfig(ConfigBase):
 		self["color"]["auto"] = self.parser.getboolean("Color", "auto")
 
 		# autocolor
-		for key in ("black", "white", "gray", "clusters", "diff"):
+		for key in ("bands", "window"):
 			self["aco"][key] = self.parser.getint("ACO", key)
 
-		self["aco"]["hvr"] = [float(v.strip()) for v in self.parser.get("ACO", "hvr").split(";")]
+		self["aco"]["sv_min"] = [float(v.strip()) for v in self.parser.get("ACO", "sv_min").split(";")]
 		self["aco"]["isize"] = [int(v.strip()) for v in self.parser.get("ACO", "isize").split(";")]
 
 		# window state

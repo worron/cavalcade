@@ -1,8 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import io
 import multiprocessing
-import random
-import math
 import colorsys
 
 from gi.repository import GLib, Gdk, GObject
@@ -12,77 +10,48 @@ from PIL import Image
 
 from cavlib.logger import logger
 
-Point = namedtuple("Point", ("color", "count"))
+Point = namedtuple("Point", ("rgb", "hsv", "count"))
 
 
-class Cluster:
-	def __init__(self, points, center):
-		self.points = points
-		self.center = center
-		self.diff = 0
+class Clust:
+	def __init__(self, points = []):
+		self.points = []
+		self.mass = 0
+		for p in points:
+			self.add(p)
 
-	def update(self, points):
-		new_center = calculate_center(points)
-		self.diff = euclidean(self.center, new_center)
-		self.points = points
-		self.center = new_center
+	def add(self, point):
+		self.points.append(point)
+		self.mass += point.count
+
+	def get_color(self):
+		color = [0.0] * 3
+		for point in self.points:
+			color = map(add, color, [c * point.count for c in point.rgb])
+		return [(c / self.mass) for c in color]
 
 
 def get_points(img, limit):
 	points = []
 	w, h = img.size
 	for count, color in img.getcolors(w * h):
-		m = sum(color) / 3
-		if (
-			any(abs(c - m) > limit["gray"] for c in color)
-			and not all(c < limit["black"] for c in color)
-			and not all(c > limit["white"] for c in color)
-		):
-			points.append(Point(color, count))
+		rgb = [c / 255 for c in color]
+		hsv = colorsys.rgb_to_hsv(*rgb)
+		if hsv[1] > limit["sv_min"][0] and hsv[2] > limit["sv_min"][1]:
+			points.append(Point(rgb, hsv, count))
 	return points
 
 
-def calculate_center(points):
-	sum_color = [0.0] * 3
-	sum_count = 0
+def allocate(points, n=16, window=4):
+	band = 1 / n
+	clusters = [Clust() for i in range(n)]
 	for point in points:
-		sum_count += point.count
-		sum_color = map(add, sum_color, [c * point.count for c in point.color])
-	return Point([(c / sum_count) for c in sum_color], 1)
-
-
-def euclidean(p1, p2):
-	return math.sqrt(sum([(a - b)**2 for a, b in zip(p1.color, p2.color)]))
-
-
-def selection(clusters, hvr):
-	sorted_clusters = sorted(clusters, key = lambda c: len(c.points), reverse=True)
-	rgbs = [[c / 255 for c in s.center.color] for s in sorted_clusters]
-	for color in rgbs:
-		if hvr[0] < colorsys.rgb_to_hsv(*color)[2] < hvr[1]:
-			return color
-	return rgbs[0]
-
-
-def kmeans(points, k, min_diff):
-	clusters = [Cluster([p], p) for p in random.sample(points, k)]
-
-	while True:
-		point_group = [[] for i in range(k)]
-
-		for p in points:
-			distance = [euclidean(p, cluster.center) for cluster in clusters]
-			idx = distance.index(min(distance))
-			point_group[idx].append(p)
-
-		for i, cluster in enumerate(clusters):
-			cluster.update(point_group[i])
-		diff = max(cluster.diff for claster in clusters)
-
-		if diff < min_diff:
-			break
-
-	return clusters
+		i = int(point.hsv[0] // band)
+		clusters[i].add(point)
+	clusters_l = clusters + clusters[:window - 1]
+	bands = [clusters_l[i:i + window] for i in range(n)]
+	rebanded = [Clust(sum([c.points for c in band], [])) for band in bands]
+	return rebanded
 
 
 class AutoColor(GObject.GObject):
@@ -103,9 +72,9 @@ class AutoColor(GObject.GObject):
 		img.thumbnail((options["isize"][0], options["isize"][1]))
 
 		points = get_points(img, options)
-		clusters = kmeans(points, options["clusters"], options["diff"])
-		cv = selection(clusters, options["hvr"])
-		conn.send(cv)
+		clusters = allocate(points, options["bands"], options["window"])
+		selected = max(clusters, key=lambda x: x.mass)
+		conn.send(selected.get_color())
 
 	def color_setup(self, conn, flag):
 		if flag == GLib.IO_IN:
