@@ -19,7 +19,7 @@ class PlayerPage(GuiBase):
 		elements = (
 			"mainbox", "playbutton", "seekscale", "playlist_treeview", "playlist_selection", "preview_image",
 			"volumebutton", "list_search_entry", "queue_rbutton", "list_rbutton", "solo_action_button",
-			"mass_action_button",
+			"mass_action_button", "playtoolbar",
 		)
 		super().__init__("playset.glade", elements)
 
@@ -51,6 +51,7 @@ class PlayerPage(GuiBase):
 
 		# list action buttons
 		self.set_button_images()
+		self.gui["playbutton"].set_icon_name(Gtk.STOCK_MEDIA_PLAY)
 
 		# signals
 		self.gui["playbutton"].connect("clicked", self.on_playbutton_click)
@@ -68,6 +69,7 @@ class PlayerPage(GuiBase):
 		self._mainapp.player.connect("queue-update", self.on_playqueue_update)
 		self._mainapp.player.connect("current", self.on_current_change)
 		self._mainapp.player.connect("preview-update", self.on_preview_update)
+		self._mainapp.player.connect("playing", self.on_playstate_update)
 
 		# gui setup
 		self.gui["volumebutton"].set_value(self._mainapp.config["player"]["volume"])
@@ -185,3 +187,8 @@ class PlayerPage(GuiBase):
 			self._mainapp.player.remove_from_queue(*files)
 		else:
 			self._mainapp.player.add_to_queue(*files)
+
+	def on_playstate_update(self, player, value):
+		self.gui["playbutton"].set_visible(False)  # Fix this
+		self.gui["playbutton"].set_icon_name(Gtk.STOCK_MEDIA_PAUSE if value else Gtk.STOCK_MEDIA_PLAY)
+		self.gui["playbutton"].set_visible(True)

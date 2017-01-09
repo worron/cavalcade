@@ -54,7 +54,6 @@
             <property name="resize_mode">immediate</property>
             <property name="label" translatable="yes">Play</property>
             <property name="use_underline">True</property>
-            <property name="stock_id">gtk-media-play</property>
           </object>
           <packing>
             <property name="expand">False</property>

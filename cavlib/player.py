@@ -26,6 +26,7 @@ class Player(GObject.GObject):
 		"current": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"preview-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"playing": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
 	}
 
 	def __init__(self, config):
@@ -74,6 +75,7 @@ class Player(GObject.GObject):
 				self.timer_id = GLib.timeout_add(1000, self._progress)
 			else:
 				GLib.source_remove(self.timer_id)
+			self.emit("playing", value)
 
 	def _progress(self):
 		if self.duration is None:
@@ -116,7 +118,7 @@ class Player(GObject.GObject):
 			self.load_file(self.playqueue[0])
 
 	def load_file(self, file_):
-		if self.is_playing:
+		if self.current is not None:
 			self.playqueue.remove(self.current)
 			self.stop()
 
