@@ -21,6 +21,15 @@ class GuiBase:
 		self.gui = {element: builder.get_object(element) for element in elements}
 
 
+class AttributeDict(dict):
+	"""Dictionary with keys as attributes. Does nothing but easy reading."""
+	def __getattr__(self, attr):
+		return self[attr]
+
+	def __setattr__(self, attr, value):
+		self[attr] = value
+
+
 class TreeViewHolder():
 	"""Disconnect treeview store"""
 	def __init__(self, treeview):

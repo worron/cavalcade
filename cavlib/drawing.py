@@ -1,14 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 from gi.repository import Gtk, Gdk
-
-
-class AttributeDict(dict):
-	"""Dictionary with keys as attributes. Does nothing but easy reading."""
-	def __getattr__(self, attr):
-		return self[attr]
-
-	def __setattr__(self, attr, value):
-		self[attr] = value
+from cavlib.common import AttributeDict
 
 
 class Spectrum:

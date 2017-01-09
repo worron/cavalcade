@@ -13,6 +13,27 @@ from gi.repository import Gtk
 from argparse import ArgumentParser
 from cavlib.mainapp import MainApp
 from cavlib.logger import logger
+from cavlib.common import AttributeDict
+
+
+def import_optional():
+	success = AttributeDict()
+	try:
+		gi.require_version('Gst', '1.0')
+		from gi.repository import Gst  # noqa: F401
+		success.gstreamer = True
+	except Exception:
+		success.gstreamer = False
+		logger.warning("Fail to import Gstreamer module")
+
+	try:
+		from PIL import Image  # noqa: F401
+		success.pillow = True
+	except Exception:
+		success.pillow = False
+		logger.warning("Fail to import Pillow module")
+
+	return success
 
 
 def parse_args():
@@ -38,17 +59,24 @@ def parse_args():
 		action = "store_true",
 		help = "Pause audio playing on startup"
 	)
+	parser.add_argument(
+		"--no-autocolor",
+		dest = "nocolor",
+		action = "store_true",
+		help = "Disable auto color detection function"
+	)
 	return parser.parse_args()
 
 
 if __name__ == "__main__":
+	imported = import_optional()
 	options = parse_args()
 
 	logger.setLevel(options.log_level)
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 	logger.info("Start cavalcade")
-	MainApp(options)
+	MainApp(options, imported)
 	Gtk.main()
 	logger.info("Exit cavalcade")
 	exit()

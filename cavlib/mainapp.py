@@ -13,35 +13,38 @@ from cavlib.canvas import Canvas
 
 class MainApp:
 	"""Base app class"""
-	def __init__(self, options):
+	def __init__(self, options, imported):
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
+		self.is_autocolor_enabled = imported.pillow and not options.nocolor
 
 		# check if audiofiles availible
 		files = [file_ for file_ in options.files if file_.endswith(".mp3")]
-		self.playload = bool(files)
+		self.is_player_enabled = bool(files) and imported.gstreamer
 
 		# init app structure
-		if self.playload:
+		if self.is_player_enabled:
 			self.player = Player(self.config)  # gstreamer
+			self.player.load_playlist(*files)
+			self.player.connect("image-update", self.on_image_update)
+		else:
+			logger.info("Starting without audio player function")
+
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
 		self.canvas = Canvas(self)  # main window
-		self.autocolor = AutoColor(self)  # image analyzer
 
-		# player
-		if self.playload:
-			self.player.load_playlist(*files)
-			self.player.connect("image-update", self.on_image_update)
-			if not options.noplay:
-				self.player.play_pause()
+		if self.is_autocolor_enabled:
+			self.autocolor = AutoColor(self)  # image analyzer
+			self.autocolor.connect("ac-update", self.on_autocolor_update)
 		else:
-			logger.info("Starting without audio player function")
+			logger.info("Starting without auto color detection function")
 
-		# signals
-		self.autocolor.connect("ac-update", self.on_autocolor_update)
+		# start audio playback
+		if self.is_player_enabled and not options.noplay:
+			self.player.play_pause()
 
 		# start spectrum analyzer
 		self.cava.start()
@@ -53,7 +56,8 @@ class MainApp:
 
 	def on_image_update(self, sender, bytedata):
 		self.canvas.on_image_update(bytedata)
-		self.autocolor.color_update(bytedata)
+		if self.is_autocolor_enabled:
+			self.autocolor.color_update(bytedata)
 
 	def on_autocolor_update(self, sender, rgba):
 		self.config["color"]["autofg"] = rgba

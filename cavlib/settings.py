@@ -23,7 +23,7 @@ class SettingsWindow(GuiBase):
 		self.cavapage = CavaPage(mainapp)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
-		if mainapp.playload:
+		if mainapp.is_player_enabled:
 			self.playerpage = PlayerPage(mainapp)
 			stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
