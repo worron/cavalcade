@@ -6,7 +6,7 @@ import shutil
 from configparser import ConfigParser
 from gi.repository import Gdk
 from cavlib.logger import logger
-from cavlib.base import WINDOW_HINTS
+from cavlib.common import WINDOW_HINTS
 
 
 def hex_rgba(hex_):

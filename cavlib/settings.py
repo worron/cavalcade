@@ -3,7 +3,7 @@ from gi.repository import Gtk
 from cavlib.visset import VisualPage
 from cavlib.cavaset import CavaPage
 from cavlib.playset import PlayerPage
-from cavlib.base import GuiBase
+from cavlib.common import GuiBase
 
 
 class SettingsWindow(GuiBase):

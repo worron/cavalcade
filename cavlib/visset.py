@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavlib.base import GuiBase, WINDOW_HINTS, name_from_file
+from cavlib.common import GuiBase, WINDOW_HINTS, name_from_file
 from gi.repository import Gdk, Gtk
 
 CORNERS = (

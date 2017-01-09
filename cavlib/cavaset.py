@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavlib.base import GuiBase
+from cavlib.common import GuiBase
 from cavlib.logger import logger
 from gi.repository import Gtk
 

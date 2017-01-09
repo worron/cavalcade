@@ -2,7 +2,7 @@
 import cavlib.pixbuf as pixbuf
 
 from gi.repository import Gtk
-from cavlib.base import GuiBase, TreeViewHolder, name_from_file
+from cavlib.common import GuiBase, TreeViewHolder, name_from_file
 
 LIST_IMAGES = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD))
 QUEUE_IMAGES = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR))
