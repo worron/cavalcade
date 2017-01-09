@@ -14,13 +14,18 @@ from cavlib.canvas import Canvas
 
 class MainApp:
 	"""Base app class"""
-	def __init__(self, argv):
+	def __init__(self, options):
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
+		# check if audiofiles availible
+		files = [file_ for file_ in options.files if file_.endswith(".mp3")]
+		self.playload = bool(files)
+
 		# init app structure
-		self.player = Player(self.config)  # gstreamer
+		if self.playload:
+			self.player = Player(self.config)  # gstreamer
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
@@ -28,12 +33,13 @@ class MainApp:
 		self.autocolor = AutoColor(self)  # image analyzer
 
 		# player
-		files = [file_ for file_ in argv[1:] if file_.endswith(".mp3")]
-		self.player.load_playlist(*files)
-		self.player.play_pause()
+		if self.playload:
+			self.player.load_playlist(*files)
+			self.player.connect("image-update", self.on_image_update)
+			if not options.noplay:
+				self.player.play_pause()
 
 		# signals
-		self.player.connect("image-update", self.on_image_update)
 		self.autocolor.connect("ac-update", self.on_autocolor_update)
 
 		# start spectrum analyzer

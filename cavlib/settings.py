@@ -23,8 +23,9 @@ class SettingsWindow(GuiBase):
 		self.cavapage = CavaPage(mainapp)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
-		self.playerpage = PlayerPage(mainapp)
-		stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
+		if mainapp.playload:
+			self.playerpage = PlayerPage(mainapp)
+			stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
 		stack_switcher.set_stack(stack)
