@@ -8,10 +8,10 @@ from cavlib.logger import logger
 
 class Canvas:
 	"""Helper to work with main window"""
-	def __init__(self, mainapp, config, draw_widget):
+	def __init__(self, mainapp):
 		self._mainapp = mainapp
-		self.config = config
-		self.draw = draw_widget
+		self.config = mainapp.config
+		self.draw = mainapp.draw
 
 		self.default_size = (1280, 720)  # TODO: Move to config
 		self.last_size = (-1, -1)

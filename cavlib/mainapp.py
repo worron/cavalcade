@@ -1,5 +1,4 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-
 from gi.repository import Gtk, Gdk
 
 from cavlib.config import MainConfig, CavaConfig
@@ -29,7 +28,7 @@ class MainApp:
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
-		self.canvas = Canvas(self, self.config, self.draw)  # main window
+		self.canvas = Canvas(self)  # main window
 		self.autocolor = AutoColor(self)  # image analyzer
 
 		# player
@@ -38,6 +37,8 @@ class MainApp:
 			self.player.connect("image-update", self.on_image_update)
 			if not options.noplay:
 				self.player.play_pause()
+		else:
+			logger.info("Starting without audio player function")
 
 		# signals
 		self.autocolor.connect("ac-update", self.on_autocolor_update)

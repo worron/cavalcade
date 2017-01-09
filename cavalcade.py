@@ -35,7 +35,8 @@ def parse_args():
 	parser.add_argument(
 		"--no-autoplay",
 		dest = "noplay",
-		action = "store_true"
+		action = "store_true",
+		help = "Pause audio playing on startup"
 	)
 	return parser.parse_args()
 
