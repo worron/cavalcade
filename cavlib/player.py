@@ -11,7 +11,11 @@ Gst.init(None)
 
 def image_data_from_message(message):
 	taglist = message.parse_tag()
-	gstbuffer = taglist.get_sample("image").sample.get_buffer()
+	is_ok, sample = taglist.get_sample("image")
+	if not is_ok:
+		return None
+
+	gstbuffer = sample.get_buffer()
 	mapinfo = gstbuffer.map(Gst.MapFlags.READ)[1]
 	data = mapinfo.data
 	gstbuffer.unmap(mapinfo)

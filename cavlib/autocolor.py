@@ -16,7 +16,7 @@ Point = namedtuple("Point", ("rgb", "hsv", "count"))
 class Clust:
 	def __init__(self, points = []):
 		self.points = []
-		self.mass = 0
+		self.mass = 1
 		for p in points:
 			self.add(p)
 
@@ -62,12 +62,14 @@ class AutoColor(GObject.GObject):
 		self._mainapp = mainapp
 		self.config = mainapp.config
 		self.process = None
+		self.default = None
 
 		self.pc, self.cc = multiprocessing.Pipe()  # fix this
 		self.watcher = None
+		self.catcher = self.connect("ac-update", self.catch_default_color)
+		self.handler_block(self.catcher)
 
-	def calculate(self, bytedata, options, conn):
-		file_ = io.BytesIO(bytedata)
+	def calculate(self, file_, options, conn):
 		img = Image.open(file_)
 		img.thumbnail((options["isize"][0], options["isize"][1]))
 
@@ -86,11 +88,25 @@ class AutoColor(GObject.GObject):
 			logger.error("Autocolor multiprocessing error: connection was unexpectedy terminated")
 			self.watcher = None
 
+	def catch_default_color(self, sender, rgba):
+		self.default = rgba
+		self.handler_block(self.catcher)
+
 	def color_update(self, data):
+		if data is None:
+			if self.default is None:
+				file_ = self.config["image"]["default"]
+				self.handler_unblock(self.catcher)
+			else:
+				self.emit("ac-update", self.default)
+				return
+		else:
+			file_ = io.BytesIO(data)
+
 		if self.process is None or not self.process.is_alive():
 			if self.watcher is None:
 				self.watcher = GLib.io_add_watch(self.pc, GLib.IO_IN | GLib.IO_HUP, self.color_setup)
-			self.process = multiprocessing.Process(target=self.calculate, args=(data, self.config["aco"], self.cc))
+			self.process = multiprocessing.Process(target=self.calculate, args=(file_, self.config["aco"], self.cc))
 			self.process.start()
 		else:
 			logger.error("Autocolor threading error: previus process still running, refusing to start new one")

@@ -145,5 +145,8 @@ class VisualPage(GuiBase):
 			self._mainapp.config["image"]["default"] = file_
 			self._mainapp.canvas._rebuild_background()
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
+			if self._mainapp.is_autocolor_enabled:
+				self._mainapp.autocolor.default = None
+				self._mainapp.autocolor.color_update(None)
 
 		dialog.destroy()

@@ -19,14 +19,13 @@ class MainApp:
 		self.cavaconfig = CavaConfig()
 		self.is_autocolor_enabled = imported.pillow and not options.nocolor
 
-		# check if audiofiles availible
+		# check if audiofiles available
 		files = [file_ for file_ in options.files if file_.endswith(".mp3")]
 		self.is_player_enabled = bool(files) and imported.gstreamer
 
 		# init app structure
 		if self.is_player_enabled:
 			self.player = Player(self.config)  # gstreamer
-			self.player.load_playlist(*files)
 			self.player.connect("image-update", self.on_image_update)
 		else:
 			logger.info("Starting without audio player function")
@@ -43,8 +42,10 @@ class MainApp:
 			logger.info("Starting without auto color detection function")
 
 		# start audio playback
-		if self.is_player_enabled and not options.noplay:
-			self.player.play_pause()
+		if self.is_player_enabled:
+			self.player.load_playlist(*files)
+			if not options.noplay:
+				self.player.play_pause()
 
 		# start spectrum analyzer
 		self.cava.start()

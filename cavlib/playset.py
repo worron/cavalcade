@@ -26,6 +26,7 @@ class PlayerPage(GuiBase):
 		# get preview wigget height
 		pz = self.gui["preview_image"].get_preferred_size()[1]
 		self.preview_size = pz.height - 2
+		self.preview = pixbuf.from_file_at_scale(self._mainapp.config["image"]["default"], -1, self.preview_size)
 
 		# playlist view setup
 		self.treeview = self.gui["playlist_treeview"]
@@ -152,7 +153,8 @@ class PlayerPage(GuiBase):
 			self._mainapp.player._fake_tag_reader(file_)
 
 	def on_preview_update(self, player, bytedata):
-		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size)
+		# if bytedata is not None:
+		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size) if bytedata is not None else self.preview
 		self.gui["preview_image"].set_from_pixbuf(pb)
 
 	def on_search_active(self, *args):
