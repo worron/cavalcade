@@ -37,7 +37,7 @@ def get_points(img, limit):
 	for count, color in img.getcolors(w * h):
 		rgb = [c / 255 for c in color]
 		hsv = colorsys.rgb_to_hsv(*rgb)
-		if hsv[1] > limit["sv_min"][0] and hsv[2] > limit["sv_min"][1]:
+		if hsv[1] > limit["saturation_min"] and hsv[2] > limit["value_min"]:
 			points.append(Point(rgb, hsv, count))
 	return points
 

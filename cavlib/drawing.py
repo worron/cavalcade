@@ -51,7 +51,7 @@ class Spectrum:
 
 	def size_update(self, *args):
 		"""Update drawing geometry"""
-		self.sizes.number = self.cavaconfig["bars"]
+		self.sizes.number = self.cavaconfig["general"]["bars"]
 		self.sizes.padding = self.config["draw"]["padding"]
 		self.sizes.zero = self.config["draw"]["zero"]
 

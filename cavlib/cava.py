@@ -17,7 +17,7 @@ class Cava:
 
 	def __init__(self, cavaconfig, handler):
 		self.cavaconfig = cavaconfig
-		self.path = self.cavaconfig["raw_target"]
+		self.path = self.cavaconfig["output"]["raw_target"]
 		self.data_handler = handler
 		self.command = ["cava", "-p", self.cavaconfig._file]
 		self.state = self.NONE
@@ -48,7 +48,7 @@ class Cava:
 	def _read_output(self):
 		fifo = open(self.path, "rb")
 		while True:
-			data = fifo.read(2 * self.cavaconfig["bars"])
+			data = fifo.read(2 * self.cavaconfig["general"]["bars"])
 			sample = [i[0] / 65535 for i in struct.iter_unpack("H", data)]
 			if sample:
 				GLib.idle_add(self.data_handler, sample)

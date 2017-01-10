@@ -26,7 +26,7 @@ class VisualPage(GuiBase):
 		super().__init__("visset.glade", elements)
 
 		# window state
-		for key, value in self._mainapp.config["state"].items():
+		for key, value in self._mainapp.config["window"].items():
 			self.gui["st_%s_switch" % key].set_active(value)
 			self.gui["st_%s_switch" % key].connect("notify::active", self.on_winstate_switch, key)
 
@@ -66,7 +66,9 @@ class VisualPage(GuiBase):
 		# misc
 		for hint in WINDOW_HINTS:
 			self.gui["hint_combobox"].append_text(hint)
-		self.gui["hint_combobox"].set_active(WINDOW_HINTS.index(self._mainapp.config["hint"].value_nick.upper()))
+		self.gui["hint_combobox"].set_active(
+			WINDOW_HINTS.index(self._mainapp.config["misc"]["hint"].value_nick.upper())
+		)
 		self.gui["hint_combobox"].connect("changed", self.on_hint_combo_changed)
 
 		for corner in CORNERS:
@@ -90,7 +92,7 @@ class VisualPage(GuiBase):
 
 	def on_bg_color_set(self, button):
 		self._mainapp.config["color"]["bg"] = button.get_rgba()
-		if self._mainapp.config["state"]["bgpaint"]:
+		if self._mainapp.config["window"]["bgpaint"]:
 			self._mainapp.canvas._set_bg_rgba(self._mainapp.config["color"]["bg"])
 		else:
 			self.gui["st_bgpaint_switch"].set_active(True)

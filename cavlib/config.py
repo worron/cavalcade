@@ -6,25 +6,16 @@ import shutil
 from configparser import ConfigParser
 from gi.repository import Gdk
 from cavlib.logger import logger
-from cavlib.common import WINDOW_HINTS
+from cavlib.common import AttributeDict, WINDOW_HINTS
+
+HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
 
 
-def hex_rgba(hex_):
+def str_to_rgba(hex_):
 	"""Transform html color to gtk rgba"""
 	purehex = hex_.lstrip("#")
 	nums = [int(purehex[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
 	return Gdk.RGBA(*nums)
-
-
-def num_to_str(value):
-	if isinstance(value, int):
-		return str(value)
-	elif isinstance(value, float):
-		return "{:.2f}".format(value)
-
-
-def bool_to_str(value):
-	return str(int(value))
 
 
 def rgba_to_str(rgba):
@@ -34,33 +25,59 @@ def rgba_to_str(rgba):
 
 class ConfigBase(dict):
 	"""Read some setting from ini file"""
-	system_paths = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
+	system_location = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
 	config_path = os.path.expanduser("~/.config/cavalcade")
 
-	def __init__(self, name, data={}):
+	def __init__(self, name, pattern={}):
 		self.name = name
-		self.update(data)
+		self.pattern = pattern
 		self.is_fallback = False
 
-		# default config file
-		for path in self.system_paths:
+		# read functions
+		self.reader = {
+			int: lambda section, option: self.parser.getint(section, option),
+			bool: lambda section, option: self.parser.getboolean(section, option),
+			str: lambda section, option: self.parser.get(section, option),
+			float: lambda section, option: self.parser.getfloat(section, option),
+			"ilist": lambda section, option: [int(v.strip()) for v in self.parser.get(section, option).split(";")],
+			"hint": lambda section, option: getattr(Gdk.WindowTypeHint, self.parser.get(section, option)),
+			Gdk.RGBA: lambda section, option: str_to_rgba(self.parser.get(section, option)),
+		}
+
+		# write functions
+		self.writer = {
+			int: lambda value: str(value),
+			bool: lambda value: str(int(value)),
+			str: lambda value: value,
+			float: lambda value: "{:.2f}".format(value),
+			"ilist": lambda value: ";".join(str(i) for i in value),
+			"hint": lambda value: value.value_nick.upper(),
+			Gdk.RGBA: lambda value: rgba_to_str(value),
+		}
+
+		# init
+		self._init_config_file()
+		self._load_config_file()
+
+	def _init_config_file(self):
+		"""Set user config directory and file"""
+		for path in self.system_location:
 			candidate = os.path.join(path, self.name)
 			if os.path.isfile(candidate):
 				self.defconfig = candidate
 				break
 
-		# config directory
 		if not os.path.exists(self.config_path):
 			os.makedirs(self.config_path)
 
-		# user config file
 		self._file = os.path.join(self.config_path, self.name)
 
 		if not os.path.isfile(self._file):
 			shutil.copyfile(self.defconfig, self._file)
 			logger.info("New configuration file was created:\n%s" % self._file)
 
-		# read file data
+	def _load_config_file(self):
+		"""Read raw config data"""
 		self.parser = ConfigParser()
 		try:
 			self.parser.read(self._file)
@@ -75,141 +92,131 @@ class ConfigBase(dict):
 			logger.debug("Default config '%s' successfully loaded." % self.name)
 
 	def read_data(self):
-		"""Read setting"""
-		pass
-
-
-class MainConfig(ConfigBase):
-	def __init__(self):
-		super().__init__("main.ini", dict(state={}, draw={}, offset={}, color={}, image={}, aco={}, player={}))
-
-	def read_data(self):
-		# graph
-		for key in ("padding", "zero", "silence"):
-			self["draw"][key] = self.parser.getint("Draw", key)
-		self["draw"]["scale"] = self.parser.getfloat("Draw", "scale")
-
-		# offset
-		for key in ("left", "right", "top", "bottom"):
-			self["offset"][key] = self.parser.getint("Offset", key)
-
-		# color
-		for key in ("bg", "fg", "autofg"):
-			self["color"][key] = hex_rgba(self.parser.get("Color", key))
-		self["color"]["auto"] = self.parser.getboolean("Color", "auto")
-
-		# autocolor
-		for key in ("bands", "window"):
-			self["aco"][key] = self.parser.getint("ACO", key)
-
-		self["aco"]["sv_min"] = [float(v.strip()) for v in self.parser.get("ACO", "sv_min").split(";")]
-		self["aco"]["isize"] = [int(v.strip()) for v in self.parser.get("ACO", "isize").split(";")]
-
-		# window state
-		for key in ("maximize", "below", "stick", "winbyscreen", "bgpaint", "imagebyscreen", "fullscreen"):
-			self["state"][key] = self.parser.getboolean("Window", key)
-
-		# player
-		self["player"]["volume"] = self.parser.getfloat("Player", "volume")
-		for key in ("shuffle", "showqueue"):
-			self["player"][key] = self.parser.getboolean("Player", key)
-
-		# image
-		for key in ("va", "ha", "usetag", "show"):
-			self["image"][key] = self.parser.getboolean("Image", key)
-
-		image = self.parser.get("Image", "default")
-		if not image:
-			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "DefaultWallpaper.svg")
-		elif not os.path.isfile(image):
-			raise Exception("Wrong default image value")
-		else:
-			self["image"]["default"] = image
-
-		# misc
-		hint = self.parser.get("Misc", "hint")
-		if hint in WINDOW_HINTS:
-			self["hint"] = getattr(Gdk.WindowTypeHint, hint)
-		else:
-			raise Exception("Wrong window type hint '%s'" % hint)
+		"""Read settings"""
+		for section in self.pattern.keys():
+			self[section] = dict()
+			for option, pattern in self.pattern[section].items():
+				reader = self.reader[pattern.type]
+				self[section][option] = reader(section, option)
+				if "valid" in pattern and self[section][option] not in pattern.valid:
+					raise Exception("Bad value for '%s' in '%s'" % (option, section))
 
 	def write_data(self):
-		# nums
-		for section in ("Draw", "Offset"):
-			for key, value in self[section.lower()].items():
-				self.parser[section][key] = num_to_str(value)
+		"""Read settings"""
+		for section in self.pattern.keys():
+			for option, pattern in self.pattern[section].items():
+				writer = self.writer[pattern.type]
+				self.parser[section][option] = writer(self[section][option])
 
-		self.parser["Player"]["volume"] = num_to_str(self["player"]["volume"])
-
-		# bools
-		for key, value in self["state"].items():
-			self.parser["Window"][key] = bool_to_str(value)
-
-		for key, value in self["image"].items():
-			if key != "default":
-				self.parser["Image"][key] = bool_to_str(value)
-
-		self.parser["Color"]["auto"] = bool_to_str(self["color"]["auto"])
-
-		# colors
-		for key, value in self["color"].items():
-			if key not in ("auto", "autofg"):
-				self.parser["Color"][key] = rgba_to_str(value)
-
-		# misc
-		self.parser["Image"]["default"] = self["image"]["default"]
-		self.parser["Misc"]["hint"] = self["hint"].value_nick.upper()
-
+	def save_data(self):
+		"""Save settings to file"""
 		with open(self._file, 'w') as configfile:
 			self.parser.write(configfile)
 
 
 class CavaConfig(ConfigBase):
 	def __init__(self):
-		self.valid = dict(
-			method = ["raw"]
+		super().__init__(
+			"cava.ini", dict(
+				general = dict(
+					bars = AttributeDict(type=int),
+					sensitivity = AttributeDict(type=int),
+					framerate = AttributeDict(type=int),
+					lower_cutoff_freq = AttributeDict(type=int),
+					higher_cutoff_freq = AttributeDict(type=int),
+					autosens = AttributeDict(type=bool),
+				),
+				output = dict(
+					method = AttributeDict(type=str, valid=["raw"]),
+					raw_target = AttributeDict(type=str),
+					style = AttributeDict(type=str),
+				),
+				smoothing = dict(
+					gravity = AttributeDict(type=float),
+					integral = AttributeDict(type=float),
+					ignore = AttributeDict(type=int),
+					monstercat = AttributeDict(type=bool),
+				),
+			)
 		)
-		super().__init__("cava.ini")
 
 	def read_data(self):
-		# nums
-		for gw in ("framerate", "bars", "sensitivity", "higher_cutoff_freq", "lower_cutoff_freq"):
-			self[gw] = self.parser.getint("general", gw)
-
-		self["ignore"] = self.parser.getint("smoothing", "ignore")
-
-		for sw in ("integral", "gravity"):
-			self[sw] = self.parser.getfloat("smoothing", sw)
-
-		# bool
-		self["monstercat"] = self.parser.getboolean("smoothing", "monstercat")
-		self["autosens"] = self.parser.getboolean("general", "autosens")
-
-		# misc
-		for ow in ("raw_target", "method", "style"):
-			self[ow] = self.parser.get("output", ow)
-
-		for key, valid_values in self.valid.items():
-			if self[key] not in valid_values:
-				raise Exception("Bad value for '%s' option" % key)
-
+		super().read_data()
 		self["eq"] = [float(v) for v in self.parser["eq"].values()]
 
 	def write_data(self):
-		num_keys = (
-			"framerate", "bars", "sensitivity", "higher_cutoff_freq", "lower_cutoff_freq", "gravity", "ignore",
-			"integral",
-		)
-		for section, ini_data in self.parser.items():
-			for key in (option for option in ini_data.keys() if option in num_keys):
-				self.parser[section][key] = num_to_str(self[key])
-
-		self.parser["smoothing"]["monstercat"] = bool_to_str(self["monstercat"])
-		self.parser["general"]["autosens"] = bool_to_str(self["autosens"])
-		self.parser["output"]["style"] = self["style"]
+		super().write_data()
 
 		for i, key in enumerate(self.parser["eq"].keys()):
-			self.parser["eq"][key] = num_to_str(self["eq"][i])
+			self.parser["eq"][key] = "{:.2f}".format(self["eq"][i])
 
-		with open(self._file, 'w') as configfile:
-			self.parser.write(configfile)
+		self.save_data()
+
+
+class MainConfig(ConfigBase):
+	def __init__(self):
+		super().__init__(
+			"main.ini", dict(
+				draw = dict(
+					padding = AttributeDict(type=int),
+					zero = AttributeDict(type=int),
+					silence = AttributeDict(type=int),
+					scale = AttributeDict(type=float),
+				),
+				color = dict(
+					fg = AttributeDict(type=Gdk.RGBA),
+					autofg = AttributeDict(type=Gdk.RGBA),
+					bg = AttributeDict(type=Gdk.RGBA),
+					auto = AttributeDict(type=bool),
+				),
+				offset = dict(
+					left = AttributeDict(type=int),
+					right = AttributeDict(type=int),
+					top = AttributeDict(type=int),
+					bottom = AttributeDict(type=int),
+				),
+				window = dict(
+					maximize = AttributeDict(type=bool),
+					below = AttributeDict(type=bool),
+					stick = AttributeDict(type=bool),
+					winbyscreen = AttributeDict(type=bool),
+					imagebyscreen = AttributeDict(type=bool),
+					bgpaint = AttributeDict(type=bool),
+					fullscreen = AttributeDict(type=bool),
+				),
+				image = dict(
+					show = AttributeDict(type=bool),
+					usetag = AttributeDict(type=bool),
+					va = AttributeDict(type=bool),
+					ha = AttributeDict(type=bool),
+					default = AttributeDict(type=str)
+				),
+				aco = dict(
+					bands = AttributeDict(type=int),
+					window = AttributeDict(type=int),
+					saturation_min = AttributeDict(type=float),
+					value_min = AttributeDict(type=float),
+					isize = AttributeDict(type="ilist"),
+				),
+				player = dict(
+					volume = AttributeDict(type=float),
+					shuffle = AttributeDict(type=bool),
+					showqueue = AttributeDict(type=bool),
+				),
+				misc = dict(
+					hint = AttributeDict(type="hint", valid=HINTS)
+				),
+			)
+		)
+
+	def read_data(self):
+		super().read_data()
+
+		if not self["image"]["default"]:
+			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "DefaultWallpaper.svg")
+		elif not os.path.isfile(self["image"]["default"]):
+			raise Exception("Wrong default image file")
+
+	def write_data(self):
+		super().write_data()
+		self.save_data()

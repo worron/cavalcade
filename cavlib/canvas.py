@@ -51,31 +51,31 @@ class Canvas:
 				self.overlay.remove(self.scrolled)
 
 	def set_hint(self, value):
-		self.config["hint"] = value
+		self.config["misc"]["hint"] = value
 		self.rebuild_window()
 
 	def _set_maximize(self, value):
-		self.config["state"]["maximize"] = value
+		self.config["window"]["maximize"] = value
 		action = self.window.maximize if value else self.window.unmaximize
 		action()
 
 	def _set_stick(self, value):
-		self.config["state"]["stick"] = value
+		self.config["window"]["stick"] = value
 		action = self.window.stick if value else self.window.unstick
 		action()
 
 	def _set_below(self, value):
-		self.config["state"]["below"] = value
+		self.config["window"]["below"] = value
 		self.window.set_keep_below(value)
 
 	def _set_winbyscreen(self, value):
-		self.config["state"]["winbyscreen"] = value
+		self.config["window"]["winbyscreen"] = value
 		size = self._screen_size() if value else self.default_size
 		self.window.move(0, 0)
 		self.window.resize(*size)
 
 	def _set_imagebyscreen(self, value):
-		self.config["state"]["imagebyscreen"] = value
+		self.config["window"]["imagebyscreen"] = value
 		self._rebuild_background()
 
 		if self.config["image"]["va"]:
@@ -86,12 +86,12 @@ class Canvas:
 			self.ha.set_value(self.screen.get_width())
 
 	def _set_bgpaint(self, value):
-		self.config["state"]["bgpaint"] = value
+		self.config["window"]["bgpaint"] = value
 		rgba = self.config["color"]["bg"] if value else Gdk.RGBA(0, 0, 0, 0)
 		self._set_bg_rgba(rgba)
 
 	def _set_fullscreen(self, value):
-		self.config["state"]["fullscreen"] = value
+		self.config["window"]["fullscreen"] = value
 		action = self.window.fullscreen if value else self.window.unfullscreen
 		action()
 
@@ -112,9 +112,9 @@ class Canvas:
 		self.window.set_default_size(*self.default_size)
 
 		# set window state according config settings
-		for name, value in self.config["state"].items():
+		for name, value in self.config["window"].items():
 			self.set_property(name, value)
-		self.window.set_type_hint(self.config["hint"])
+		self.window.set_type_hint(self.config["misc"]["hint"])
 
 		# set drawing widget
 		self.window.add(self.overlay)
@@ -131,7 +131,7 @@ class Canvas:
 		return (self.screen.get_width(), self.screen.get_height())
 
 	def _rebuild_background(self):
-		size = self._screen_size() if self.config["state"]["imagebyscreen"] else self.last_size
+		size = self._screen_size() if self.config["window"]["imagebyscreen"] else self.last_size
 		if not self.config["image"]["usetag"] or self.tag_image_bytedata is None:
 			pb = pixbuf.from_file_at_scale(self.config["image"]["default"], *size)
 		else:
@@ -143,7 +143,7 @@ class Canvas:
 		if self.last_size != size:
 			self.last_size = size
 			if self.config["image"]["show"]:
-				if self.config["state"]["imagebyscreen"]:
+				if self.config["window"]["imagebyscreen"]:
 					self.va.set_value(self.screen.get_height() if self.config["image"]["va"] else 0)
 					self.ha.set_value(self.screen.get_width() if self.config["image"]["ha"] else 0)
 				else:

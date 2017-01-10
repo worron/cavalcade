@@ -21,18 +21,19 @@ class CavaPage(GuiBase):
 		# setup base elements
 		self.gui["restart_button"].connect("clicked", self.on_restart_button_click)
 		self.int_sp_buttons = (
-			"framerate", "bars", "sensitivity", "higher_cutoff_freq", "lower_cutoff_freq", "ignore"
+			("general", "framerate"), ("general", "bars"), ("general", "sensitivity"),
+			("general", "higher_cutoff_freq"), ("general", "lower_cutoff_freq"), ("smoothing", "ignore")
 		)
-		self.float_sp_buttons = ("integral", "gravity")
-		self.bool_switches = ("monstercat", "autosens")
+		self.float_sp_buttons = (("smoothing", "integral"), ("smoothing", "gravity"))
+		self.bool_switches = (("smoothing", "monstercat"), ("general", "autosens"))
 
-		for w in self.int_sp_buttons + self.float_sp_buttons:
-			self.gui[w + "_spinbutton"].set_value(self._mainapp.cavaconfig[w])
+		for section, key in self.int_sp_buttons + self.float_sp_buttons:
+			self.gui[key + "_spinbutton"].set_value(self._mainapp.cavaconfig[section][key])
 
-		for w in self.bool_switches:
-			self.gui[w + "_switch"].set_active(self._mainapp.cavaconfig[w])
+		for section, key in self.bool_switches:
+			self.gui[key + "_switch"].set_active(self._mainapp.cavaconfig[section][key])
 
-		self.gui["style_combobox"].set_active(OUTPUT_STYLE.index(self._mainapp.cavaconfig["style"]))
+		self.gui["style_combobox"].set_active(OUTPUT_STYLE.index(self._mainapp.cavaconfig["output"]["style"]))
 
 		# setup equalizer
 		self.eq_store = Gtk.ListStore(str, float)
@@ -57,16 +58,16 @@ class CavaPage(GuiBase):
 			logger.error("This changes not permitted while system config file active.")
 			return
 
-		for w in self.int_sp_buttons:
-			self._mainapp.cavaconfig[w] = int(self.gui[w + "_spinbutton"].get_value())
+		for section, key in self.int_sp_buttons:
+			self._mainapp.cavaconfig[section][key] = int(self.gui[key + "_spinbutton"].get_value())
 
-		for w in self.float_sp_buttons:
-			self._mainapp.cavaconfig[w] = self.gui[w + "_spinbutton"].get_value()
+		for section, key in self.float_sp_buttons:
+			self._mainapp.cavaconfig[section][key] = self.gui[key + "_spinbutton"].get_value()
 
-		for w in self.bool_switches:
-			self._mainapp.cavaconfig[w] = self.gui[w + "_switch"].get_active()
+		for section, key in self.bool_switches:
+			self._mainapp.cavaconfig[section][key] = self.gui[key + "_switch"].get_active()
 
-		self._mainapp.cavaconfig["style"] = self.gui["style_combobox"].get_active_text().lower()
+		self._mainapp.cavaconfig["output"]["style"] = self.gui["style_combobox"].get_active_text().lower()
 
 		self._mainapp.cavaconfig["eq"] = [line[1] for line in self.eq_store]
 
