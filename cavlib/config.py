@@ -183,6 +183,7 @@ class MainConfig(ConfigBase):
 					imagebyscreen = AttributeDict(type=bool),
 					bgpaint = AttributeDict(type=bool),
 					fullscreen = AttributeDict(type=bool),
+					skiptaskbar = AttributeDict(type=bool),
 				),
 				image = dict(
 					show = AttributeDict(type=bool),
@@ -204,7 +205,8 @@ class MainConfig(ConfigBase):
 					showqueue = AttributeDict(type=bool),
 				),
 				misc = dict(
-					hint = AttributeDict(type="hint", valid=HINTS)
+					hint = AttributeDict(type="hint", valid=HINTS),
+					dsize = AttributeDict(type="ilist"),
 				),
 			)
 		)

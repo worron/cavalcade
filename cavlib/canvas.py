@@ -13,7 +13,7 @@ class Canvas:
 		self.config = mainapp.config
 		self.draw = mainapp.draw
 
-		self.default_size = (1280, 720)  # TODO: Move to config
+		self.default_size = self.config["misc"]["dsize"]
 		self.last_size = (-1, -1)
 		self.tag_image_bytedata = None
 
@@ -67,6 +67,10 @@ class Canvas:
 	def _set_below(self, value):
 		self.config["window"]["below"] = value
 		self.window.set_keep_below(value)
+
+	def _set_skiptaskbar(self, value):
+		self.config["window"]["skiptaskbar"] = value
+		self.window.set_skip_taskbar_hint(value)
 
 	def _set_winbyscreen(self, value):
 		self.config["window"]["winbyscreen"] = value

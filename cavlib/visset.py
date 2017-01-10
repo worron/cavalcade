@@ -27,8 +27,10 @@ class VisualPage(GuiBase):
 
 		# window state
 		for key, value in self._mainapp.config["window"].items():
-			self.gui["st_%s_switch" % key].set_active(value)
-			self.gui["st_%s_switch" % key].connect("notify::active", self.on_winstate_switch, key)
+			name = "st_%s_switch" % key
+			if name in self.gui:
+				self.gui[name].set_active(value)
+				self.gui[name].connect("notify::active", self.on_winstate_switch, key)
 
 		# color
 		for key, value in self._mainapp.config["color"].items():
