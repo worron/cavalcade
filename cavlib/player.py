@@ -109,11 +109,11 @@ class Player(GObject.GObject):
 			data = image_data_from_message(message)
 			self.emit("image-update", data)
 
-	def load_playlist(self, *files):
+	def load_playlist(self, files, queue=None):
 		if files:
 			self.playlist = files
 
-			self.playqueue = list(self.playlist)
+			self.playqueue = list(queue if queue else files)
 			if self.config["player"]["shuffle"]:
 				random.shuffle(self.playqueue)
 
@@ -123,7 +123,8 @@ class Player(GObject.GObject):
 
 	def load_file(self, file_):
 		if self.current is not None:
-			self.playqueue.remove(self.current)
+			if self.current in self.playqueue:
+				self.playqueue.remove(self.current)
 			self.stop()
 
 		self.is_image_updated = False
@@ -132,6 +133,11 @@ class Player(GObject.GObject):
 		if file_ not in self.playqueue:
 			self.playqueue.append(file_)
 		self.emit("queue-update", self.playqueue)
+
+	# def set_queue(self, queue):
+	# 	self.playqueue = list(queue)
+	# 	self.emit("queue-update", self.playqueue)
+	# 	self.load_file(self.playqueue[0])
 
 	def add_to_queue(self, *files):
 		updated = False

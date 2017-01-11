@@ -45,7 +45,8 @@ class PlayerPage(GuiBase):
 		self.treeview.set_model(self.storefilter)
 
 		# list view button
-		self.gui["list_rbutton"].set_active(True)
+		active_rbutton = "queue_rbutton" if self._mainapp.config["player"]["showqueue"] else "list_rbutton"
+		self.gui[active_rbutton].set_active(True)
 
 		self.gui["queue_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, True)
 		self.gui["list_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, False)

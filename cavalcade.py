@@ -65,6 +65,12 @@ def parse_args():
 		action = "store_true",
 		help = "Disable auto color detection function"
 	)
+	parser.add_argument(
+		"--restore",
+		dest = "restore",
+		action = "store_true",
+		help = "Restore previous player session"
+	)
 	return parser.parse_args()
 
 

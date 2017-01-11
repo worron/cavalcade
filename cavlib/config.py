@@ -26,7 +26,7 @@ def rgba_to_str(rgba):
 class ConfigBase(dict):
 	"""Read some setting from ini file"""
 	system_location = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
-	config_path = os.path.expanduser("~/.config/cavalcade")
+	path = os.path.expanduser("~/.config/cavalcade")
 
 	def __init__(self, name, pattern={}):
 		self.name = name
@@ -67,10 +67,10 @@ class ConfigBase(dict):
 				self.defconfig = candidate
 				break
 
-		if not os.path.exists(self.config_path):
-			os.makedirs(self.config_path)
+		if not os.path.exists(self.path):
+			os.makedirs(self.path)
 
-		self._file = os.path.join(self.config_path, self.name)
+		self._file = os.path.join(self.path, self.name)
 
 		if not os.path.isfile(self._file):
 			shutil.copyfile(self.defconfig, self._file)

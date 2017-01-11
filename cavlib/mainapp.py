@@ -1,4 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
+import os
+import pickle
 from gi.repository import Gtk, Gdk
 
 from cavlib.config import MainConfig, CavaConfig
@@ -17,11 +19,22 @@ class MainApp:
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
+
 		self.is_autocolor_enabled = imported.pillow and not options.nocolor
+		self.playstore = os.path.join(self.config.path, "store")
+		self.playdata = None
 
 		# check if audiofiles available
 		files = [file_ for file_ in options.files if file_.endswith(".mp3")]
+		if options.restore:
+			self.playdata = self.restore_playdata()
+			if self.playdata is not None:
+				files = self.playdata["list"]
+			else:
+				logger.warning("Cann't restore previous player session")
+
 		self.is_player_enabled = bool(files) and imported.gstreamer
+		self.restore_playdata()
 
 		# init app structure
 		if self.is_player_enabled:
@@ -43,7 +56,8 @@ class MainApp:
 
 		# start audio playback
 		if self.is_player_enabled:
-			self.player.load_playlist(*files)
+			queue = self.playdata["queue"] if (options.restore and self.playstore is not None) else None
+			self.player.load_playlist(files, queue)
 			if not options.noplay:
 				self.player.play_pause()
 
@@ -85,9 +99,24 @@ class MainApp:
 		elif event.type == Gdk.EventType._2BUTTON_PRESS:
 			self.settings.show()
 
+	def save_playdata(self):
+		if self.is_player_enabled:
+			playdata = {"list": self.player.playlist, "queue": self.player.playqueue}
+			with open(self.playstore, "wb") as fp:
+				pickle.dump(playdata, fp)
+
+	def restore_playdata(self):
+		if os.path.isfile(self.playstore):
+			with open(self.playstore, "rb") as fp:
+				playdata = pickle.load(fp)
+		else:
+			playdata = None
+		return playdata
+
 	def close(self, *args):
 		"""Program exit"""
 		self.cava.close()
+		self.save_playdata()
 		if not self.config.is_fallback:
 			self.config.write_data()
 		else:
