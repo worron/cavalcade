@@ -50,7 +50,19 @@ class MainApp:
 		# start spectrum analyzer
 		self.cava.start()
 
-	def autocolor_switch(self, value):
+	def default_image_update(self, file_):
+		self.config["image"]["default"] = file_
+		self.canvas._rebuild_background()
+		if self.is_autocolor_enabled:
+			self.autocolor.reset_default_color()
+
+	def on_image_sourse_switch(self, usetag):
+		self.config["image"]["usetag"] = usetag
+		self.canvas._rebuild_background()
+		if self.is_autocolor_enabled and self.config["color"]["auto"]:
+			self.autocolor.color_update(self.canvas.tag_image_bytedata if usetag else None)
+
+	def on_autocolor_switch(self, value):
 		self.config["color"]["auto"] = value
 		color = self.config["color"]["autofg"] if value else self.config["color"]["fg"]
 		self.settings.visualpage.fg_color_manual_set(color)
@@ -58,7 +70,7 @@ class MainApp:
 	def on_image_update(self, sender, bytedata):
 		self.canvas.on_image_update(bytedata)
 		if self.is_autocolor_enabled:
-			self.autocolor.color_update(bytedata)
+			self.autocolor.color_update(bytedata if self.config["image"]["usetag"] else None)
 
 	def on_autocolor_update(self, sender, rgba):
 		self.config["color"]["autofg"] = rgba

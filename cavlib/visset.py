@@ -100,7 +100,7 @@ class VisualPage(GuiBase):
 			self.gui["st_bgpaint_switch"].set_active(True)
 
 	def on_autocolor_switch(self, switch, active):
-		self._mainapp.autocolor_switch(not switch.get_active())
+		self._mainapp.on_autocolor_switch(not switch.get_active())
 
 	def on_scale_spinbutton_changed(self, button):
 		self._mainapp.config["draw"]["scale"] = float(button.get_value())
@@ -134,8 +134,7 @@ class VisualPage(GuiBase):
 
 	def on_image_rbutton_switch(self, button, active, usetag):
 		if button.get_active():
-			self._mainapp.config["image"]["usetag"] = usetag
-			self._mainapp.canvas._rebuild_background()
+			self._mainapp.on_image_sourse_switch(usetag)
 
 	def on_image_open_button_click(self, *args):
 		dialog = Gtk.FileChooserDialog(
@@ -146,11 +145,7 @@ class VisualPage(GuiBase):
 		response = dialog.run()
 		if response == Gtk.ResponseType.OK:
 			file_ = dialog.get_filename()
-			self._mainapp.config["image"]["default"] = file_
-			self._mainapp.canvas._rebuild_background()
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
-			if self._mainapp.is_autocolor_enabled:
-				self._mainapp.autocolor.default = None
-				self._mainapp.autocolor.color_update(None)
+			self._mainapp.default_image_update(file_)
 
 		dialog.destroy()

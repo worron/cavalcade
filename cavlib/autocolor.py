@@ -92,11 +92,18 @@ class AutoColor(GObject.GObject):
 		self.default = rgba
 		self.handler_block(self.catcher)
 
+	def reset_default_color(self):
+		self.default = None
+		self.color_update(None)
+
 	def color_update(self, data):
 		if data is None:
 			if self.default is None:
-				file_ = self.config["image"]["default"]
-				self.handler_unblock(self.catcher)
+				if not self.config["image"]["default"].endswith(".svg"):  # fix this
+					file_ = self.config["image"]["default"]
+					self.handler_unblock(self.catcher)
+				else:
+					return
 			else:
 				self.emit("ac-update", self.default)
 				return
