@@ -2,17 +2,37 @@
 import os
 from gi.repository import Gtk
 
-WINDOW_HINTS = (
-	"NORMAL", "DIALOG", "MENU", "TOOLBAR", "SPLASHSCREEN", "UTILITY", "DOCK", "DESKTOP",
-	"TOOLTIP", "NOTIFICATION"
-)
+WINDOW_HINTS = ("NORMAL", "DIALOG", "SPLASHSCREEN", "DOCK", "DESKTOP")
 
 
 def name_from_file(file_):
+	"""Extract file name from full path"""
 	return os.path.splitext(os.path.basename(file_))[0]
 
 
+def gtk_open_file(parent, filter_=None):
+	"""Gtk open file dialog"""
+	dialog = Gtk.FileChooserDialog(
+		"Select image file", parent, Gtk.FileChooserAction.OPEN,
+		(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+	)
+
+	if filter_ is not None:
+		dialog.add_filter(filter_)
+
+	response = dialog.run()
+	if response != Gtk.ResponseType.OK:
+		is_ok, file_ = False, None
+	else:
+		is_ok = True
+		file_ = dialog.get_filename()
+
+	dialog.destroy()
+	return is_ok, file_
+
+
 class GuiBase:
+	"""Base for Gtk widget set created with builder"""
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")
 
 	def __init__(self, file_, elements):
@@ -22,7 +42,7 @@ class GuiBase:
 
 
 class AttributeDict(dict):
-	"""Dictionary with keys as attributes. Does nothing but easy reading."""
+	"""Dictionary with keys as attributes. Does nothing but easy reading"""
 	def __getattr__(self, attr):
 		return self[attr]
 
@@ -31,7 +51,7 @@ class AttributeDict(dict):
 
 
 class TreeViewHolder():
-	"""Disconnect treeview store"""
+	"""Disconnect treeview store for rebiuld"""
 	def __init__(self, treeview):
 		self.treeview = treeview
 

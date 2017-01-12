@@ -4,45 +4,47 @@ import multiprocessing
 import colorsys
 
 from gi.repository import GLib, Gdk, GObject
-from collections import namedtuple
+from cavlib.common import AttributeDict
 from operator import add
 from PIL import Image
-
 from cavlib.logger import logger
-
-Point = namedtuple("Point", ("rgb", "hsv", "count"))
 
 
 class Clust:
+	"""Group of color points"""
 	def __init__(self, points = []):
 		self.points = []
-		self.mass = 1
+		self.mass = 0
 		for p in points:
 			self.add(p)
 
 	def add(self, point):
+		"""Add new point to group"""
 		self.points.append(point)
 		self.mass += point.count
 
 	def get_color(self):
+		"""Calculate average color for group"""
 		color = [0.0] * 3
 		for point in self.points:
 			color = map(add, color, [c * point.count for c in point.rgb])
-		return [(c / self.mass) for c in color]
+		return [(c / max(self.mass, 1)) for c in color]
 
 
 def get_points(img, limit):
+	"""Tramsform image to pack of color points"""
 	points = []
 	w, h = img.size
 	for count, color in img.getcolors(w * h):
 		rgb = [c / 255 for c in color]
 		hsv = colorsys.rgb_to_hsv(*rgb)
 		if hsv[1] > limit["saturation_min"] and hsv[2] > limit["value_min"]:
-			points.append(Point(rgb, hsv, count))
+			points.append(AttributeDict(rgb=rgb, hsv=hsv, count=count))
 	return points
 
 
 def allocate(points, n=16, window=4):
+	"""Split points to groups according there color """
 	band = 1 / n
 	clusters = [Clust() for i in range(n)]
 	for point in points:
@@ -55,6 +57,7 @@ def allocate(points, n=16, window=4):
 
 
 class AutoColor(GObject.GObject):
+	"""Image color analyzer"""
 	__gsignals__ = {"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,))}
 
 	def __init__(self, mainapp):
@@ -70,6 +73,7 @@ class AutoColor(GObject.GObject):
 		self.handler_block(self.catcher)
 
 	def calculate(self, file_, options, conn):
+		"""Find the main color of image"""
 		img = Image.open(file_)
 		img.thumbnail((options["isize"][0], options["isize"][1]))
 
@@ -79,6 +83,7 @@ class AutoColor(GObject.GObject):
 		conn.send(selected.get_color())
 
 	def color_setup(self, conn, flag):
+		"""Read data from resent calculation and transform it to rgba color"""
 		if flag == GLib.IO_IN:
 			color_values = conn.recv()
 			rgba = Gdk.RGBA(*color_values, self.config["color"]["autofg"].alpha)
@@ -89,15 +94,18 @@ class AutoColor(GObject.GObject):
 			self.watcher = None
 
 	def catch_default_color(self, sender, rgba):
+		"""Set new calculated color as default"""
 		self.default = rgba
 		self.handler_block(self.catcher)
 
 	def reset_default_color(self):
+		"""Update default color"""
 		self.default = None
 		self.color_update(None)
 
-	def color_update(self, data):
-		if data is None:
+	def color_update(self, bytedata):
+		"""Launch new calculation process with given image bytedata"""
+		if bytedata is None:
 			if self.default is None:
 				if not self.config["image"]["default"].endswith(".svg"):  # fix this
 					file_ = self.config["image"]["default"]
@@ -108,7 +116,7 @@ class AutoColor(GObject.GObject):
 				self.emit("ac-update", self.default)
 				return
 		else:
-			file_ = io.BytesIO(data)
+			file_ = io.BytesIO(bytedata)
 
 		if self.process is None or not self.process.is_alive():
 			if self.watcher is None:

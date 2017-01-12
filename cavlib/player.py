@@ -9,7 +9,9 @@ from cavlib.logger import logger
 Gst.init(None)
 
 
+# TODO: separate thread?
 def image_data_from_message(message):
+	"""Get image bytedata from id3 tag message"""
 	taglist = message.parse_tag()
 	is_ok, sample = taglist.get_sample("image")
 	if not is_ok:
@@ -23,6 +25,7 @@ def image_data_from_message(message):
 
 
 class Player(GObject.GObject):
+	"""Simple gstreamer audio player"""
 	__gsignals__ = {
 		"progress": (GObject.SIGNAL_RUN_FIRST, None, (int,)),
 		"playlist-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
@@ -52,7 +55,8 @@ class Player(GObject.GObject):
 		bus.connect("message", self._on_message)
 		bus.connect("message::tag", self._on_message_tag)
 
-		# this is ugly and shuold be rewritten
+		# this is ugly and shuold be fixed
+		# some fake player object is used to get tag image without playing audio file itself
 		self._fake_player = Gst.ElementFactory.make('playbin', 'player')
 		bus = self._fake_player.get_bus()
 		bus.add_signal_watch()
@@ -110,6 +114,10 @@ class Player(GObject.GObject):
 			self.emit("image-update", data)
 
 	def load_playlist(self, files, queue=None):
+		"""
+		Set list of audio files for player.
+		Playback queue may be settled as optional argument.
+		"""
 		if files:
 			self.playlist = files
 
@@ -122,6 +130,7 @@ class Player(GObject.GObject):
 			self.load_file(self.playqueue[0])
 
 	def load_file(self, file_):
+		"""Set audio file to play"""
 		if self.current is not None:
 			if self.current in self.playqueue:
 				self.playqueue.remove(self.current)
@@ -134,12 +143,8 @@ class Player(GObject.GObject):
 			self.playqueue.append(file_)
 		self.emit("queue-update", self.playqueue)
 
-	# def set_queue(self, queue):
-	# 	self.playqueue = list(queue)
-	# 	self.emit("queue-update", self.playqueue)
-	# 	self.load_file(self.playqueue[0])
-
 	def add_to_queue(self, *files):
+		"""Add audio file to playback queue"""
 		updated = False
 		for file_ in files:
 			if file_ not in self.playqueue:
@@ -150,6 +155,7 @@ class Player(GObject.GObject):
 			self.emit("queue-update", self.playqueue)
 
 	def remove_from_queue(self, *files):
+		"""Remove audio file from playback queue"""
 		updated = False
 		for file_ in files:
 			if file_ in self.playqueue:
@@ -160,17 +166,20 @@ class Player(GObject.GObject):
 			self.emit("queue-update", self.playqueue)
 
 	def seek(self, value):
+		"""Playback progress mainpulation"""
 		if self.duration is not None:
 			point = int(self.duration * value / 1000)
 			self.player.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, point)
 
 	def stop(self):
+		"""Stop playback"""
 		self.player.set_state(Gst.State.NULL)
 		self.is_playing = False
 		self.duration = None
 		self.current = None
 
 	def play_next(self, current):
+		"""Play next audio file in queue"""
 		self.stop()
 		if current is None:
 			logger.debug("No audio file selected")
@@ -189,6 +198,7 @@ class Player(GObject.GObject):
 			self.emit("queue-update", self.playqueue)  # fix false update if current not in queue
 
 	def play_pause(self):
+		"""Play or pause"""
 		if self.current is None:
 			logger.debug("No audio file selected")
 			return None
@@ -201,6 +211,7 @@ class Player(GObject.GObject):
 			self.is_playing = False
 
 	def set_volume(self, value):
+		"""Volume manipulation"""
 		self.player.set_property('volume', value)
 
 	def _fake_tag_reader(self, file_):

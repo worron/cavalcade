@@ -17,6 +17,7 @@ from cavlib.common import AttributeDict
 
 
 def import_optional():
+	"""Safe module import"""
 	success = AttributeDict()
 	try:
 		gi.require_version('Gst', '1.0')

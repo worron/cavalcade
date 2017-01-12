@@ -64,4 +64,5 @@ class Spectrum:
 		self.sizes.wcpi = tw % self.sizes.number  # width correnction point index
 
 	def color_update(self):
+		"""Set drawing color according current settings"""
 		self.color = self.config["color"]["autofg"] if self.config["color"]["auto"] else self.config["color"]["fg"]

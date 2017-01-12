@@ -10,20 +10,24 @@ from cavlib.logger import logger
 
 
 class Cava:
+	"""
+	CAVA wrapper.
+	Launch cava process with certain settings and read output.
+	"""
 	NONE = 0
 	RUNNING = 1
 	RESTARTING = 2
 	CLOSING = 3
 
-	def __init__(self, cavaconfig, handler):
-		self.cavaconfig = cavaconfig
+	def __init__(self, mainapp):
+		self.cavaconfig = mainapp.cavaconfig
 		self.path = self.cavaconfig["output"]["raw_target"]
-		self.data_handler = handler
+		self.data_handler = mainapp.draw.update
 		self.command = ["cava", "-p", self.cavaconfig._file]
 		self.state = self.NONE
 
 		self.env = dict(os.environ)
-		# self.env["LC_ALL"] = "en_US.UTF-8"
+		# self.env["LC_ALL"] = "en_US.UTF-8"  # not sure if it's necessary
 
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)
@@ -67,12 +71,15 @@ class Cava:
 		elif self.state == self.RUNNING:
 			self.state = self.NONE
 			logger.error("Cava process was unexpectedy terminated.")
+			# self.restart()  # May cause infinity loop, need more check
 
 	def start(self):
+		"""Launch cava"""
 		self._start_reader_thread()
 		self._run_process()
 
 	def restart(self):
+		"""Restart cava process"""
 		if self.state == self.RUNNING:
 			logger.debug("Restarting cava process (normal mode) ...")
 			self.state = self.RESTARTING
@@ -83,6 +90,7 @@ class Cava:
 			self.start()
 
 	def close(self):
+		"""Stop cava process"""
 		self.state = self.CLOSING
 		if self.process.poll() is None:
 			self.process.kill()

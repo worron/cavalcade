@@ -1,11 +1,8 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import cavlib.pixbuf as pixbuf
 
-from gi.repository import Gtk
-from cavlib.common import GuiBase, TreeViewHolder, name_from_file
-
-LIST_IMAGES = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD))
-QUEUE_IMAGES = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR))
+from gi.repository import Gtk, Pango
+from cavlib.common import GuiBase, TreeViewHolder, name_from_file, AttributeDict
 
 
 class PlayerPage(GuiBase):
@@ -23,18 +20,23 @@ class PlayerPage(GuiBase):
 		)
 		super().__init__("playset.glade", elements)
 
+		# some gui constants
+		self.TRACK_STORE = AttributeDict(INDEX=0, NAME=1, FILE=2)
+		self.LIST_IMAGES = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD))
+		self.QUEUE_IMAGES = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR))
+
 		# get preview wigget height
 		pz = self.gui["preview_image"].get_preferred_size()[1]
 		self.preview_size = pz.height - 2
-		self.preview = pixbuf.from_file_at_scale(self._mainapp.config["image"]["default"], -1, self.preview_size)
+		self.update_default_preview()
 
 		# playlist view setup
 		self.treeview = self.gui["playlist_treeview"]
 		self.treelock = TreeViewHolder(self.treeview)
 		for i, title in enumerate(("Index", "Name", "File")):
-			column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(), text=i)
+			column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.END), text=i)
 			self.treeview.append_column(column)
-			if i != 1:
+			if i != self.TRACK_STORE.NAME:
 				column.set_visible(False)
 
 		self.store = Gtk.ListStore(int, str, str)
@@ -76,21 +78,29 @@ class PlayerPage(GuiBase):
 		# gui setup
 		self.gui["volumebutton"].set_value(self._mainapp.config["player"]["volume"])
 
+	# support
+	def update_default_preview(self):
+		self.preview = pixbuf.from_file_at_scale(self._mainapp.config["image"]["default"], -1, self.preview_size)
+
 	def set_button_images(self):
-		images = QUEUE_IMAGES if self._mainapp.config["player"]["showqueue"] else LIST_IMAGES
+		"""Update action buttons images according current state"""
+		images = self.QUEUE_IMAGES if self._mainapp.config["player"]["showqueue"] else self.LIST_IMAGES
 		for i, button_name in enumerate(("solo_action_button", "mass_action_button")):
 			self.gui[button_name].set_image(images[i])
 
 	def playlist_filter_func(self, model, treeiter, data):
+		"""Function to filter current track list by search text"""
 		if not self.search_text:
 			return True
 		else:
-			return self.search_text.lower() in model[treeiter][1].lower()
+			return self.search_text.lower() in model[treeiter][self.TRACK_STORE.NAME].lower()
 
 	def get_filtered_files(self):
-		return [row[2] for row in self.storefilter]
+		"""Get list of files considering search filter"""
+		return [row[self.TRACK_STORE.FILE] for row in self.storefilter]
 
 	def hilight_current(self):
+		"""Select current playing track if availible"""
 		files = self.get_filtered_files()
 		if self.current in files:
 			index = files.index(self.current)
@@ -99,21 +109,24 @@ class PlayerPage(GuiBase):
 			self.gui["playlist_selection"].unselect_all()
 
 	def refilter_by_search(self):
+		"""Filter current track list by search text"""
 		self.search_text = self.gui['list_search_entry'].get_text()
 		with self.gui["playlist_selection"].handler_block(self.sel_handler_id):
 			self.storefilter.refilter()
 			self.gui["playlist_selection"].unselect_all()
 
 	def rebuild_store(self, data):
+		"""Update audio track store"""
 		with self.treelock:
 			self.store.clear()
 			for i, file_ in enumerate(data):
 				self.store.append([i, name_from_file(file_), file_])
 		self.hilight_current()
 
+	# gui handlers
 	def on_track_activated(self, tree, path, colomn):
 		treeiter = self.storefilter.get_iter(path)
-		file_ = self.storefilter[treeiter][2]
+		file_ = self.storefilter[treeiter][self.TRACK_STORE.FILE]
 		self._mainapp.player.load_file(file_)
 		self._mainapp.player.play_pause()
 
@@ -150,11 +163,10 @@ class PlayerPage(GuiBase):
 	def on_track_selection_changed(self, selection):
 		model, sel = selection.get_selected()
 		if sel is not None:
-			file_ = model[sel][2]
+			file_ = model[sel][self.TRACK_STORE.FILE]
 			self._mainapp.player._fake_tag_reader(file_)
 
 	def on_preview_update(self, player, bytedata):
-		# if bytedata is not None:
 		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size) if bytedata is not None else self.preview
 		self.gui["preview_image"].set_from_pixbuf(pb)
 
@@ -178,7 +190,7 @@ class PlayerPage(GuiBase):
 	def on_solo_button_click(self, *args):
 		model, sel = self.gui["playlist_selection"].get_selected()
 		if sel is not None:
-			file_ = model[sel][2]
+			file_ = model[sel][self.TRACK_STORE.FILE]
 			if self._mainapp.config["player"]["showqueue"]:
 				self._mainapp.player.remove_from_queue(file_)
 			else:

@@ -7,7 +7,7 @@ from cavlib.logger import logger
 
 
 class Canvas:
-	"""Helper to work with main window"""
+	"""Main window manager"""
 	def __init__(self, mainapp):
 		self._mainapp = mainapp
 		self.config = mainapp.config
@@ -34,26 +34,7 @@ class Canvas:
 		if not self.config["image"]["show"]:
 			self.overlay.remove(self.scrolled)
 
-	def set_property(self, name, value):
-		settler = "_set_%s" % name
-		if hasattr(self, settler):
-			getattr(self, settler)(value)
-		else:
-			logger.warning("Wrong window property '%s'" % name)
-
-	def show_image(self, value):
-		if self.config["image"]["show"] != value:
-			self.config["image"]["show"] = value
-			if value:
-				self.overlay.add(self.scrolled)
-				self._rebuild_background()
-			else:
-				self.overlay.remove(self.scrolled)
-
-	def set_hint(self, value):
-		self.config["misc"]["hint"] = value
-		self.rebuild_window()
-
+	# Base window properties
 	def _set_maximize(self, value):
 		self.config["window"]["maximize"] = value
 		action = self.window.maximize if value else self.window.unmaximize
@@ -78,7 +59,13 @@ class Canvas:
 		self.window.move(0, 0)
 		self.window.resize(*size)
 
+	def _set_fullscreen(self, value):
+		self.config["window"]["fullscreen"] = value
+		action = self.window.fullscreen if value else self.window.unfullscreen
+		action()
+
 	def _set_imagebyscreen(self, value):
+		"""Resize backgrong image to screen size despite current window size"""
 		self.config["window"]["imagebyscreen"] = value
 		self._rebuild_background()
 
@@ -90,19 +77,45 @@ class Canvas:
 			self.ha.set_value(self.screen.get_width())
 
 	def _set_bgpaint(self, value):
+		"""Use solid color or transparent background"""
 		self.config["window"]["bgpaint"] = value
 		rgba = self.config["color"]["bg"] if value else Gdk.RGBA(0, 0, 0, 0)
-		self._set_bg_rgba(rgba)
+		self.set_bg_rgba(rgba)
 
-	def _set_fullscreen(self, value):
-		self.config["window"]["fullscreen"] = value
-		action = self.window.fullscreen if value else self.window.unfullscreen
-		action()
+	def _screen_size(self):
+		"""Get current screen size"""
+		return (self.screen.get_width(), self.screen.get_height())
 
-	def _set_bg_rgba(self, rgba):
+	def _rebuild_background(self):
+		"""Update backgrond according currrent state"""
+		size = self._screen_size() if self.config["window"]["imagebyscreen"] else self.last_size
+		if not self.config["image"]["usetag"] or self.tag_image_bytedata is None:
+			pb = pixbuf.from_file_at_scale(self.config["image"]["default"], *size)
+		else:
+			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *size)
+		self.image.set_from_pixbuf(pb)
+
+	def _on_size_update(self, *args):
+		"""Update window state on size changes"""
+		size = self.window.get_size()
+		if self.last_size != size:
+			self.last_size = size
+			if self.config["image"]["show"]:
+				if self.config["window"]["imagebyscreen"]:
+					self.va.set_value(self.screen.get_height() if self.config["image"]["va"] else 0)
+					self.ha.set_value(self.screen.get_width() if self.config["image"]["ha"] else 0)
+				else:
+					self._rebuild_background()
+
+	def set_bg_rgba(self, rgba):
+		"""Set window background color"""
 		self.window.override_background_color(Gtk.StateFlags.NORMAL, rgba)
 
 	def rebuild_window(self):
+		"""
+		Recreate main window according current settings.
+		This may be useful for update specific window properties.
+		"""
 		# destroy old window
 		if hasattr(self, "window"):
 			self.window.remove(self.overlay)
@@ -131,28 +144,30 @@ class Canvas:
 		# show
 		self.window.show_all()
 
-	def _screen_size(self):
-		return (self.screen.get_width(), self.screen.get_height())
-
-	def _rebuild_background(self):
-		size = self._screen_size() if self.config["window"]["imagebyscreen"] else self.last_size
-		if not self.config["image"]["usetag"] or self.tag_image_bytedata is None:
-			pb = pixbuf.from_file_at_scale(self.config["image"]["default"], *size)
+	def set_property(self, name, value):
+		"""Set window appearance property"""
+		settler = "_set_%s" % name
+		if hasattr(self, settler):
+			getattr(self, settler)(value)
 		else:
-			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *size)
-		self.image.set_from_pixbuf(pb)
+			logger.warning("Wrong window property '%s'" % name)
 
-	def _on_size_update(self, *args):
-		size = self.window.get_size()
-		if self.last_size != size:
-			self.last_size = size
-			if self.config["image"]["show"]:
-				if self.config["window"]["imagebyscreen"]:
-					self.va.set_value(self.screen.get_height() if self.config["image"]["va"] else 0)
-					self.ha.set_value(self.screen.get_width() if self.config["image"]["ha"] else 0)
-				else:
-					self._rebuild_background()
+	def set_hint(self, value):
+		"""Set window type  hint"""
+		self.config["misc"]["hint"] = value
+		self.rebuild_window()
 
-	def on_image_update(self, bytedata):
+	def show_image(self, value):
+		"""Draw image background or solid paint"""
+		if self.config["image"]["show"] != value:
+			self.config["image"]["show"] = value
+			if value:
+				self.overlay.add(self.scrolled)
+				self._rebuild_background()
+			else:
+				self.overlay.remove(self.scrolled)
+
+	def update_image(self, bytedata):
+		"""New image from mp3 tag"""
 		self.tag_image_bytedata = bytedata
 		self._rebuild_background()

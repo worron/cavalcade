@@ -17,16 +17,20 @@ class SettingsWindow(GuiBase):
 		stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
 		stack.set_transition_duration(500)
 
+		# add visual page
 		self.visualpage = VisualPage(mainapp, self.gui["window"])
 		stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
+		# add cava page
 		self.cavapage = CavaPage(mainapp)
 		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
+		# add player page
 		if mainapp.is_player_enabled:
 			self.playerpage = PlayerPage(mainapp)
 			stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
+		# setup stack
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
 		stack_switcher.set_stack(stack)
 
@@ -39,8 +43,10 @@ class SettingsWindow(GuiBase):
 		self.visualpage.gui["exit_button"].connect("clicked", mainapp.close)
 
 	def show(self, *args):
+		"""Show settings winndow"""
 		self.gui["window"].show_all()
 
 	def hide(self, *args):
+		"""Hide settings winndow"""
 		self.gui["window"].hide()
 		return True

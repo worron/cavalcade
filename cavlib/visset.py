@@ -1,5 +1,7 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
+from collections import OrderedDict
 from cavlib.common import GuiBase, WINDOW_HINTS, name_from_file
+from cavlib.common import gtk_open_file
 from gi.repository import Gdk, Gtk
 
 CORNERS = (
@@ -24,6 +26,19 @@ class VisualPage(GuiBase):
 			"autocolor_switch", "zero_spinbutton", "silence_spinbutton",
 		)
 		super().__init__("visset.glade", elements)
+
+		# some gui constants
+		self.CORNERS = OrderedDict(
+			TOP_LEFT = (False, False),
+			TOP_RIGHT = (True, False),
+			BOTTOM_LEFT = (False, True),
+			BOTTOM_RIGHT = (True, True),
+		)
+
+		# image file filter
+		self.image_filter = Gtk.FileFilter()
+		self.image_filter.set_name("Image files")
+		self.image_filter.add_pixbuf_formats()
 
 		# window state
 		for key, value in self._mainapp.config["window"].items():
@@ -65,7 +80,7 @@ class VisualPage(GuiBase):
 
 		self.gui["image_open_button"].connect("clicked", self.on_image_open_button_click)
 
-		# misc
+		# hint
 		for hint in WINDOW_HINTS:
 			self.gui["hint_combobox"].append_text(hint)
 		self.gui["hint_combobox"].set_active(
@@ -73,17 +88,16 @@ class VisualPage(GuiBase):
 		)
 		self.gui["hint_combobox"].connect("changed", self.on_hint_combo_changed)
 
-		for corner in CORNERS:
-			self.gui["corner_combobox"].append_text(corner[0])
-		states = [corner[1] for corner in CORNERS]
-		state = (self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
-		self.gui["corner_combobox"].set_active(states.index(state))
+		# image alignment
+		for corner in self.CORNERS.keys():
+			self.gui["corner_combobox"].append_text(corner)
+
+		states = list(self.CORNERS.values())
+		current = (self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
+		self.gui["corner_combobox"].set_active(states.index(current))
 		self.gui["corner_combobox"].connect("changed", self.on_corner_combo_changed)
 
-	def fg_color_manual_set(self, rgba):
-		self.gui["fg_colorbutton"].set_rgba(rgba)
-		self._mainapp.draw.color_update()
-
+	# gui handlers
 	def on_winstate_switch(self, switch, active, key):
 		self._mainapp.canvas.set_property(key, switch.get_active())
 
@@ -95,7 +109,7 @@ class VisualPage(GuiBase):
 	def on_bg_color_set(self, button):
 		self._mainapp.config["color"]["bg"] = button.get_rgba()
 		if self._mainapp.config["window"]["bgpaint"]:
-			self._mainapp.canvas._set_bg_rgba(self._mainapp.config["color"]["bg"])
+			self._mainapp.canvas.set_bg_rgba(self._mainapp.config["color"]["bg"])
 		else:
 			self.gui["st_bgpaint_switch"].set_active(True)
 
@@ -127,25 +141,25 @@ class VisualPage(GuiBase):
 
 	def on_corner_combo_changed(self, combo):
 		text = combo.get_active_text()
-		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = dict(CORNERS)[text]
+		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = self.CORNERS[text]
 
 	def on_image_show_switch(self, switch, active):
 		self._mainapp.canvas.show_image(switch.get_active())
 
 	def on_image_rbutton_switch(self, button, active, usetag):
 		if button.get_active():
-			self._mainapp.on_image_sourse_switch(usetag)
+			self._mainapp.on_image_source_switch(usetag)
 
 	def on_image_open_button_click(self, *args):
-		dialog = Gtk.FileChooserDialog(
-			"Select image file", self.window, Gtk.FileChooserAction.OPEN,
-			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-		)
-
-		response = dialog.run()
-		if response == Gtk.ResponseType.OK:
-			file_ = dialog.get_filename()
+		is_ok, file_ = gtk_open_file(self.window, self.image_filter)
+		if is_ok:
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
 			self._mainapp.default_image_update(file_)
+			if self._mainapp.is_player_enabled:
+				self._mainapp.settings.playerpage.update_default_preview()
 
-		dialog.destroy()
+	# support
+	def fg_color_manual_set(self, rgba):
+		"""Force set drawing color by user"""
+		self.gui["fg_colorbutton"].set_rgba(rgba)
+		self._mainapp.draw.color_update()

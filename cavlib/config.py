@@ -8,23 +8,23 @@ from gi.repository import Gdk
 from cavlib.logger import logger
 from cavlib.common import AttributeDict, WINDOW_HINTS
 
-HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
+GTK_WINDOW_TYPE_HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
 
 
 def str_to_rgba(hex_):
-	"""Transform html color to gtk rgba"""
+	"""Translate color from hex string to Gdk.RGBA"""
 	purehex = hex_.lstrip("#")
 	nums = [int(purehex[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
 	return Gdk.RGBA(*nums)
 
 
 def rgba_to_str(rgba):
-	"""Translate color from Gdk.RGBA to html hex format"""
+	"""Translate color from Gdk.RGBA to hex format"""
 	return "#%02X%02X%02X%02X" % tuple(int(getattr(rgba, name) * 255) for name in ("red", "green", "blue", "alpha"))
 
 
 class ConfigBase(dict):
-	"""Read some setting from ini file"""
+	"""Base for config manager"""
 	system_location = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
 	path = os.path.expanduser("~/.config/cavalcade")
 
@@ -60,7 +60,7 @@ class ConfigBase(dict):
 		self._load_config_file()
 
 	def _init_config_file(self):
-		"""Set user config directory and file"""
+		"""Setup user config directory and file"""
 		for path in self.system_location:
 			candidate = os.path.join(path, self.name)
 			if os.path.isfile(candidate):
@@ -92,7 +92,7 @@ class ConfigBase(dict):
 			logger.debug("Default config '%s' successfully loaded." % self.name)
 
 	def read_data(self):
-		"""Read settings"""
+		"""Transform raw config data to user specified types"""
 		for section in self.pattern.keys():
 			self[section] = dict()
 			for option, pattern in self.pattern[section].items():
@@ -102,7 +102,7 @@ class ConfigBase(dict):
 					raise Exception("Bad value for '%s' in '%s'" % (option, section))
 
 	def write_data(self):
-		"""Read settings"""
+		"""Transform user specified data to raw config parser stirngs"""
 		for section in self.pattern.keys():
 			for option, pattern in self.pattern[section].items():
 				writer = self.writer[pattern.type]
@@ -115,6 +115,7 @@ class ConfigBase(dict):
 
 
 class CavaConfig(ConfigBase):
+	"""CAVA config manager"""
 	def __init__(self):
 		super().__init__(
 			"cava.ini", dict(
@@ -154,6 +155,7 @@ class CavaConfig(ConfigBase):
 
 
 class MainConfig(ConfigBase):
+	"""Main application config manager"""
 	def __init__(self):
 		super().__init__(
 			"main.ini", dict(
@@ -205,7 +207,7 @@ class MainConfig(ConfigBase):
 					showqueue = AttributeDict(type=bool),
 				),
 				misc = dict(
-					hint = AttributeDict(type="hint", valid=HINTS),
+					hint = AttributeDict(type="hint", valid=GTK_WINDOW_TYPE_HINTS),
 					dsize = AttributeDict(type="ilist"),
 				),
 			)

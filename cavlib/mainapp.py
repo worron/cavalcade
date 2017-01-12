@@ -14,7 +14,7 @@ from cavlib.canvas import Canvas
 
 
 class MainApp:
-	"""Base app class"""
+	"""Main applicaion class"""
 	def __init__(self, options, imported):
 		# load config
 		self.config = MainConfig()
@@ -44,9 +44,9 @@ class MainApp:
 			logger.info("Starting without audio player function")
 
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
-		self.cava = Cava(self.cavaconfig, self.draw.update)  # cava wrapper
+		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
-		self.canvas = Canvas(self)  # main window
+		self.canvas = Canvas(self)  # main windo
 
 		if self.is_autocolor_enabled:
 			self.autocolor = AutoColor(self)  # image analyzer
@@ -60,33 +60,33 @@ class MainApp:
 			self.player.load_playlist(files, queue)
 			if not options.noplay:
 				self.player.play_pause()
+			elif self.is_autocolor_enabled:
+				self.autocolor.reset_default_color()
 
 		# start spectrum analyzer
 		self.cava.start()
 
-	def default_image_update(self, file_):
-		self.config["image"]["default"] = file_
-		self.canvas._rebuild_background()
-		if self.is_autocolor_enabled:
-			self.autocolor.reset_default_color()
-
-	def on_image_sourse_switch(self, usetag):
+	def on_image_source_switch(self, usetag):
+		"""Use default background or image from mp3 tag"""
 		self.config["image"]["usetag"] = usetag
 		self.canvas._rebuild_background()
 		if self.is_autocolor_enabled and self.config["color"]["auto"]:
 			self.autocolor.color_update(self.canvas.tag_image_bytedata if usetag else None)
 
 	def on_autocolor_switch(self, value):
+		"""Use color analyzer or user preset"""
 		self.config["color"]["auto"] = value
 		color = self.config["color"]["autofg"] if value else self.config["color"]["fg"]
 		self.settings.visualpage.fg_color_manual_set(color)
 
 	def on_image_update(self, sender, bytedata):
-		self.canvas.on_image_update(bytedata)
+		"""New image from mp3 tag"""
+		self.canvas.update_image(bytedata)
 		if self.is_autocolor_enabled:
 			self.autocolor.color_update(bytedata if self.config["image"]["usetag"] else None)
 
 	def on_autocolor_update(self, sender, rgba):
+		"""New data from color analyzer"""
 		self.config["color"]["autofg"] = rgba
 		if self.config["color"]["auto"]:
 			self.settings.visualpage.fg_color_manual_set(rgba)
@@ -99,13 +99,22 @@ class MainApp:
 		elif event.type == Gdk.EventType._2BUTTON_PRESS:
 			self.settings.show()
 
+	def default_image_update(self, file_):
+		"""Set new default background """
+		self.config["image"]["default"] = file_
+		self.canvas._rebuild_background()
+		if self.is_autocolor_enabled:
+			self.autocolor.reset_default_color()
+
 	def save_playdata(self):
+		"""Save current playlist"""
 		if self.is_player_enabled:
 			playdata = {"list": self.player.playlist, "queue": self.player.playqueue}
 			with open(self.playstore, "wb") as fp:
 				pickle.dump(playdata, fp)
 
 	def restore_playdata(self):
+		"""Restore playlist from previous session"""
 		if os.path.isfile(self.playstore):
 			with open(self.playstore, "rb") as fp:
 				playdata = pickle.load(fp)
@@ -114,7 +123,7 @@ class MainApp:
 		return playdata
 
 	def close(self, *args):
-		"""Program exit"""
+		"""Application exit"""
 		self.cava.close()
 		self.save_playdata()
 		if not self.config.is_fallback:
