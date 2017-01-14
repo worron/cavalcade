@@ -4,7 +4,7 @@
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkAdjustment" id="bars_adjustment">
     <property name="lower">20</property>
-    <property name="upper">200</property>
+    <property name="upper">64</property>
     <property name="value">20</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
@@ -64,6 +64,7 @@
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
+        <property name="tooltip_text" translatable="yes">Restart CAVA utility for applying changes.</property>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -111,6 +112,7 @@
               <object class="GtkSpinButton" id="bars_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">The number of bars.</property>
                 <property name="text" translatable="yes">1,0</property>
                 <property name="adjustment">bars_adjustment</property>
                 <property name="digits">1</property>
@@ -149,6 +151,7 @@
               <object class="GtkSpinButton" id="sensitivity_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Sensitivity level.</property>
                 <property name="text" translatable="yes">1,0</property>
                 <property name="adjustment">sensitivity_adjustment</property>
                 <property name="digits">1</property>
@@ -187,9 +190,10 @@
               <object class="GtkSpinButton" id="framerate_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Framerate.</property>
                 <property name="text" translatable="yes">10,0</property>
                 <property name="adjustment">framerate_adjustment</property>
-                <property name="digits">2</property>
+                <property name="digits">1</property>
                 <property name="value">10</property>
               </object>
               <packing>
@@ -225,6 +229,7 @@
               <object class="GtkSpinButton" id="ignore_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">In bar height, bars that would have been lower that this will not be drawn.</property>
                 <property name="text" translatable="yes">9,00</property>
                 <property name="adjustment">ignore_adjustment</property>
                 <property name="digits">2</property>
@@ -287,6 +292,7 @@
               <object class="GtkSpinButton" id="lower_cutoff_freq_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Lower cutoff frequency.</property>
                 <property name="text" translatable="yes">12,00</property>
                 <property name="adjustment">lower_cutoff_freq_adjustment</property>
                 <property name="value">12</property>
@@ -324,6 +330,7 @@
               <object class="GtkSpinButton" id="higher_cutoff_freq_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Higher cutoff frequency.</property>
                 <property name="text" translatable="yes">12,00</property>
                 <property name="adjustment">higher_cutoff_freq_adjustment</property>
                 <property name="value">12</property>
@@ -386,6 +393,7 @@
               <object class="GtkSpinButton" id="integral_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Multiplier for the integral smoothing calculations.</property>
                 <property name="text" translatable="yes">9,00</property>
                 <property name="adjustment">integral_adjustment</property>
                 <property name="digits">2</property>
@@ -424,6 +432,7 @@
               <object class="GtkSpinButton" id="gravity_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Set gravity multiplier for "drop off". Higher values means bars will drop faster.</property>
                 <property name="text" translatable="yes">12,00</property>
                 <property name="adjustment">gravity_adjustment</property>
                 <property name="digits">2</property>
@@ -462,6 +471,7 @@
               <object class="GtkSwitch" id="monstercat_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Use the monstercat filter.</property>
                 <property name="valign">center</property>
               </object>
               <packing>
@@ -497,6 +507,7 @@
               <object class="GtkSwitch" id="autosens_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Autosens will attempt to decrease sensitivity if cava peaks.</property>
                 <property name="valign">center</property>
               </object>
               <packing>
@@ -551,6 +562,8 @@
           <object class="GtkComboBoxText" id="style_combobox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Stereo mirrors both channels with low frequencies in center.
+Mono averages both channels and outputs left to right lowest to highest frequencies.</property>
             <items>
               <item translatable="yes">Mono</item>
               <item translatable="yes">Stereo</item>
@@ -589,6 +602,7 @@
           <object class="GtkTreeView" id="eq_treeview">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">Equalizer setup. First bands is for bass, the last ones for treble.</property>
             <property name="headers_visible">False</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection" id="treeview-selection3"/>
