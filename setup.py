@@ -18,6 +18,7 @@ setup(
 	LICENSE = "GPL",
 	author="worron",
 	author_email="worrongm@gmail.com",
+	url="https://github.com/worron/cavalcade",
 	packages=["cavalcade", 'cavalcade.gui', 'cavalcade.data'],
 	install_requires = ["setuptools"],
 	package_data = {"cavalcade.gui": ["*.glade"], "cavalcade.data": ["*.ini", "*.svg"]},
