@@ -37,3 +37,5 @@ Use help command to get list of all available arguments:
 ```bash
 $ cavalcade --help
 ```
+
+Double click on window to show settings dialog.
