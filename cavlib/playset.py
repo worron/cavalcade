@@ -22,8 +22,16 @@ class PlayerPage(GuiBase):
 
 		# some gui constants
 		self.TRACK_STORE = AttributeDict(INDEX=0, NAME=1, FILE=2)
-		self.LIST_IMAGES = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD))
-		self.QUEUE_IMAGES = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR))
+		self.ACTION_BUTTON_DATA = dict(
+			list = AttributeDict(
+				images = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD)),
+				tooltip = ("Add track to playback queue.", "Add all to playback queue.")
+			),
+			queue = AttributeDict(
+				images = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR)),
+				tooltip = ("Remove track from playback queue.", "Clear playback queue.")
+			)
+		)
 
 		# get preview wigget height
 		pz = self.gui["preview_image"].get_preferred_size()[1]
@@ -84,9 +92,10 @@ class PlayerPage(GuiBase):
 
 	def set_button_images(self):
 		"""Update action buttons images according current state"""
-		images = self.QUEUE_IMAGES if self._mainapp.config["player"]["showqueue"] else self.LIST_IMAGES
+		data = self.ACTION_BUTTON_DATA["queue" if self._mainapp.config["player"]["showqueue"] else "list"]
 		for i, button_name in enumerate(("solo_action_button", "mass_action_button")):
-			self.gui[button_name].set_image(images[i])
+			self.gui[button_name].set_image(data.images[i])
+			self.gui[button_name].set_tooltip_text(data.tooltip[i])
 
 	def playlist_filter_func(self, model, treeiter, data):
 		"""Function to filter current track list by search text"""
@@ -158,7 +167,10 @@ class PlayerPage(GuiBase):
 	def on_current_change(self, player, current):
 		self.current = current
 		if current is not None:
+			self.gui["playbutton"].set_tooltip_text("Playing: %s" % name_from_file(current))
 			self.hilight_current()
+		else:
+			self.gui["playbutton"].set_tooltip_text("Playing: none")
 
 	def on_track_selection_changed(self, selection):
 		model, sel = selection.get_selected()
