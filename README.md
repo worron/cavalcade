@@ -2,6 +2,9 @@
 
 Python wrapper for [C.A.V.A.](https://github.com/karlstav/cava) utility with his own drawing window, gui settings and basic audio player functions.
 
+Screenshot
+![](http://i.imgur.com/D6I21lL.png)
+
 ####Dependencies
 
 ######Base
