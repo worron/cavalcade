@@ -118,6 +118,7 @@
                   <object class="GtkSwitch" id="st_winbyscreen_switch">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tooltip_text" translatable="yes">Scale window to screen size.</property>
                     <property name="valign">center</property>
                   </object>
                   <packing>
@@ -138,6 +139,7 @@
               <object class="GtkComboBoxText" id="hint_combobox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Set window type hint.</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -173,6 +175,7 @@
               <object class="GtkSwitch" id="st_stick_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Show window for all desktops.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -207,6 +210,7 @@
               <object class="GtkSwitch" id="st_below_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Keep window below.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -242,6 +246,7 @@
               <object class="GtkSwitch" id="st_imagebyscreen_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Scale backgroung image to screen size despite current window size.</property>
                 <property name="valign">center</property>
               </object>
               <packing>
@@ -277,6 +282,7 @@
               <object class="GtkSwitch" id="st_fullscreen_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Switch full screen mode.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -312,6 +318,7 @@
               <object class="GtkSwitch" id="st_maximize_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Maximize wnidow.</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -330,6 +337,7 @@
           <object class="GtkComboBoxText" id="corner_combobox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Background image alignment. Reset 'image to screen' option to apply changes.</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -381,6 +389,7 @@
               <object class="GtkSwitch" id="autocolor_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Use custom drawing color.</property>
                 <property name="halign">end</property>
                 <property name="valign">center</property>
               </object>
@@ -396,6 +405,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Set custom drawing color.</property>
                 <property name="halign">center</property>
                 <property name="hexpand">True</property>
                 <property name="use_alpha">True</property>
@@ -435,6 +445,7 @@
               <object class="GtkSwitch" id="st_bgpaint_switch">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Use solid background color.</property>
                 <property name="valign">center</property>
               </object>
               <packing>
@@ -449,6 +460,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Set custom background color.</property>
                 <property name="halign">center</property>
                 <property name="hexpand">True</property>
                 <property name="use_alpha">True</property>
@@ -512,6 +524,7 @@
               <object class="GtkSpinButton" id="scale_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Multiplier for spectrum values.</property>
                 <property name="adjustment">scale_adjustment</property>
                 <property name="digits">1</property>
                 <property name="value">1</property>
@@ -549,6 +562,7 @@
               <object class="GtkSpinButton" id="padding_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Bars padding.</property>
                 <property name="adjustment">padding_adjustment</property>
                 <property name="value">5</property>
               </object>
@@ -585,6 +599,7 @@
               <object class="GtkSpinButton" id="zero_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Draw zero spectrum values.</property>
                 <property name="text" translatable="yes">5</property>
                 <property name="adjustment">zero_adjustment</property>
                 <property name="value">5</property>
@@ -622,6 +637,7 @@
               <object class="GtkSpinButton" id="silence_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Number of empty iterations before halting.</property>
                 <property name="text" translatable="yes">5,0</property>
                 <property name="adjustment">silence_adjustment</property>
                 <property name="value">5</property>
@@ -685,6 +701,7 @@
               <object class="GtkSpinButton" id="top_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Top offset.</property>
                 <property name="adjustment">top_adjustment</property>
               </object>
               <packing>
@@ -720,6 +737,7 @@
               <object class="GtkSpinButton" id="bottom_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Bottom offset.</property>
                 <property name="adjustment">bottom_adjustment</property>
               </object>
               <packing>
@@ -755,6 +773,7 @@
               <object class="GtkSpinButton" id="left_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Left offset.</property>
                 <property name="adjustment">left_adjustment</property>
               </object>
               <packing>
@@ -790,6 +809,7 @@
               <object class="GtkSpinButton" id="right_spinbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Right offset.</property>
                 <property name="adjustment">right_adjustment</property>
               </object>
               <packing>
@@ -837,6 +857,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">Use default background image.</property>
                 <property name="image">file_image</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0.51999998092651367</property>
@@ -855,6 +876,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
+                <property name="tooltip_text" translatable="yes">Use image from audio tag as background image.</property>
                 <property name="image">tag_image</property>
                 <property name="xalign">0</property>
                 <property name="active">True</property>
@@ -883,6 +905,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Select default background image.</property>
             <property name="image">open_image</property>
           </object>
           <packing>
@@ -895,6 +918,7 @@
           <object class="GtkSwitch" id="st_image_show_switch">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">Show background image.</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -949,6 +973,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Exit program.</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -962,6 +987,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Hide settings window.</property>
           </object>
           <packing>
             <property name="expand">False</property>

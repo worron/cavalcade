@@ -65,7 +65,7 @@ class Canvas:
 		action()
 
 	def _set_imagebyscreen(self, value):
-		"""Resize backgrong image to screen size despite current window size"""
+		"""Resize backgroung image to screen size despite current window size"""
 		self.config["window"]["imagebyscreen"] = value
 		self._rebuild_background()
 
