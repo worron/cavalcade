@@ -6,7 +6,7 @@ import threading
 import subprocess
 
 from gi.repository import GLib
-from cavlib.logger import logger
+from cavalcade.logger import logger
 
 
 class Cava:

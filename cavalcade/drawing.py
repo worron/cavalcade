@@ -1,6 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 from gi.repository import Gtk, Gdk
-from cavlib.common import AttributeDict
+from cavalcade.common import AttributeDict
 
 
 class Spectrum:

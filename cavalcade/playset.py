@@ -1,8 +1,8 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-import cavlib.pixbuf as pixbuf
+import cavalcade.pixbuf as pixbuf
 
 from gi.repository import Gtk, Pango
-from cavlib.common import GuiBase, TreeViewHolder, name_from_file, AttributeDict
+from cavalcade.common import GuiBase, TreeViewHolder, name_from_file, AttributeDict
 
 
 class PlayerPage(GuiBase):

@@ -1,8 +1,8 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavlib.common import GuiBase
-from cavlib.logger import logger
+from cavalcade.common import GuiBase
+from cavalcade.logger import logger
 from gi.repository import Gtk
-from cavlib.common import AttributeDict
+from cavalcade.common import AttributeDict
 
 
 class CavaPage(GuiBase):

@@ -4,10 +4,10 @@ import multiprocessing
 import colorsys
 
 from gi.repository import GLib, Gdk, GObject
-from cavlib.common import AttributeDict
+from cavalcade.common import AttributeDict
 from operator import add
 from PIL import Image
-from cavlib.logger import logger
+from cavalcade.logger import logger
 
 
 class Clust:

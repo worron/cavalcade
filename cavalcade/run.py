@@ -7,13 +7,14 @@ import gi
 import signal
 
 gi.require_version('Gtk', '3.0')
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+if __name__ == "__main__":
+	sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from gi.repository import Gtk
 from argparse import ArgumentParser
-from cavlib.mainapp import MainApp
-from cavlib.logger import logger
-from cavlib.common import AttributeDict
+from cavalcade.mainapp import MainApp
+from cavalcade.logger import logger
+from cavalcade.common import AttributeDict
 
 
 def import_optional():
@@ -75,7 +76,7 @@ def parse_args():
 	return parser.parse_args()
 
 
-if __name__ == "__main__":
+def run():
 	imported = import_optional()
 	options = parse_args()
 
@@ -86,4 +87,6 @@ if __name__ == "__main__":
 	MainApp(options, imported)
 	Gtk.main()
 	logger.info("Exit cavalcade")
-	exit()
+
+if __name__ == "__main__":
+	run()

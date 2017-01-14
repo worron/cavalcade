@@ -1,9 +1,9 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 from gi.repository import Gtk
-from cavlib.visset import VisualPage
-from cavlib.cavaset import CavaPage
-from cavlib.playset import PlayerPage
-from cavlib.common import GuiBase
+from cavalcade.visset import VisualPage
+from cavalcade.cavaset import CavaPage
+from cavalcade.playset import PlayerPage
+from cavalcade.common import GuiBase
 
 
 class SettingsWindow(GuiBase):

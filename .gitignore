@@ -1,3 +1,9 @@
 # Ignore python cache
 **/__pycache__
 **/*.pyc
+
+# Ignore setup env
+log.txt
+build/
+dist/
+cavalcade.egg-info/

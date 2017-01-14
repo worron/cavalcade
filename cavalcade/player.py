@@ -4,7 +4,7 @@ import random
 gi.require_version('Gst', '1.0')
 
 from gi.repository import Gst, GLib, GObject
-from cavlib.logger import logger
+from cavalcade.logger import logger
 
 Gst.init(None)
 

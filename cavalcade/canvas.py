@@ -1,9 +1,9 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 
 from gi.repository import Gtk, Gdk
-import cavlib.pixbuf as pixbuf
+import cavalcade.pixbuf as pixbuf
 
-from cavlib.logger import logger
+from cavalcade.logger import logger
 
 
 class Canvas:

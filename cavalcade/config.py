@@ -5,8 +5,8 @@ import shutil
 
 from configparser import ConfigParser
 from gi.repository import Gdk
-from cavlib.logger import logger
-from cavlib.common import AttributeDict, WINDOW_HINTS
+from cavalcade.logger import logger
+from cavalcade.common import AttributeDict, WINDOW_HINTS
 
 GTK_WINDOW_TYPE_HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
 
