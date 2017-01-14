@@ -194,7 +194,7 @@ class MainConfig(ConfigBase):
 					ha = AttributeDict(type=bool),
 					default = AttributeDict(type=str)
 				),
-				aco = dict(
+				autocolor = dict(
 					bands = AttributeDict(type=int),
 					window = AttributeDict(type=int),
 					saturation_min = AttributeDict(type=float),
