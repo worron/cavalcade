@@ -4,10 +4,10 @@ import multiprocessing
 import colorsys
 
 from gi.repository import GLib, Gdk, GObject
-from cavlib.common import AttributeDict
+from cavalcade.common import AttributeDict
 from operator import add
 from PIL import Image
-from cavlib.logger import logger
+from cavalcade.logger import logger
 
 
 class Clust:
@@ -121,7 +121,9 @@ class AutoColor(GObject.GObject):
 		if self.process is None or not self.process.is_alive():
 			if self.watcher is None:
 				self.watcher = GLib.io_add_watch(self.pc, GLib.IO_IN | GLib.IO_HUP, self.color_setup)
-			self.process = multiprocessing.Process(target=self.calculate, args=(file_, self.config["aco"], self.cc))
+			self.process = multiprocessing.Process(
+				target=self.calculate, args=(file_, self.config["autocolor"], self.cc)
+			)
 			self.process.start()
 		else:
 			logger.error("Autocolor threading error: previus process still running, refusing to start new one")

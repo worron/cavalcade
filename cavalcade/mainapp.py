@@ -3,14 +3,14 @@ import os
 import pickle
 from gi.repository import Gtk, Gdk
 
-from cavlib.config import MainConfig, CavaConfig
-from cavlib.drawing import Spectrum
-from cavlib.cava import Cava
-from cavlib.settings import SettingsWindow
-from cavlib.player import Player
-from cavlib.logger import logger
-from cavlib.autocolor import AutoColor
-from cavlib.canvas import Canvas
+from cavalcade.config import MainConfig, CavaConfig
+from cavalcade.drawing import Spectrum
+from cavalcade.cava import Cava
+from cavalcade.settings import SettingsWindow
+from cavalcade.player import Player
+from cavalcade.logger import logger
+from cavalcade.autocolor import AutoColor
+from cavalcade.canvas import Canvas
 
 
 class MainApp:
