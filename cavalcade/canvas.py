@@ -29,10 +29,18 @@ class Canvas:
 		self.va = self.scrolled.get_vadjustment()
 		self.ha = self.scrolled.get_hadjustment()
 
+		# build setup
 		self.rebuild_window()
 		# fix this
 		if not self.config["image"]["show"]:
 			self.overlay.remove(self.scrolled)
+
+		# signals
+		self.overlay.connect("key-press-event", self._on_key_press)
+
+	def _on_key_press(self, widget, event):
+		if event.keyval == Gdk.KEY_space and self._mainapp.is_player_enabled:
+			self._mainapp.player.play_pause()
 
 	# Base window properties
 	def _set_maximize(self, value):

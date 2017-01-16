@@ -13,7 +13,7 @@ from setuptools import setup
 
 setup(
 	name="cavalcade",
-	version="0.5.dev1",
+	version="0.6.dev1",
 	description="GUI wrapper for C.A.V.A. utility",
 	LICENSE = "GPL",
 	author="worron",
