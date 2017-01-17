@@ -37,6 +37,7 @@ class Canvas:
 
 		# signals
 		self.overlay.connect("key-press-event", self._on_key_press)
+		self._mainapp.connect("tag-image-update", self.on_image_update)
 
 	def _on_key_press(self, widget, event):
 		if event.keyval == Gdk.KEY_space and self._mainapp.is_player_enabled:
@@ -175,7 +176,7 @@ class Canvas:
 			else:
 				self.overlay.remove(self.scrolled)
 
-	def update_image(self, bytedata):
+	def on_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		self.tag_image_bytedata = bytedata
 		self._rebuild_background()

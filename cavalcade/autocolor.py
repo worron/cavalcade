@@ -3,7 +3,7 @@ import io
 import multiprocessing
 import colorsys
 
-from gi.repository import GLib, Gdk, GObject
+from gi.repository import GLib, Gdk
 from cavalcade.common import AttributeDict
 from operator import add
 from PIL import Image
@@ -56,10 +56,8 @@ def allocate(points, n=16, window=4):
 	return rebanded
 
 
-class AutoColor(GObject.GObject):
+class AutoColor:
 	"""Image color analyzer"""
-	__gsignals__ = {"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,))}
-
 	def __init__(self, mainapp):
 		super().__init__()
 		self._mainapp = mainapp
@@ -69,8 +67,21 @@ class AutoColor(GObject.GObject):
 
 		self.pc, self.cc = multiprocessing.Pipe()  # fix this
 		self.watcher = None
-		self.catcher = self.connect("ac-update", self.catch_default_color)
-		self.handler_block(self.catcher)
+		self.catcher = self._mainapp.connect("ac-update", self.catch_default_color)
+		self._mainapp.handler_block(self.catcher)
+
+		self._mainapp.connect("reset-color", self.reset_default_color)
+		self._mainapp.connect("tag-image-update", self.on_image_update)
+		self._mainapp.connect("image-source-switch", self.on_image_source_switch)
+
+	def on_image_update(self, sender, bytedata):
+		"""New image from mp3 tag"""
+		if self.config["image"]["usetag"]:
+			self.color_update(bytedata)
+
+	def on_image_source_switch(self, sender, usetag):
+		"""Use default background or image from mp3 tag"""
+		self.color_update(self._mainapp.canvas.tag_image_bytedata if usetag else None)
 
 	def calculate(self, file_, options, conn):
 		"""Find the main color of image"""
@@ -87,7 +98,7 @@ class AutoColor(GObject.GObject):
 		if flag == GLib.IO_IN:
 			color_values = conn.recv()
 			rgba = Gdk.RGBA(*color_values, self.config["color"]["autofg"].alpha)
-			self.emit("ac-update", rgba)
+			self._mainapp.emit("ac-update", rgba)
 			return True
 		else:
 			logger.error("Autocolor multiprocessing error: connection was unexpectedy terminated")
@@ -96,9 +107,9 @@ class AutoColor(GObject.GObject):
 	def catch_default_color(self, sender, rgba):
 		"""Set new calculated color as default"""
 		self.default = rgba
-		self.handler_block(self.catcher)
+		self._mainapp.handler_block(self.catcher)
 
-	def reset_default_color(self):
+	def reset_default_color(self, *args):
 		"""Update default color"""
 		self.default = None
 		self.color_update(None)
@@ -109,7 +120,7 @@ class AutoColor(GObject.GObject):
 			if self.default is None:
 				if not self.config["image"]["default"].endswith(".svg"):  # fix this
 					file_ = self.config["image"]["default"]
-					self.handler_unblock(self.catcher)
+					self._mainapp.handler_unblock(self.catcher)
 				else:
 					return
 			else:

@@ -148,7 +148,9 @@ class VisualPage(GuiBase):
 
 	def on_image_rbutton_switch(self, button, active, usetag):
 		if button.get_active():
-			self._mainapp.on_image_source_switch(usetag)
+			self._mainapp.config["image"]["usetag"] = usetag
+			self._mainapp.canvas._rebuild_background()
+			self._mainapp.emit("image-source-switch", usetag)
 
 	def on_image_open_button_click(self, *args):
 		is_ok, file_ = gtk_open_file(self.window, self.image_filter)

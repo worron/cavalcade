@@ -32,13 +32,13 @@ class Player(GObject.GObject):
 		"queue-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"current": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"preview-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
-		"image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"playing": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
 	}
 
-	def __init__(self, config):
+	def __init__(self, mainapp):
 		super().__init__()
-		self.config = config
+		self._mainapp = mainapp
+		self.config = mainapp.config
 		self.playlist = []
 		self.playqueue = []
 
@@ -111,7 +111,7 @@ class Player(GObject.GObject):
 		if not self.is_image_updated:
 			self.is_image_updated = True
 			data = image_data_from_message(message)
-			self.emit("image-update", data)
+			self._mainapp.emit("tag-image-update", data)
 
 	def load_playlist(self, files, queue=None):
 		"""

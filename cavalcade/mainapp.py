@@ -1,7 +1,7 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import os
 import pickle
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GObject
 
 from cavalcade.config import MainConfig, CavaConfig
 from cavalcade.drawing import Spectrum
@@ -13,14 +13,22 @@ from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
 
 
-class MainApp:
+class MainApp(GObject.GObject):
 	"""Main applicaion class"""
+	__gsignals__ = {
+		"reset-color": (GObject.SIGNAL_RUN_FIRST, None, ()),
+		"tag-image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"image-source-switch": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+		"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+	}
+
 	def __init__(self, options, imported):
+		super().__init__()
+
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
-		self.is_autocolor_enabled = imported.pillow and not options.nocolor
 		self.playstore = os.path.join(self.config.path, "store")
 		self.playdata = None
 
@@ -38,8 +46,7 @@ class MainApp:
 
 		# init app structure
 		if self.is_player_enabled:
-			self.player = Player(self.config)  # gstreamer
-			self.player.connect("image-update", self.on_image_update)
+			self.player = Player(self)  # gstreamer
 		else:
 			logger.info("Starting without audio player function")
 
@@ -48,9 +55,9 @@ class MainApp:
 		self.settings = SettingsWindow(self)  # settings window
 		self.canvas = Canvas(self)  # main windo
 
-		if self.is_autocolor_enabled:
+		if imported.pillow and not options.nocolor:
 			self.autocolor = AutoColor(self)  # image analyzer
-			self.autocolor.connect("ac-update", self.on_autocolor_update)
+			# self.autocolor.connect("ac-update", self.on_autocolor_update)
 		else:
 			logger.info("Starting without auto color detection function")
 
@@ -60,30 +67,20 @@ class MainApp:
 			self.player.load_playlist(files, queue)
 			if not options.noplay:
 				self.player.play_pause()
-			elif self.is_autocolor_enabled:
-				self.autocolor.reset_default_color()
+			else:
+				self.emit("reset-color")
+
+		# signals
+		self.connect("ac-update", self.on_autocolor_update)
 
 		# start spectrum analyzer
 		self.cava.start()
-
-	def on_image_source_switch(self, usetag):
-		"""Use default background or image from mp3 tag"""
-		self.config["image"]["usetag"] = usetag
-		self.canvas._rebuild_background()
-		if self.is_autocolor_enabled and self.config["color"]["auto"]:
-			self.autocolor.color_update(self.canvas.tag_image_bytedata if usetag else None)
 
 	def on_autocolor_switch(self, value):
 		"""Use color analyzer or user preset"""
 		self.config["color"]["auto"] = value
 		color = self.config["color"]["autofg"] if value else self.config["color"]["fg"]
 		self.settings.visualpage.fg_color_manual_set(color)
-
-	def on_image_update(self, sender, bytedata):
-		"""New image from mp3 tag"""
-		self.canvas.update_image(bytedata)
-		if self.is_autocolor_enabled:
-			self.autocolor.color_update(bytedata if self.config["image"]["usetag"] else None)
 
 	def on_autocolor_update(self, sender, rgba):
 		"""New data from color analyzer"""
@@ -103,8 +100,7 @@ class MainApp:
 		"""Set new default background """
 		self.config["image"]["default"] = file_
 		self.canvas._rebuild_background()
-		if self.is_autocolor_enabled:
-			self.autocolor.reset_default_color()
+		self.emit("reset-color")
 
 	def save_playdata(self):
 		"""Save current playlist"""
