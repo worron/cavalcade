@@ -124,7 +124,7 @@ class AutoColor:
 				else:
 					return
 			else:
-				self.emit("ac-update", self.default)
+				self._mainapp.emit("ac-update", self.default)
 				return
 		else:
 			file_ = io.BytesIO(bytedata)

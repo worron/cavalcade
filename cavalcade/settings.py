@@ -10,37 +10,38 @@ class SettingsWindow(GuiBase):
 	"""Settings window"""
 	def __init__(self, mainapp):
 		super().__init__("settings.glade", ("window", "mainbox"))
+		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
 
 		# build stack
-		stack = Gtk.Stack()
-		stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
-		stack.set_transition_duration(500)
+		self.stack = Gtk.Stack()
+		self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
+		self.stack.set_transition_duration(500)
 
 		# add visual page
-		self.visualpage = VisualPage(mainapp, self.gui["window"])
-		stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
+		self.visualpage = VisualPage(self._mainapp, self.gui["window"])
+		self.stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
 		# add cava page
-		self.cavapage = CavaPage(mainapp)
-		stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
-
-		# add player page
-		if mainapp.is_player_enabled:
-			self.playerpage = PlayerPage(mainapp)
-			stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
+		self.cavapage = CavaPage(self._mainapp)
+		self.stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
 		# setup stack
 		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
-		stack_switcher.set_stack(stack)
+		stack_switcher.set_stack(self.stack)
 
 		self.gui["mainbox"].pack_start(stack_switcher, False, True, 0)
-		self.gui["mainbox"].pack_start(stack, True, True, 0)
+		self.gui["mainbox"].pack_start(self.stack, True, True, 0)
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
 		self.visualpage.gui["hide_button"].connect("clicked", self.hide)
-		self.visualpage.gui["exit_button"].connect("clicked", mainapp.close)
+		self.visualpage.gui["exit_button"].connect("clicked", self._mainapp.close)
+
+	def set_player_page(self):
+		"""Optional player page"""
+		self.playerpage = PlayerPage(self._mainapp)
+		self.stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
 	def show(self, *args):
 		"""Show settings winndow"""

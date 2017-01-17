@@ -18,6 +18,7 @@ class MainApp(GObject.GObject):
 	__gsignals__ = {
 		"reset-color": (GObject.SIGNAL_RUN_FIRST, None, ()),
 		"tag-image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
+		"default-image-update": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
 		"image-source-switch": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
 		"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
@@ -45,33 +46,34 @@ class MainApp(GObject.GObject):
 		self.restore_playdata()
 
 		# init app structure
-		if self.is_player_enabled:
-			self.player = Player(self)  # gstreamer
-		else:
-			logger.info("Starting without audio player function")
-
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
 		self.canvas = Canvas(self)  # main windo
 
+		# optional image analyzer
 		if imported.pillow and not options.nocolor:
-			self.autocolor = AutoColor(self)  # image analyzer
-			# self.autocolor.connect("ac-update", self.on_autocolor_update)
+			self.autocolor = AutoColor(self)
 		else:
 			logger.info("Starting without auto color detection function")
 
-		# start audio playback
-		if self.is_player_enabled:
+		# optional gstreamer player
+		if bool(files) and imported.gstreamer:
+			self.player = Player(self)
+			self.settings.set_player_page()
+
 			queue = self.playdata["queue"] if (options.restore and self.playstore is not None) else None
 			self.player.load_playlist(files, queue)
 			if not options.noplay:
 				self.player.play_pause()
 			else:
 				self.emit("reset-color")
+		else:
+			logger.info("Starting without audio player function")
 
 		# signals
 		self.connect("ac-update", self.on_autocolor_update)
+		self.connect("default-image-update", self.on_default_image_update)
 
 		# start spectrum analyzer
 		self.cava.start()
@@ -96,15 +98,14 @@ class MainApp(GObject.GObject):
 		elif event.type == Gdk.EventType._2BUTTON_PRESS:
 			self.settings.show()
 
-	def default_image_update(self, file_):
-		"""Set new default background """
-		self.config["image"]["default"] = file_
+	def on_default_image_update(self, sender, file_):
+		"""Update default background"""
 		self.canvas._rebuild_background()
 		self.emit("reset-color")
 
 	def save_playdata(self):
 		"""Save current playlist"""
-		if self.is_player_enabled:
+		if hasattr(self, "player"):
 			playdata = {"list": self.player.playlist, "queue": self.player.playqueue}
 			with open(self.playstore, "wb") as fp:
 				pickle.dump(playdata, fp)

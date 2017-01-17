@@ -156,9 +156,8 @@ class VisualPage(GuiBase):
 		is_ok, file_ = gtk_open_file(self.window, self.image_filter)
 		if is_ok:
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
-			self._mainapp.default_image_update(file_)
-			if self._mainapp.is_player_enabled:
-				self._mainapp.settings.playerpage.update_default_preview()
+			self._mainapp.config["image"]["default"] = file_
+			self._mainapp.emit("default-image-update", file_)
 
 	# support
 	def fg_color_manual_set(self, rgba):

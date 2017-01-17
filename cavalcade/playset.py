@@ -83,11 +83,13 @@ class PlayerPage(GuiBase):
 		self._mainapp.player.connect("preview-update", self.on_preview_update)
 		self._mainapp.player.connect("playing", self.on_playstate_update)
 
+		self._mainapp.connect("default-image-update", self.update_default_preview)
+
 		# gui setup
 		self.gui["volumebutton"].set_value(self._mainapp.config["player"]["volume"])
 
 	# support
-	def update_default_preview(self):
+	def update_default_preview(self, *args):
 		self.preview = pixbuf.from_file_at_scale(self._mainapp.config["image"]["default"], -1, self.preview_size)
 
 	def set_button_images(self):
