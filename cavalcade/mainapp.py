@@ -13,6 +13,42 @@ from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
 
 
+class AudioData:
+	"""Player session managment helper"""
+	def __init__(self, mainapp, options, imported):
+		self._mainapp = mainapp
+		self.store = os.path.join(self._mainapp.config.path, "store")
+
+		self.files = [file_ for file_ in options.files if file_.endswith(".mp3")]
+		self.queue = None
+
+		if options.restore:
+			playdata = self.restore()
+			if playdata is not None:
+				self.files = playdata["list"]
+				self.queue = playdata["queue"]
+			else:
+				logger.warning("Cann't restore previous player session")
+
+		self.enabled = self.files and imported.gstreamer
+
+	def save(self):
+		"""Save current playlist"""
+		if self.enabled:
+			with open(self.store, "wb") as fp:
+				playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
+				pickle.dump(playdata, fp)
+
+	def restore(self):
+		"""Restore playlist from previous session"""
+		if os.path.isfile(self.store):
+			with open(self.store, "rb") as fp:
+				playdata = pickle.load(fp)
+		else:
+			playdata = None
+		return playdata
+
+
 class MainApp(GObject.GObject):
 	"""Main applicaion class"""
 	__gsignals__ = {
@@ -30,22 +66,8 @@ class MainApp(GObject.GObject):
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
-		self.playstore = os.path.join(self.config.path, "store")
-		self.playdata = None
-
-		# check if audiofiles available
-		files = [file_ for file_ in options.files if file_.endswith(".mp3")]
-		if options.restore:
-			self.playdata = self.restore_playdata()
-			if self.playdata is not None:
-				files = self.playdata["list"]
-			else:
-				logger.warning("Cann't restore previous player session")
-
-		self.is_player_enabled = bool(files) and imported.gstreamer
-		self.restore_playdata()
-
 		# init app structure
+		self.adata = AudioData(self, options, imported)  # audio files manager
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
@@ -58,12 +80,11 @@ class MainApp(GObject.GObject):
 			logger.info("Starting without auto color detection function")
 
 		# optional gstreamer player
-		if bool(files) and imported.gstreamer:
+		if self.adata.enabled:
 			self.player = Player(self)
 			self.settings.set_player_page()
 
-			queue = self.playdata["queue"] if (options.restore and self.playstore is not None) else None
-			self.player.load_playlist(files, queue)
+			self.player.load_playlist(self.adata.files, self.adata.queue)
 			if not options.noplay:
 				self.player.play_pause()
 			else:
@@ -103,26 +124,10 @@ class MainApp(GObject.GObject):
 		self.canvas._rebuild_background()
 		self.emit("reset-color")
 
-	def save_playdata(self):
-		"""Save current playlist"""
-		if hasattr(self, "player"):
-			playdata = {"list": self.player.playlist, "queue": self.player.playqueue}
-			with open(self.playstore, "wb") as fp:
-				pickle.dump(playdata, fp)
-
-	def restore_playdata(self):
-		"""Restore playlist from previous session"""
-		if os.path.isfile(self.playstore):
-			with open(self.playstore, "rb") as fp:
-				playdata = pickle.load(fp)
-		else:
-			playdata = None
-		return playdata
-
 	def close(self, *args):
 		"""Application exit"""
 		self.cava.close()
-		self.save_playdata()
+		self.adata.save()
 		if not self.config.is_fallback:
 			self.config.write_data()
 		else:
