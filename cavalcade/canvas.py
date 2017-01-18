@@ -40,7 +40,7 @@ class Canvas:
 		self._mainapp.connect("tag-image-update", self.on_image_update)
 
 	def _on_key_press(self, widget, event):
-		if event.keyval == Gdk.KEY_space and self._mainapp.is_player_enabled:
+		if event.keyval == Gdk.KEY_space and self._mainapp.adata.enabled:
 			self._mainapp.player.play_pause()
 
 	# Base window properties
