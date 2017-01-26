@@ -101,7 +101,7 @@ class Player(GObject.GObject):
 
 	def _on_message(self, bus, message):
 		if message.type == Gst.MessageType.EOS:
-			self.play_next(self.current)  # this one should do all clear
+			self.play_next()  # this one should do all clear
 		elif message.type == Gst.MessageType.ERROR:
 			self.stop()
 			err, debug = message.parse_error()
@@ -178,9 +178,11 @@ class Player(GObject.GObject):
 		self.duration = None
 		self.current = None
 
-	def play_next(self, current):
+	def play_next(self):
 		"""Play next audio file in queue"""
+		current = self.current
 		self.stop()
+
 		if current is None:
 			logger.debug("No audio file selected")
 		else:
