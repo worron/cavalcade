@@ -3,10 +3,6 @@
   <menu id="winstate-menu">
     <section>
       <item>
-        <attribute name="action">winstate.maximize</attribute>
-        <attribute name="label" translatable="yes">Maximize</attribute>
-      </item>
-      <item>
         <attribute name="action">winstate.below</attribute>
         <attribute name="label" translatable="yes">Below</attribute>
       </item>
@@ -15,16 +11,8 @@
         <attribute name="label" translatable="yes">Stick</attribute>
       </item>
       <item>
-        <attribute name="action">winstate.winbyscreen</attribute>
-        <attribute name="label" translatable="yes">Resize window to screen</attribute>
-      </item>
-      <item>
-        <attribute name="action">winstate.imagebyscreen</attribute>
-        <attribute name="label" translatable="yes">Resize image to screen</attribute>
-      </item>
-      <item>
-        <attribute name="action">winstate.bgpaint</attribute>
-        <attribute name="label" translatable="yes">Fill background</attribute>
+        <attribute name="action">winstate.maximize</attribute>
+        <attribute name="label" translatable="yes">Maximize</attribute>
       </item>
       <item>
         <attribute name="action">winstate.fullscreen</attribute>
@@ -34,6 +22,41 @@
         <attribute name="action">winstate.skiptaskbar</attribute>
         <attribute name="label" translatable="yes">Skip taskbar</attribute>
       </item>
+      <item>
+        <attribute name="action">winstate.winbyscreen</attribute>
+        <attribute name="label" translatable="yes">Resize window to screen</attribute>
+      </item>
+    </section>
+    <section>
+      <submenu>
+        <item>
+          <attribute name="action">winstate.imagebyscreen</attribute>
+          <attribute name="label" translatable="yes">Resize image to screen</attribute>
+        </item>
+        <attribute name="label" translatable="yes">Image alignment</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">;</attribute>
+            <attribute name="label">Top left</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">1;</attribute>
+            <attribute name="label">Top right</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">;1</attribute>
+            <attribute name="label">Bottom left</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">1;1</attribute>
+            <attribute name="label">Bottom right</attribute>
+          </item>
+        </section>
+      </submenu>
     </section>
   </menu>
 </interface>

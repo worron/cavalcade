@@ -1,15 +1,12 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from collections import OrderedDict
 from cavalcade.common import GuiBase, WINDOW_HINTS, name_from_file
 from cavalcade.common import gtk_open_file
 from gi.repository import Gdk, Gtk, Gio, GLib
 
-CORNERS = (
-	("TOP_LEFT", (False, False)),
-	("TOP_RIGHT", (True, False)),
-	("BOTTOM_LEFT", (False, True)),
-	("BOTTOM_RIGHT", (True, True)),
-)
+
+def bool_to_srt(*values):
+	"""Translate list of booleans to string"""
+	return ";".join("1" if v else "" for v in values)
 
 
 class VisualPage(GuiBase):
@@ -18,11 +15,11 @@ class VisualPage(GuiBase):
 		self._mainapp = mainapp
 		self.window = settings_window
 		elements = (
-			"mainbox", "hint_combobox", "st_imagebyscreen_switch", "fg_colorbutton",
+			"mainbox", "hint_combobox", "fg_colorbutton", "winstate-menubutton", "winstate-menu",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
-			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "corner_combobox",
-			"autocolor_switch", "zero_spinbutton", "silence_spinbutton", "winstate-menubutton", "winstate-menu",
+			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "autocolor_switch",
+			"zero_spinbutton", "silence_spinbutton",
 		)
 		super().__init__("visset.glade", "winstate.ui", elements=elements)
 
@@ -31,14 +28,6 @@ class VisualPage(GuiBase):
 		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
 		self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
 
-		# some gui constants
-		self.CORNERS = OrderedDict(
-			TOP_LEFT = (False, False),
-			TOP_RIGHT = (True, False),
-			BOTTOM_LEFT = (False, True),
-			BOTTOM_RIGHT = (True, True),
-		)
-
 		# image file filter
 		self.image_filter = Gtk.FileFilter()
 		self.image_filter.set_name("Image files")
@@ -46,6 +35,13 @@ class VisualPage(GuiBase):
 
 		# actions
 		winstate_actiongroup = Gio.SimpleActionGroup()
+
+		ialign_str = bool_to_srt(self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
+		ialign_variant = GLib.Variant.new_string(ialign_str)
+		ialign_action = Gio.SimpleAction.new_stateful("ialign", ialign_variant.get_type(), ialign_variant)
+		ialign_action.connect("change-state", self.on_ialign)
+		winstate_actiongroup.add_action(ialign_action)
+
 		for key, value in self._mainapp.config["window"].items():
 			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
 			action.connect("change-state", self.on_winstate)
@@ -94,16 +90,12 @@ class VisualPage(GuiBase):
 		)
 		self.gui["hint_combobox"].connect("changed", self.on_hint_combo_changed)
 
-		# image alignment
-		for corner in self.CORNERS.keys():
-			self.gui["corner_combobox"].append_text(corner)
-
-		states = list(self.CORNERS.values())
-		current = (self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
-		self.gui["corner_combobox"].set_active(states.index(current))
-		self.gui["corner_combobox"].connect("changed", self.on_corner_combo_changed)
-
 	# gui handlers
+	def on_ialign(self, action, value):
+		action.set_state(value)
+		state = [bool(s) for s in value.get_string().split(";")]
+		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = state
+
 	def on_winstate(self, action, value):
 		action.set_state(value)
 		self._mainapp.canvas.set_property(action.get_name(), value.get_boolean())
@@ -145,10 +137,6 @@ class VisualPage(GuiBase):
 		text = combo.get_active_text()
 		hint = getattr(Gdk.WindowTypeHint, text)
 		self._mainapp.canvas.set_hint(hint)
-
-	def on_corner_combo_changed(self, combo):
-		text = combo.get_active_text()
-		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = self.CORNERS[text]
 
 	def on_image_show_switch(self, switch, active):
 		self._mainapp.canvas.show_image(switch.get_active())
