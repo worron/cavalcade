@@ -84,9 +84,12 @@ def run():
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 	logger.info("Start cavalcade")
-	MainApp(options, imported)
-	Gtk.main()
+	app = MainApp(options, imported)
+	exit_status = app.run(sys.argv)
 	logger.info("Exit cavalcade")
+	sys.exit(exit_status)
+	# Gtk.main()
+
 
 if __name__ == "__main__":
 	run()

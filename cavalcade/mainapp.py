@@ -49,7 +49,7 @@ class AudioData:
 		return playdata
 
 
-class MainApp(GObject.GObject):
+class MainApp(Gtk.Application):
 	"""Main applicaion class"""
 	__gsignals__ = {
 		"reset-color": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -60,21 +60,29 @@ class MainApp(GObject.GObject):
 	}
 
 	def __init__(self, options, imported):
-		super().__init__()
+		# super().__init__(flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE, application_id="com.github.worron.clipflap")
+		super().__init__(application_id="com.github.worron.cavalcade")
+
+		self.options = options
+		self.imported = imported
+		self._started = False
+
+	def do_startup(self):
+		Gtk.Application.do_startup(self)
 
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
 		# init app structure
-		self.adata = AudioData(self, options, imported)  # audio files manager
+		self.adata = AudioData(self, self.options, self.imported)  # audio files manager
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
 		self.canvas = Canvas(self)  # main windo
 
 		# optional image analyzer
-		if imported.pillow and not options.nocolor:
+		if self.imported.pillow and not self.options.nocolor:
 			self.autocolor = AutoColor(self)
 		else:
 			logger.info("Starting without auto color detection function")
@@ -85,7 +93,7 @@ class MainApp(GObject.GObject):
 			self.settings.set_player_page()
 
 			self.player.load_playlist(self.adata.files, self.adata.queue)
-			if not options.noplay:
+			if not self.options.noplay:
 				self.player.play_pause()
 			else:
 				self.emit("reset-color")
@@ -96,8 +104,21 @@ class MainApp(GObject.GObject):
 		self.connect("ac-update", self.on_autocolor_update)
 		self.connect("default-image-update", self.on_default_image_update)
 
-		# start spectrum analyzer
-		self.cava.start()
+	def do_activate(self):
+		if not self._started:
+			self.cava.start()
+			self._started = True
+
+	def do_shutdown(self):
+		self.cava.close()
+		self.adata.save()
+
+		if not self.config.is_fallback:
+			self.config.write_data()
+		else:
+			logger.warning("Application worked with system config file, all settings changes will be lost")
+
+		Gtk.Application.do_shutdown(self)
 
 	def on_autocolor_switch(self, value):
 		"""Use color analyzer or user preset"""
@@ -126,10 +147,4 @@ class MainApp(GObject.GObject):
 
 	def close(self, *args):
 		"""Application exit"""
-		self.cava.close()
-		self.adata.save()
-		if not self.config.is_fallback:
-			self.config.write_data()
-		else:
-			logger.warning("Application worked with system config file, all settings changes will be lost")
-		Gtk.main_quit()
+		self.quit()

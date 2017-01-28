@@ -1,6 +1,4 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-import os
-
 from collections import OrderedDict
 from cavalcade.common import GuiBase, WINDOW_HINTS, name_from_file
 from cavalcade.common import gtk_open_file
@@ -50,7 +48,7 @@ class VisualPage(GuiBase):
 		winstate_actiongroup = Gio.SimpleActionGroup()
 		for key, value in self._mainapp.config["window"].items():
 			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
-			action.connect("activate", self.on_winstate)
+			action.connect("change-state", self.on_winstate)
 			winstate_actiongroup.add_action(action)
 
 		self.window.insert_action_group("winstate", winstate_actiongroup)
@@ -107,9 +105,8 @@ class VisualPage(GuiBase):
 
 	# gui handlers
 	def on_winstate(self, action, value):
-		value = not action.get_state()  # fix this
-		action.set_state(GLib.Variant.new_boolean(value))
-		self._mainapp.canvas.set_property(action.get_name(), value)
+		action.set_state(value)
+		self._mainapp.canvas.set_property(action.get_name(), value.get_boolean())
 
 	def on_fg_color_set(self, button):
 		key = "autofg" if self._mainapp.config["color"]["auto"] else "fg"

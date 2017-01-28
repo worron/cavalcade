@@ -12,6 +12,7 @@ class SettingsWindow(GuiBase):
 		super().__init__("settings.glade", elements=("window", "mainbox"))
 		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
+		self.gui["window"].set_application(mainapp)
 
 		# build stack
 		self.stack = Gtk.Stack()
