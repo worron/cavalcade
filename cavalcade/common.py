@@ -35,10 +35,11 @@ class GuiBase:
 	"""Base for Gtk widget set created with builder"""
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")
 
-	def __init__(self, file_, elements):
-		builder = Gtk.Builder()
-		builder.add_from_file(os.path.join(self.path, file_))
-		self.gui = {element: builder.get_object(element) for element in elements}
+	def __init__(self, *files, elements=[]):
+		self.builder = Gtk.Builder()
+		for file_ in files:
+			self.builder.add_from_file(os.path.join(self.path, file_))
+		self.gui = {element: self.builder.get_object(element) for element in elements}
 
 
 class AttributeDict(dict):

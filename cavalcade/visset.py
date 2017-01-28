@@ -1,8 +1,10 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
+import os
+
 from collections import OrderedDict
 from cavalcade.common import GuiBase, WINDOW_HINTS, name_from_file
 from cavalcade.common import gtk_open_file
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, Gtk, Gio, GLib
 
 CORNERS = (
 	("TOP_LEFT", (False, False)),
@@ -18,14 +20,18 @@ class VisualPage(GuiBase):
 		self._mainapp = mainapp
 		self.window = settings_window
 		elements = (
-			"mainbox", "st_maximize_switch", "st_below_switch", "hint_combobox", "st_imagebyscreen_switch",
-			"st_stick_switch", "st_winbyscreen_switch", "st_bgpaint_switch", "fg_colorbutton", "st_fullscreen_switch",
+			"mainbox", "hint_combobox", "st_imagebyscreen_switch", "fg_colorbutton",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
 			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "corner_combobox",
-			"autocolor_switch", "zero_spinbutton", "silence_spinbutton",
+			"autocolor_switch", "zero_spinbutton", "silence_spinbutton", "winstate-menubutton", "winstate-menu",
 		)
-		super().__init__("visset.glade", elements)
+		super().__init__("visset.glade", "winstate.ui", elements=elements)
+
+		# set menu buttons
+		# TODO: move image setting to ui files
+		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
+		self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
 
 		# some gui constants
 		self.CORNERS = OrderedDict(
@@ -40,12 +46,14 @@ class VisualPage(GuiBase):
 		self.image_filter.set_name("Image files")
 		self.image_filter.add_pixbuf_formats()
 
-		# window state
+		# actions
+		winstate_actiongroup = Gio.SimpleActionGroup()
 		for key, value in self._mainapp.config["window"].items():
-			name = "st_%s_switch" % key
-			if name in self.gui:
-				self.gui[name].set_active(value)
-				self.gui[name].connect("notify::active", self.on_winstate_switch, key)
+			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
+			action.connect("activate", self.on_winstate)
+			winstate_actiongroup.add_action(action)
+
+		self.window.insert_action_group("winstate", winstate_actiongroup)
 
 		# color
 		for key, value in self._mainapp.config["color"].items():
@@ -98,8 +106,10 @@ class VisualPage(GuiBase):
 		self.gui["corner_combobox"].connect("changed", self.on_corner_combo_changed)
 
 	# gui handlers
-	def on_winstate_switch(self, switch, active, key):
-		self._mainapp.canvas.set_property(key, switch.get_active())
+	def on_winstate(self, action, value):
+		value = not action.get_state()  # fix this
+		action.set_state(GLib.Variant.new_boolean(value))
+		self._mainapp.canvas.set_property(action.get_name(), value)
 
 	def on_fg_color_set(self, button):
 		key = "autofg" if self._mainapp.config["color"]["auto"] else "fg"

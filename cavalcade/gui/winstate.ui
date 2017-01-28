@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="winstate-menu">
+    <section>
+      <item>
+        <attribute name="action">winstate.maximize</attribute>
+        <attribute name="label" translatable="yes">Maximize</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.below</attribute>
+        <attribute name="label" translatable="yes">Below</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.stick</attribute>
+        <attribute name="label" translatable="yes">Stick</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.winbyscreen</attribute>
+        <attribute name="label" translatable="yes">Resize window to screen</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.imagebyscreen</attribute>
+        <attribute name="label" translatable="yes">Resize image to screen</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.bgpaint</attribute>
+        <attribute name="label" translatable="yes">Fill background</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.fullscreen</attribute>
+        <attribute name="label" translatable="yes">Fullscreen</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.skiptaskbar</attribute>
+        <attribute name="label" translatable="yes">Skip taskbar</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

@@ -9,7 +9,7 @@ from cavalcade.common import GuiBase
 class SettingsWindow(GuiBase):
 	"""Settings window"""
 	def __init__(self, mainapp):
-		super().__init__("settings.glade", ("window", "mainbox"))
+		super().__init__("settings.glade", elements=("window", "mainbox"))
 		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
 
