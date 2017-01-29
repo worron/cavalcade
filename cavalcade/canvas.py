@@ -37,25 +37,23 @@ class Canvas:
 		self.ha = self.scrolled.get_hadjustment()
 
 		# actions
-		winstate_action_group = Gio.SimpleActionGroup()
+		self.actions["winstate"] = Gio.SimpleActionGroup()
 
 		ialign_str = bool_to_srt(self.config["image"]["ha"], self.config["image"]["va"])
 		ialign_variant = GLib.Variant.new_string(ialign_str)
 		ialign_action = Gio.SimpleAction.new_stateful("ialign", ialign_variant.get_type(), ialign_variant)
 		ialign_action.connect("change-state", self._on_ialign)
-		winstate_action_group.add_action(ialign_action)
+		self.actions["winstate"].add_action(ialign_action)
 
 		hint_variant = GLib.Variant.new_string(self.config["misc"]["hint"].value_nick.upper())
 		hint_action = Gio.SimpleAction.new_stateful("hint", hint_variant.get_type(), hint_variant)
 		hint_action.connect("change-state", self._on_hint)
-		winstate_action_group.add_action(hint_action)
+		self.actions["winstate"].add_action(hint_action)
 
 		for key, value in self.config["window"].items():
 			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
 			action.connect("change-state", self._on_winstate)
-			winstate_action_group.add_action(action)
-
-		self.actions["winstate"] = winstate_action_group
+			self.actions["winstate"].add_action(action)
 
 		# build setup
 		self.rebuild_window()
@@ -64,7 +62,6 @@ class Canvas:
 			self.overlay.remove(self.scrolled)
 
 		# signals
-		self.overlay.connect("key-press-event", self._on_key_press)
 		self._mainapp.connect("tag-image-update", self.on_image_update)
 
 	# action handlers
@@ -82,13 +79,6 @@ class Canvas:
 		action.set_state(value)
 		self.config["misc"]["hint"] = getattr(Gdk.WindowTypeHint, value.get_string())
 		self.rebuild_window()
-
-	def _on_key_press(self, widget, event):
-		if self._mainapp.adata.enabled:  # fix this
-			if event.keyval == Gdk.KEY_space:
-				self._mainapp.player.play_pause()
-			elif event.keyval == Gdk.KEY_Right:
-				self._mainapp.player.play_next()
 
 	# Base window properties
 	def _set_maximize(self, value):
@@ -175,12 +165,14 @@ class Canvas:
 		# destroy old window
 		if hasattr(self, "window"):
 			self.window.remove(self.overlay)
+			self._mainapp.remove_window(self.window)
 			self.window.destroy()
 
 		# init new
-		self.window = Gtk.Window()
+		self.window = Gtk.ApplicationWindow()
 		self.screen = self.window.get_screen()
 		self.window.set_visual(self.screen.get_rgba_visual())
+		self._mainapp.add_window(self.window)
 
 		self.window.set_default_size(*self.default_size)
 

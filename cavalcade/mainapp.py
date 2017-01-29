@@ -118,6 +118,9 @@ class MainApp(Gtk.Application):
 			self.player = Player(self)
 			self.settings.set_player_page()
 
+			set_actions(self.player.actions, self.canvas.window)  # fix this
+			self.canvas.actions.update(self.player.actions)
+
 			self.player.load_playlist(self.adata.files, self.adata.queue)
 			if not self.options.noplay:
 				self.player.play_pause()
@@ -132,6 +135,10 @@ class MainApp(Gtk.Application):
 		# signals
 		self.connect("ac-update", self.on_autocolor_update)
 		self.connect("default-image-update", self.on_default_image_update)
+
+		# accelerator
+		self.add_accelerator("space", "player.play", None)
+		self.add_accelerator("<Control>n", "player.next", None)
 
 	def do_activate(self):
 		if not self._started:
