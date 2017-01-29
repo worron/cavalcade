@@ -1,12 +1,7 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavalcade.common import GuiBase, WINDOW_HINTS, name_from_file
+from cavalcade.common import GuiBase, name_from_file
 from cavalcade.common import gtk_open_file
-from gi.repository import Gdk, Gtk, Gio, GLib
-
-
-def bool_to_srt(*values):
-	"""Translate list of booleans to string"""
-	return ";".join("1" if v else "" for v in values)
+from gi.repository import Gtk
 
 
 class VisualPage(GuiBase):
@@ -32,22 +27,6 @@ class VisualPage(GuiBase):
 		self.image_filter = Gtk.FileFilter()
 		self.image_filter.set_name("Image files")
 		self.image_filter.add_pixbuf_formats()
-
-		# actions
-		winstate_actiongroup = Gio.SimpleActionGroup()
-
-		ialign_str = bool_to_srt(self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"])
-		ialign_variant = GLib.Variant.new_string(ialign_str)
-		ialign_action = Gio.SimpleAction.new_stateful("ialign", ialign_variant.get_type(), ialign_variant)
-		ialign_action.connect("change-state", self.on_ialign)
-		winstate_actiongroup.add_action(ialign_action)
-
-		for key, value in self._mainapp.config["window"].items():
-			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
-			action.connect("change-state", self.on_winstate)
-			winstate_actiongroup.add_action(action)
-
-		self.window.insert_action_group("winstate", winstate_actiongroup)
 
 		# color
 		for key, value in self._mainapp.config["color"].items():
@@ -82,24 +61,6 @@ class VisualPage(GuiBase):
 
 		self.gui["image_open_button"].connect("clicked", self.on_image_open_button_click)
 
-		# hint
-		for hint in WINDOW_HINTS:
-			self.gui["hint_combobox"].append_text(hint)
-		self.gui["hint_combobox"].set_active(
-			WINDOW_HINTS.index(self._mainapp.config["misc"]["hint"].value_nick.upper())
-		)
-		self.gui["hint_combobox"].connect("changed", self.on_hint_combo_changed)
-
-	# gui handlers
-	def on_ialign(self, action, value):
-		action.set_state(value)
-		state = [bool(s) for s in value.get_string().split(";")]
-		self._mainapp.config["image"]["ha"], self._mainapp.config["image"]["va"] = state
-
-	def on_winstate(self, action, value):
-		action.set_state(value)
-		self._mainapp.canvas.set_property(action.get_name(), value.get_boolean())
-
 	def on_fg_color_set(self, button):
 		key = "autofg" if self._mainapp.config["color"]["auto"] else "fg"
 		self._mainapp.config["color"][key] = button.get_rgba()
@@ -132,11 +93,6 @@ class VisualPage(GuiBase):
 	def on_offset_spinbutton_changed(self, button, key):
 		self._mainapp.config["offset"][key] = int(button.get_value())
 		self._mainapp.draw.size_update()
-
-	def on_hint_combo_changed(self, combo):
-		text = combo.get_active_text()
-		hint = getattr(Gdk.WindowTypeHint, text)
-		self._mainapp.canvas.set_hint(hint)
 
 	def on_image_show_switch(self, switch, active):
 		self._mainapp.canvas.show_image(switch.get_active())

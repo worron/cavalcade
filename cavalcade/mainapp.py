@@ -12,7 +12,7 @@ from cavalcade.player import Player
 from cavalcade.logger import logger
 from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
-from cavalcade.common import AttributeDict
+from cavalcade.common import AttributeDict, set_actions
 
 
 def import_optional():
@@ -125,6 +125,9 @@ class MainApp(Gtk.Application):
 				self.emit("reset-color")
 		else:
 			logger.info("Starting without audio player function")
+
+		# share actions
+		set_actions(self.canvas.actions, self.settings.gui["window"])
 
 		# signals
 		self.connect("ac-update", self.on_autocolor_update)

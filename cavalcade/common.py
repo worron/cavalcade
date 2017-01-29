@@ -5,6 +5,12 @@ from gi.repository import Gtk
 WINDOW_HINTS = ("NORMAL", "DIALOG", "SPLASHSCREEN", "DOCK", "DESKTOP")
 
 
+def set_actions(actionpack, widget):
+	"""Set actions groups from dictionary to widget"""
+	for key, value in actionpack.items():
+		widget.insert_action_group(key, value)
+
+
 def name_from_file(file_):
 	"""Extract file name from full path"""
 	return os.path.splitext(os.path.basename(file_))[0]

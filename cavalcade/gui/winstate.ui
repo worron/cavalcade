@@ -29,6 +29,38 @@
     </section>
     <section>
       <submenu>
+        <attribute name="label" translatable="yes">Window hint</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">NORMAL</attribute>
+            <attribute name="label">Normal</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DIALOG</attribute>
+            <attribute name="label">Dialog</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DOCK</attribute>
+            <attribute name="label">Dock</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DESKTOP</attribute>
+            <attribute name="label">Desktop</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">SPLASHSCREEN</attribute>
+            <attribute name="label">Splashscreen</attribute>
+          </item>
+        </section>
+      </submenu>
+    </section>
+    <section>
+      <submenu>
         <item>
           <attribute name="action">winstate.imagebyscreen</attribute>
           <attribute name="label" translatable="yes">Resize image to screen</attribute>

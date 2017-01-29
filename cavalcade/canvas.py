@@ -1,9 +1,15 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio, GLib
 import cavalcade.pixbuf as pixbuf
 
 from cavalcade.logger import logger
+from cavalcade.common import set_actions
+
+
+def bool_to_srt(*values):
+	"""Translate list of booleans to string"""
+	return ";".join("1" if v else "" for v in values)
 
 
 class Canvas:
@@ -16,6 +22,7 @@ class Canvas:
 		self.default_size = self.config["misc"]["dsize"]
 		self.last_size = (-1, -1)
 		self.tag_image_bytedata = None
+		self.actions = {}
 
 		# window setup
 		self.overlay = Gtk.Overlay()
@@ -29,6 +36,27 @@ class Canvas:
 		self.va = self.scrolled.get_vadjustment()
 		self.ha = self.scrolled.get_hadjustment()
 
+		# actions
+		winstate_action_group = Gio.SimpleActionGroup()
+
+		ialign_str = bool_to_srt(self.config["image"]["ha"], self.config["image"]["va"])
+		ialign_variant = GLib.Variant.new_string(ialign_str)
+		ialign_action = Gio.SimpleAction.new_stateful("ialign", ialign_variant.get_type(), ialign_variant)
+		ialign_action.connect("change-state", self._on_ialign)
+		winstate_action_group.add_action(ialign_action)
+
+		hint_variant = GLib.Variant.new_string(self.config["misc"]["hint"].value_nick.upper())
+		hint_action = Gio.SimpleAction.new_stateful("hint", hint_variant.get_type(), hint_variant)
+		hint_action.connect("change-state", self._on_hint)
+		winstate_action_group.add_action(hint_action)
+
+		for key, value in self.config["window"].items():
+			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
+			action.connect("change-state", self._on_winstate)
+			winstate_action_group.add_action(action)
+
+		self.actions["winstate"] = winstate_action_group
+
 		# build setup
 		self.rebuild_window()
 		# fix this
@@ -38,6 +66,22 @@ class Canvas:
 		# signals
 		self.overlay.connect("key-press-event", self._on_key_press)
 		self._mainapp.connect("tag-image-update", self.on_image_update)
+
+	# action handlers
+	def _on_ialign(self, action, value):
+		action.set_state(value)
+		state = [bool(s) for s in value.get_string().split(";")]
+		self.config["image"]["ha"], self.config["image"]["va"] = state
+
+	def _on_winstate(self, action, value):
+		action.set_state(value)
+		self.set_property(action.get_name(), value.get_boolean())
+
+	def _on_hint(self, action, value):
+		"""Set window type  hint"""
+		action.set_state(value)
+		self.config["misc"]["hint"] = getattr(Gdk.WindowTypeHint, value.get_string())
+		self.rebuild_window()
 
 	def _on_key_press(self, widget, event):
 		if self._mainapp.adata.enabled:  # fix this
@@ -153,6 +197,8 @@ class Canvas:
 		self.draw.area.connect("button-press-event", self._mainapp.on_click)
 		self.window.connect("check-resize", self._on_size_update)
 
+		set_actions(self.actions, self.window)
+
 		# show
 		self.window.show_all()
 
@@ -163,11 +209,6 @@ class Canvas:
 			getattr(self, settler)(value)
 		else:
 			logger.warning("Wrong window property '%s'" % name)
-
-	def set_hint(self, value):
-		"""Set window type  hint"""
-		self.config["misc"]["hint"] = value
-		self.rebuild_window()
 
 	def show_image(self, value):
 		"""Draw image background or solid paint"""
