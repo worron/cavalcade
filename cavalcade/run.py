@@ -10,32 +10,10 @@ gi.require_version('Gtk', '3.0')
 if __name__ == "__main__":
 	sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from gi.repository import Gtk
 from argparse import ArgumentParser
 from cavalcade.mainapp import MainApp
-from cavalcade.logger import logger
-from cavalcade.common import AttributeDict
 
-
-def import_optional():
-	"""Safe module import"""
-	success = AttributeDict()
-	try:
-		gi.require_version('Gst', '1.0')
-		from gi.repository import Gst  # noqa: F401
-		success.gstreamer = True
-	except Exception:
-		success.gstreamer = False
-		logger.warning("Fail to import Gstreamer module")
-
-	try:
-		from PIL import Image  # noqa: F401
-		success.pillow = True
-	except Exception:
-		success.pillow = False
-		logger.warning("Fail to import Pillow module")
-
-	return success
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 def parse_args():
@@ -77,18 +55,11 @@ def parse_args():
 
 
 def run():
-	imported = import_optional()
 	options = parse_args()
 
-	logger.setLevel(options.log_level)
-	signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-	logger.info("Start cavalcade")
-	app = MainApp(options, imported)
-	exit_status = app.run(sys.argv)
-	logger.info("Exit cavalcade")
+	app = MainApp(options)
+	exit_status = app.run()
 	sys.exit(exit_status)
-	# Gtk.main()
 
 
 if __name__ == "__main__":

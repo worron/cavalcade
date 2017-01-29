@@ -1,4 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
+import gi
 import os
 import pickle
 from gi.repository import Gtk, Gdk, GObject
@@ -11,6 +12,28 @@ from cavalcade.player import Player
 from cavalcade.logger import logger
 from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
+from cavalcade.common import AttributeDict
+
+
+def import_optional():
+	"""Safe module import"""
+	success = AttributeDict()
+	try:
+		gi.require_version('Gst', '1.0')
+		from gi.repository import Gst  # noqa: F401
+		success.gstreamer = True
+	except Exception:
+		success.gstreamer = False
+		logger.warning("Fail to import Gstreamer module")
+
+	try:
+		from PIL import Image  # noqa: F401
+		success.pillow = True
+	except Exception:
+		success.pillow = False
+		logger.warning("Fail to import Pillow module")
+
+	return success
 
 
 class AudioData:
@@ -59,16 +82,19 @@ class MainApp(Gtk.Application):
 		"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
-	def __init__(self, options, imported):
-		# super().__init__(flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE, application_id="com.github.worron.clipflap")
+	def __init__(self, options):
 		super().__init__(application_id="com.github.worron.cavalcade")
 
 		self.options = options
-		self.imported = imported
 		self._started = False
 
 	def do_startup(self):
 		Gtk.Application.do_startup(self)
+
+		# init logging
+		self.imported = import_optional()
+		logger.setLevel(self.options.log_level)
+		logger.info("Start cavalcade")
 
 		# load config
 		self.config = MainConfig()
@@ -118,6 +144,7 @@ class MainApp(Gtk.Application):
 		else:
 			logger.warning("Application worked with system config file, all settings changes will be lost")
 
+		logger.info("Exit cavalcade")
 		Gtk.Application.do_shutdown(self)
 
 	def on_autocolor_switch(self, value):
