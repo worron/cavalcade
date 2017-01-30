@@ -2,7 +2,7 @@
 import gi
 import os
 import pickle
-from gi.repository import Gtk, Gdk, GObject
+from gi.repository import Gtk, Gdk, GObject, Gio, GLib
 
 from cavalcade.config import MainConfig, CavaConfig
 from cavalcade.drawing import Spectrum
@@ -38,29 +38,25 @@ def import_optional():
 
 class AudioData:
 	"""Player session managment helper"""
-	def __init__(self, mainapp, options, imported):
+	def __init__(self, mainapp):
 		self._mainapp = mainapp
 		self.store = os.path.join(self._mainapp.config.path, "store")
-
-		self.files = [file_ for file_ in options.files if file_.endswith(".mp3")]
+		self.files = []
 		self.queue = None
 
-		if options.restore:
-			playdata = self.restore()
-			if playdata is not None:
-				self.files = playdata["list"]
-				self.queue = playdata["queue"]
-			else:
-				logger.warning("Cann't restore previous player session")
+		self.updated = False
 
-		self.enabled = self.files and imported.gstreamer
+	def load(self, args):
+		audio = [file_ for file_ in args if file_.endswith(".mp3")]
+		if audio:
+			self.files = audio
+			self.updated = True
 
 	def save(self):
 		"""Save current playlist"""
-		if self.enabled:
-			with open(self.store, "wb") as fp:
-				playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
-				pickle.dump(playdata, fp)
+		with open(self.store, "wb") as fp:
+			playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
+			pickle.dump(playdata, fp)
 
 	def restore(self):
 		"""Restore playlist from previous session"""
@@ -69,7 +65,18 @@ class AudioData:
 				playdata = pickle.load(fp)
 		else:
 			playdata = None
-		return playdata
+		if playdata is not None:
+			self.files = playdata["list"]
+			self.queue = playdata["queue"]
+			self.updated = True
+		else:
+			logger.warning("Cann't restore previous player session")
+
+	def setup(self):
+		"""Update playlist"""
+		if self.updated and self._mainapp.imported.gstreamer:
+			self._mainapp.player.load_playlist(self.files, self.queue)
+			self.updated = False
 
 
 class MainApp(Gtk.Application):
@@ -82,50 +89,88 @@ class MainApp(Gtk.Application):
 		"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
-	def __init__(self, options):
-		super().__init__(application_id="com.github.worron.cavalcade")
+	def __init__(self):
+		super().__init__(application_id="com.github.worron.cavalcade", flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE)
 
-		self.options = options
-		self._started = False
+		self.add_main_option(
+			"play", ord("p"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+			"Start audio playing on launch", None
+		)
+		self.add_main_option(
+			"restore", ord("r"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+			"Restore previous player session", None
+		)
+		self.add_main_option(
+			"debug", ord("d"), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+			"Set log level", "LOG_LEVEL"
+		)
 
-	def do_startup(self):
-		Gtk.Application.do_startup(self)
+	def do_command_line(self, command_line):
+		args = command_line.get_arguments()[1:]
+		options = command_line.get_options_dict()
 
-		# init logging
-		self.imported = import_optional()
-		logger.setLevel(self.options.log_level)
+		# startup
+		if not hasattr(self, "canvas"):
+			log_level = options.lookup_value("debug").get_string() if options.contains("debug") else "DEBUG"
+			logger.setLevel(log_level)
+
+			self._do_startup()
+
+		# parse args
+		self.adata.load(args)
+		if options.contains("restore"):
+			self.adata.restore()
+		self.adata.setup()
+
+		if options.contains("play"):
+			self.player.play_pause()
+
+		return 0
+
+	def do_shutdown(self):
+		self.cava.close()
+		self.adata.save()
+
+		if not self.config.is_fallback:
+			self.config.write_data()
+		else:
+			logger.warning("Application worked with system config file, all settings changes will be lost")
+
+		logger.info("Exit cavalcade")
+		Gtk.Application.do_shutdown(self)
+
+	def _do_startup(self):
+		"""
+		Main initialization function.
+		Use this one to make all setup AFTER command line parsing completed.
+		"""
+		# check modules
 		logger.info("Start cavalcade")
+		self.imported = import_optional()
 
 		# load config
 		self.config = MainConfig()
 		self.cavaconfig = CavaConfig()
 
 		# init app structure
-		self.adata = AudioData(self, self.options, self.imported)  # audio files manager
+		self.adata = AudioData(self)  # audio files manager
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window
-		self.canvas = Canvas(self)  # main windo
+		self.canvas = Canvas(self)  # main window
 
 		# optional image analyzer
-		if self.imported.pillow and not self.options.nocolor:
+		if self.imported.pillow:
 			self.autocolor = AutoColor(self)
 		else:
 			logger.info("Starting without auto color detection function")
 
 		# optional gstreamer player
-		if self.adata.enabled:
+		if self.imported.gstreamer:
 			self.player = Player(self)
 			self.settings.set_player_page()
-
-			set_actions(self.player.actions, self.canvas.window)  # fix this
 			self.canvas.actions.update(self.player.actions)
 
-			self.player.load_playlist(self.adata.files, self.adata.queue)
-			if not self.options.noplay:
-				self.player.play_pause()
-			else:
-				self.emit("reset-color")
 		else:
 			logger.info("Starting without audio player function")
 
@@ -140,23 +185,11 @@ class MainApp(Gtk.Application):
 		self.add_accelerator("space", "player.play", None)
 		self.add_accelerator("<Control>n", "player.next", None)
 
-	def do_activate(self):
-		if not self._started:
-			self.cava.start()
-			self._started = True
+		# start work
+		self.canvas.setup()
+		self.cava.start()
 
-	def do_shutdown(self):
-		self.cava.close()
-		self.adata.save()
-
-		if not self.config.is_fallback:
-			self.config.write_data()
-		else:
-			logger.warning("Application worked with system config file, all settings changes will be lost")
-
-		logger.info("Exit cavalcade")
-		Gtk.Application.do_shutdown(self)
-
+	# signal handlers
 	def on_autocolor_switch(self, value):
 		"""Use color analyzer or user preset"""
 		self.config["color"]["auto"] = value

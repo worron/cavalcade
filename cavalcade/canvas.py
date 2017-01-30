@@ -55,14 +55,19 @@ class Canvas:
 			action.connect("change-state", self._on_winstate)
 			self.actions["winstate"].add_action(action)
 
-		# build setup
+		# signals
+		self._mainapp.connect("tag-image-update", self.on_image_update)
+
+	@property
+	def ready(self):
+		return hasattr(self, "window")
+
+	def setup(self):
+		"""Init drawing windwow"""
 		self.rebuild_window()
 		# fix this
 		if not self.config["image"]["show"]:
 			self.overlay.remove(self.scrolled)
-
-		# signals
-		self._mainapp.connect("tag-image-update", self.on_image_update)
 
 	# action handlers
 	def _on_ialign(self, action, value):
@@ -163,7 +168,7 @@ class Canvas:
 		This may be useful for update specific window properties.
 		"""
 		# destroy old window
-		if hasattr(self, "window"):
+		if self.ready:
 			self.window.remove(self.overlay)
 			self._mainapp.remove_window(self.window)
 			self.window.destroy()
