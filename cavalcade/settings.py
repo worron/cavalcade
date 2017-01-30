@@ -44,6 +44,11 @@ class SettingsWindow(GuiBase):
 		self.playerpage = PlayerPage(self._mainapp)
 		self.stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
+	def run_action(self, group, name):
+		action = self.gui["window"].get_action_group(group)
+		if action is not None:
+			action.activate_action(name)
+
 	def show(self, *args):
 		"""Show settings winndow"""
 		self.gui["window"].show_all()

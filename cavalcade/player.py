@@ -130,6 +130,8 @@ class Player(GObject.GObject):
 		Set list of audio files for player.
 		Playback queue may be settled as optional argument.
 		"""
+		self.stop()
+
 		if files:
 			self.playlist = files
 

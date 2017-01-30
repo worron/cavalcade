@@ -47,6 +47,7 @@ class AudioData:
 		self.updated = False
 
 	def load(self, args):
+		"""Get audio files from command arguments list """
 		audio = [file_ for file_ in args if file_.endswith(".mp3")]
 		if audio:
 			self.files = audio
@@ -54,9 +55,10 @@ class AudioData:
 
 	def save(self):
 		"""Save current playlist"""
-		with open(self.store, "wb") as fp:
-			playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
-			pickle.dump(playdata, fp)
+		if self._mainapp.imported.gstreamer:
+			with open(self.store, "wb") as fp:
+				playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
+				pickle.dump(playdata, fp)
 
 	def restore(self):
 		"""Restore playlist from previous session"""
@@ -65,6 +67,7 @@ class AudioData:
 				playdata = pickle.load(fp)
 		else:
 			playdata = None
+
 		if playdata is not None:
 			self.files = playdata["list"]
 			self.queue = playdata["queue"]
@@ -72,7 +75,7 @@ class AudioData:
 		else:
 			logger.warning("Cann't restore previous player session")
 
-	def setup(self):
+	def send_to_player(self):
 		"""Update playlist"""
 		if self.updated and self._mainapp.imported.gstreamer:
 			self._mainapp.player.load_playlist(self.files, self.queue)
@@ -113,17 +116,16 @@ class MainApp(Gtk.Application):
 		if not hasattr(self, "canvas"):
 			log_level = options.lookup_value("debug").get_string() if options.contains("debug") else "DEBUG"
 			logger.setLevel(log_level)
-
 			self._do_startup()
 
 		# parse args
 		self.adata.load(args)
 		if options.contains("restore"):
 			self.adata.restore()
-		self.adata.setup()
+		self.adata.send_to_player()
 
 		if options.contains("play"):
-			self.player.play_pause()
+			self.settings.run_action("player", "play")
 
 		return 0
 
@@ -134,7 +136,7 @@ class MainApp(Gtk.Application):
 		if not self.config.is_fallback:
 			self.config.write_data()
 		else:
-			logger.warning("Application worked with system config file, all settings changes will be lost")
+			logger.warning("User config is not available, all settings changes will be lost")
 
 		logger.info("Exit cavalcade")
 		Gtk.Application.do_shutdown(self)
@@ -170,7 +172,6 @@ class MainApp(Gtk.Application):
 			self.player = Player(self)
 			self.settings.set_player_page()
 			self.canvas.actions.update(self.player.actions)
-
 		else:
 			logger.info("Starting without audio player function")
 
