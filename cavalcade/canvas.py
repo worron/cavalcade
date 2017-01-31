@@ -210,13 +210,26 @@ class Canvas:
 
 		# signals
 		self.window.connect("delete-event", self._mainapp.close)
-		self.draw.area.connect("button-press-event", self._mainapp.on_click)
+		self.draw.area.connect("button-press-event", self.on_click)
 		self.window.connect("check-resize", self._on_size_update)
 
 		set_actions(self.actions, self.window)
 
 		# show
 		self.window.show_all()
+
+	def on_click(self, widget, event):
+		"""Show settings window"""
+		if event.type == Gdk.EventType.BUTTON_PRESS:
+			self.run_action("settings", "hide")
+		elif event.type == Gdk.EventType._2BUTTON_PRESS:
+			self.run_action("settings", "show")
+
+	def run_action(self, group, name):
+		"""Activate action"""
+		action = self.window.get_action_group(group)
+		if action is not None:
+			action.activate_action(name)
 
 	def set_property(self, name, value):
 		"""Set window appearance property"""

@@ -10,10 +10,12 @@ class VisualPage(GuiBase):
 		self._mainapp = settings._mainapp
 		self.window = settings.gui["window"]
 		self.config = settings._mainapp.config
+		self.settings = settings
+
 		elements = (
 			"fg_colorbutton", "zero_spinbutton", "silence_spinbutton", "image_open_button",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
-			"left_spinbutton", "right_spinbutton", "st_image_show_switch", "image_tag_rbutton", "imagelabel",
+			"left_spinbutton", "right_spinbutton", "image_tag_rbutton", "imagelabel",
 			"image_file_rbutton", "mainbox",
 		)
 		super().__init__("visset.glade", elements=elements)
@@ -53,7 +55,7 @@ class VisualPage(GuiBase):
 			"autocolor", None, GLib.Variant.new_boolean(self.config["color"]["auto"])
 		)
 		auto_action.connect("change-state", self.on_autocolor_switch)
-		self._mainapp.add_action(auto_action)
+		self.settings.actions["settings"].add_action(auto_action)
 
 	# action handlers
 	def on_autocolor_switch(self, action, value):

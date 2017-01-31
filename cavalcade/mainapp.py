@@ -124,7 +124,7 @@ class MainApp(Gtk.Application):
 		self.adata.send_to_player()
 
 		if options.contains("play"):
-			self.settings.run_action("player", "play")
+			self.canvas.run_action("player", "play")
 
 		return 0
 
@@ -180,6 +180,7 @@ class MainApp(Gtk.Application):
 		self.add_action(quit_action)
 
 		# share actions
+		self.canvas.actions.update(self.settings.actions)
 		set_actions(self.canvas.actions, self.settings.gui["window"])
 
 		# signals
@@ -201,14 +202,6 @@ class MainApp(Gtk.Application):
 		if self.config["color"]["auto"]:
 			self.settings.visualpage.gui["fg_colorbutton"].set_rgba(rgba)
 			self.draw.color_update()
-
-	def on_click(self, widget, event):
-		"""Show settings window"""
-		if event.type == Gdk.EventType.BUTTON_PRESS:
-			if self.settings.gui["window"].get_property("visible"):
-				self.settings.hide()
-		elif event.type == Gdk.EventType._2BUTTON_PRESS:
-			self.settings.show()
 
 	def on_default_image_update(self, sender, file_):
 		"""Update default background"""

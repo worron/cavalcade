@@ -36,7 +36,7 @@
             <attribute name="label">Solid background</attribute>
           </item>
           <item>
-            <attribute name="action">app.autocolor</attribute>
+            <attribute name="action">settings.autocolor</attribute>
             <attribute name="label">Use color analyzer</attribute>
           </item>
         </section>

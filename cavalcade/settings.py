@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from gi.repository import Gtk, Gio
+from gi.repository import Gio
 from cavalcade.visset import VisualPage
 from cavalcade.cavaset import CavaPage
 from cavalcade.playset import PlayerPage
@@ -15,9 +15,11 @@ class SettingsWindow(GuiBase):
 		)
 		super().__init__("settings.ui", "appmenu.ui", "winstate.ui", elements=elements)
 
+		self.actions = {}
 		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
 		self.gui["window"].set_application(mainapp)
+		self.actions["settings"] = Gio.SimpleActionGroup()
 
 		# add visual page
 		self.visualpage = VisualPage(self)
@@ -34,11 +36,11 @@ class SettingsWindow(GuiBase):
 		# actions
 		hide_action = Gio.SimpleAction.new("hide", None)
 		hide_action.connect("activate", self.hide)
-		self._mainapp.add_action(hide_action)
+		self.actions["settings"].add_action(hide_action)
 
 		show_action = Gio.SimpleAction.new("show", None)
 		show_action.connect("activate", self.show)
-		self._mainapp.add_action(show_action)
+		self.actions["settings"].add_action(show_action)
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
@@ -47,11 +49,6 @@ class SettingsWindow(GuiBase):
 		"""Optional player page"""
 		self.playerpage = PlayerPage(self._mainapp)
 		self.gui["stack"].add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
-
-	def run_action(self, group, name):
-		action = self.gui["window"].get_action_group(group)
-		if action is not None:
-			action.activate_action(name)
 
 	def show(self, *args):
 		"""Show settings winndow"""

@@ -13,7 +13,7 @@
     </section>
     <section>
       <item>
-        <attribute name="action">app.hide</attribute>
+        <attribute name="action">settings.hide</attribute>
         <attribute name="label" translatable="yes">Hide</attribute>
     </item>
       <item>
