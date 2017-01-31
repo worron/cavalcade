@@ -6,17 +6,28 @@
     <property name="default_height">540</property>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="headerbar">
-        <!-- <property name="margin_top">8</property> -->
         <property name="show-close-button">True</property>
         <property name="decoration-layout">menu:</property>
         <child type="title">
           <object class="GtkStackSwitcher" id="stackswitcher">
-            <!-- <property name="margin_top">8</property> -->
+            <property name="margin_top">8</property>
+            <property name="margin_bottom">4</property>
             <property name="stack">stack</property>
           </object>
         </child>
         <child>
-          <object class="GtkMenuButton" id="winapp-menubutton">
+          <object class="GtkMenuButton" id="app-menubutton">
+            <property name="margin_top">8</property>
+            <property name="margin_bottom">4</property>
+          </object>
+          <packing>
+            <property name="pack-type">start</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="winstate-menubutton">
+            <property name="margin_top">8</property>
+            <property name="margin_bottom">4</property>
           </object>
           <packing>
             <property name="pack-type">end</property>

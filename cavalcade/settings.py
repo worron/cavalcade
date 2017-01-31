@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from gi.repository import Gtk
+from gi.repository import Gtk, Gio
 from cavalcade.visset import VisualPage
 from cavalcade.cavaset import CavaPage
 from cavalcade.playset import PlayerPage
@@ -9,8 +9,11 @@ from cavalcade.common import GuiBase
 class SettingsWindow(GuiBase):
 	"""Settings window"""
 	def __init__(self, mainapp):
-		elements = ("window", "headerbar", "winapp-menubutton", "stackswitcher", "app-menu", "stack")
-		super().__init__("settings.ui", "appmenu.ui", elements=elements)
+		elements = (
+			"window", "headerbar", "winstate-menubutton", "stackswitcher", "app-menu", "stack", "winstate-menu",
+			"app-menubutton",
+		)
+		super().__init__("settings.ui", "appmenu.ui", "winstate.ui", elements=elements)
 
 		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
@@ -27,14 +30,28 @@ class SettingsWindow(GuiBase):
 		# add cava page
 		self.cavapage = CavaPage(self._mainapp)
 		self.gui["stack"].add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
-		self._mainapp.set_app_menu(self.gui["app-menu"])
+
+		# setup menu buttons
+		# TODO: move image setting to ui files
+		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
+		self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
+
+		self.gui["app-menubutton"].set_menu_model(self.gui["app-menu"])
+		self.gui["app-menubutton"].set_image(Gtk.Image(icon_name="open-menu-symbolic"))
+
+		# actions
+		hide_action = Gio.SimpleAction.new("hide", None)
+		hide_action.connect("activate", self.hide)
+		self._mainapp.add_action(hide_action)
+
+		show_action = Gio.SimpleAction.new("show", None)
+		show_action.connect("activate", self.show)
+		self._mainapp.add_action(show_action)
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
-		self.visualpage.gui["hide_button"].connect("clicked", self.hide)
-		self.visualpage.gui["exit_button"].connect("clicked", self._mainapp.close)
 
-	def set_player_page(self):
+	def add_player_page(self):
 		"""Optional player page"""
 		self.playerpage = PlayerPage(self._mainapp)
 		self.gui["stack"].add_titled(self.playerpage.gui["mainbox"], "playset", "Player")

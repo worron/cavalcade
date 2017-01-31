@@ -43,7 +43,6 @@ class AudioData:
 		self.store = os.path.join(self._mainapp.config.path, "store")
 		self.files = []
 		self.queue = None
-
 		self.updated = False
 
 	def load(self, args):
@@ -170,7 +169,7 @@ class MainApp(Gtk.Application):
 		# optional gstreamer player
 		if self.imported.gstreamer:
 			self.player = Player(self)
-			self.settings.set_player_page()
+			self.settings.add_player_page()
 			self.canvas.actions.update(self.player.actions)
 		else:
 			logger.info("Starting without audio player function")

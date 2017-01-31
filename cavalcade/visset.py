@@ -7,23 +7,15 @@ from gi.repository import Gtk
 class VisualPage(GuiBase):
 	"""Settings window"""
 	def __init__(self, settings):
-		self._settings = settings
 		self._mainapp = settings._mainapp
+		self.window = settings.gui["window"]
 		elements = (
-			"mainbox", "hint_combobox", "fg_colorbutton", "winstate-menubutton", "winstate-menu",
+			"fg_colorbutton", "zero_spinbutton", "silence_spinbutton", "image_open_button", "autocolor_switch",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
-			"left_spinbutton", "right_spinbutton", "hide_button", "exit_button", "st_image_show_switch",
-			"image_file_rbutton", "image_tag_rbutton", "imagelabel", "image_open_button", "autocolor_switch",
-			"zero_spinbutton", "silence_spinbutton",
+			"left_spinbutton", "right_spinbutton", "st_image_show_switch", "image_tag_rbutton", "imagelabel",
+			"image_file_rbutton", "mainbox",
 		)
-		super().__init__("visset.glade", "winstate.ui", elements=elements)
-
-		# set menu buttons
-		# TODO: move image setting to ui files
-		# self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
-		# self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
-		self._settings.gui["winapp-menubutton"].set_menu_model(self.gui["winstate-menu"])
-		self._settings.gui["winapp-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
+		super().__init__("visset.glade", elements=elements)
 
 		# image file filter
 		self.image_filter = Gtk.FileFilter()
@@ -106,7 +98,7 @@ class VisualPage(GuiBase):
 			self._mainapp.emit("image-source-switch", usetag)
 
 	def on_image_open_button_click(self, *args):
-		is_ok, file_ = gtk_open_file(self._settings.gui["window"], self.image_filter)
+		is_ok, file_ = gtk_open_file(self.window.gui["window"], self.image_filter)
 		if is_ok:
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
 			self._mainapp.config["image"]["default"] = file_
