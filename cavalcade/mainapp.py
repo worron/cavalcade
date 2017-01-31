@@ -175,6 +175,11 @@ class MainApp(Gtk.Application):
 		else:
 			logger.info("Starting without audio player function")
 
+		# set actions
+		quit_action = Gio.SimpleAction.new("quit", None)
+		quit_action.connect("activate", self.close)
+		self.add_action(quit_action)
+
 		# share actions
 		set_actions(self.canvas.actions, self.settings.gui["window"])
 

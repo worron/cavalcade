@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkApplicationWindow" id="window">
+    <property name="window_position">mouse</property>
+    <property name="default_width">460</property>
+    <property name="default_height">540</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="headerbar">
+        <!-- <property name="margin_top">8</property> -->
+        <property name="show-close-button">True</property>
+        <property name="decoration-layout">menu:</property>
+        <child type="title">
+          <object class="GtkStackSwitcher" id="stackswitcher">
+            <!-- <property name="margin_top">8</property> -->
+            <property name="stack">stack</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkMenuButton" id="winapp-menubutton">
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="GtkStack" id="stack">
+        <property name="margin_left">8</property>
+        <property name="margin_right">8</property>
+        <property name="margin_bottom">8</property>
+      </object>
+    </child>
+  </object>
+</interface>

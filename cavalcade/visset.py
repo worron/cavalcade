@@ -6,9 +6,9 @@ from gi.repository import Gtk
 
 class VisualPage(GuiBase):
 	"""Settings window"""
-	def __init__(self, mainapp, settings_window):
-		self._mainapp = mainapp
-		self.window = settings_window
+	def __init__(self, settings):
+		self._settings = settings
+		self._mainapp = settings._mainapp
 		elements = (
 			"mainbox", "hint_combobox", "fg_colorbutton", "winstate-menubutton", "winstate-menu",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
@@ -20,8 +20,10 @@ class VisualPage(GuiBase):
 
 		# set menu buttons
 		# TODO: move image setting to ui files
-		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
-		self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
+		# self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
+		# self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
+		self._settings.gui["winapp-menubutton"].set_menu_model(self.gui["winstate-menu"])
+		self._settings.gui["winapp-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
 
 		# image file filter
 		self.image_filter = Gtk.FileFilter()
@@ -104,7 +106,7 @@ class VisualPage(GuiBase):
 			self._mainapp.emit("image-source-switch", usetag)
 
 	def on_image_open_button_click(self, *args):
-		is_ok, file_ = gtk_open_file(self.window, self.image_filter)
+		is_ok, file_ = gtk_open_file(self._settings.gui["window"], self.image_filter)
 		if is_ok:
 			self.gui["imagelabel"].set_text("Image: %s" % name_from_file(file_))
 			self._mainapp.config["image"]["default"] = file_
