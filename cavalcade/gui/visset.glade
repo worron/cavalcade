@@ -99,7 +99,7 @@
               <object class="GtkLabel" id="colorlabel1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">FG</property>
+                <property name="label" translatable="yes">Foreground</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -108,35 +108,18 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSwitch" id="autocolor_switch">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="tooltip_text" translatable="yes">Use custom drawing color.</property>
-                <property name="halign">end</property>
-                <property name="valign">center</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkColorButton" id="fg_colorbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Set custom drawing color.</property>
-                <property name="halign">center</property>
-                <property name="hexpand">True</property>
                 <property name="use_alpha">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
-                <property name="position">2</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
@@ -155,7 +138,7 @@
               <object class="GtkLabel" id="colorlabel2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">BG</property>
+                <property name="label" translatable="yes">Background</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -164,34 +147,18 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSwitch" id="st_bgpaint_switch">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="tooltip_text" translatable="yes">Use solid background color.</property>
-                <property name="valign">center</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkColorButton" id="bg_colorbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Set custom background color.</property>
-                <property name="halign">center</property>
-                <property name="hexpand">True</property>
                 <property name="use_alpha">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="pack_type">end</property>
-                <property name="position">2</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
@@ -209,20 +176,14 @@
       </packing>
     </child>
     <child>
-      <placeholder/>
-    </child>
-    <child>
-      <placeholder/>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="separator3">
+      <object class="GtkSeparator" id="separator2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">4</property>
+        <property name="position">2</property>
       </packing>
     </child>
     <child>
@@ -387,18 +348,18 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">5</property>
+        <property name="position">3</property>
       </packing>
     </child>
     <child>
-      <object class="GtkSeparator" id="separator4">
+      <object class="GtkSeparator" id="separator3">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">6</property>
+        <property name="position">4</property>
       </packing>
     </child>
     <child>
@@ -557,18 +518,18 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">7</property>
+        <property name="position">5</property>
       </packing>
     </child>
     <child>
-      <object class="GtkSeparator" id="separator5">
+      <object class="GtkSeparator" id="separator4">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">8</property>
+        <property name="position">6</property>
       </packing>
     </child>
     <child>
@@ -643,19 +604,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkSwitch" id="st_image_show_switch">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="tooltip_text" translatable="yes">Show background image.</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkScrolledWindow" id="image_label_scrolledwindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
@@ -686,21 +634,18 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">9</property>
+        <property name="position">7</property>
       </packing>
     </child>
     <child>
-      <placeholder/>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="separator6">
+      <object class="GtkSeparator" id="separator5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">11</property>
+        <property name="position">8</property>
       </packing>
     </child>
   </object>

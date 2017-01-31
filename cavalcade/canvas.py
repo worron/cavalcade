@@ -50,6 +50,12 @@ class Canvas:
 		hint_action.connect("change-state", self._on_hint)
 		self.actions["winstate"].add_action(hint_action)
 
+		showimage_action = Gio.SimpleAction.new_stateful(
+			"image", None, GLib.Variant.new_boolean(self.config["image"]["show"])
+		)
+		showimage_action.connect("change-state", self._on_show_image)
+		self.actions["winstate"].add_action(showimage_action)
+
 		for key, value in self.config["window"].items():
 			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
 			action.connect("change-state", self._on_winstate)
@@ -84,6 +90,19 @@ class Canvas:
 		action.set_state(value)
 		self.config["misc"]["hint"] = getattr(Gdk.WindowTypeHint, value.get_string())
 		self.rebuild_window()
+
+	def _on_show_image(self, action, value):
+		"""Draw image background or solid paint"""
+		action.set_state(value)
+		show = value.get_boolean()
+
+		if self.config["image"]["show"] != show:
+			self.config["image"]["show"] = show
+			if show:
+				self.overlay.add(self.scrolled)
+				self._rebuild_background()
+			else:
+				self.overlay.remove(self.scrolled)
 
 	# Base window properties
 	def _set_maximize(self, value):
@@ -206,16 +225,6 @@ class Canvas:
 			getattr(self, settler)(value)
 		else:
 			logger.warning("Wrong window property '%s'" % name)
-
-	def show_image(self, value):
-		"""Draw image background or solid paint"""
-		if self.config["image"]["show"] != value:
-			self.config["image"]["show"] = value
-			if value:
-				self.overlay.add(self.scrolled)
-				self._rebuild_background()
-			else:
-				self.overlay.remove(self.scrolled)
 
 	def on_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""

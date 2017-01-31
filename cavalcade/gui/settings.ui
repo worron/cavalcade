@@ -19,6 +19,11 @@
           <object class="GtkMenuButton" id="app-menubutton">
             <property name="margin_top">8</property>
             <property name="margin_bottom">4</property>
+            <child>
+              <object class="GtkImage" id="menu-icon">
+                <property name="icon-name">open-menu-symbolic</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="pack-type">start</property>
@@ -28,6 +33,11 @@
           <object class="GtkMenuButton" id="winstate-menubutton">
             <property name="margin_top">8</property>
             <property name="margin_bottom">4</property>
+            <child>
+              <object class="GtkImage" id="system-icon">
+                <property name="icon-name">emblem-system-symbolic</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="pack-type">end</property>
@@ -37,6 +47,8 @@
     </child>
     <child>
       <object class="GtkStack" id="stack">
+        <property name="transition-type">6</property>
+        <property name="transition-duration">500</property>
         <property name="margin_left">8</property>
         <property name="margin_right">8</property>
         <property name="margin_bottom">8</property>

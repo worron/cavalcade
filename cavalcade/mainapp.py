@@ -195,17 +195,12 @@ class MainApp(Gtk.Application):
 		self.cava.start()
 
 	# signal handlers
-	def on_autocolor_switch(self, value):
-		"""Use color analyzer or user preset"""
-		self.config["color"]["auto"] = value
-		color = self.config["color"]["autofg"] if value else self.config["color"]["fg"]
-		self.settings.visualpage.fg_color_manual_set(color)
-
 	def on_autocolor_update(self, sender, rgba):
 		"""New data from color analyzer"""
 		self.config["color"]["autofg"] = rgba
 		if self.config["color"]["auto"]:
-			self.settings.visualpage.fg_color_manual_set(rgba)
+			self.settings.visualpage.gui["fg_colorbutton"].set_rgba(rgba)
+			self.draw.color_update()
 
 	def on_click(self, widget, event):
 		"""Show settings window"""
@@ -220,6 +215,7 @@ class MainApp(Gtk.Application):
 		self.canvas._rebuild_background()
 		self.emit("reset-color")
 
+	# action handlers
 	def close(self, *args):
 		"""Application exit"""
 		self.quit()

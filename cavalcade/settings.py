@@ -19,10 +19,6 @@ class SettingsWindow(GuiBase):
 		self.gui["window"].set_keep_above(True)
 		self.gui["window"].set_application(mainapp)
 
-		# build stack
-		self.gui["stack"].set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
-		self.gui["stack"].set_transition_duration(500)
-
 		# add visual page
 		self.visualpage = VisualPage(self)
 		self.gui["stack"].add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
@@ -32,12 +28,8 @@ class SettingsWindow(GuiBase):
 		self.gui["stack"].add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
 		# setup menu buttons
-		# TODO: move image setting to ui files
 		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
-		self.gui["winstate-menubutton"].set_image(Gtk.Image(icon_name="emblem-system-symbolic"))
-
 		self.gui["app-menubutton"].set_menu_model(self.gui["app-menu"])
-		self.gui["app-menubutton"].set_image(Gtk.Image(icon_name="open-menu-symbolic"))
 
 		# actions
 		hide_action = Gio.SimpleAction.new("hide", None)

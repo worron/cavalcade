@@ -29,6 +29,19 @@
     </section>
     <section>
       <submenu>
+        <attribute name="label" translatable="yes">Color control</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.bgpaint</attribute>
+            <attribute name="label">Solid background</attribute>
+          </item>
+          <item>
+            <attribute name="action">app.autocolor</attribute>
+            <attribute name="label">Use color analyzer</attribute>
+          </item>
+        </section>
+      </submenu>
+      <submenu>
         <attribute name="label" translatable="yes">Window hint</attribute>
         <section>
           <item>
@@ -58,8 +71,6 @@
           </item>
         </section>
       </submenu>
-    </section>
-    <section>
       <submenu>
         <item>
           <attribute name="action">winstate.imagebyscreen</attribute>
@@ -89,6 +100,12 @@
           </item>
         </section>
       </submenu>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">winstate.image</attribute>
+        <attribute name="label">Show background image</attribute>
+      </item>
     </section>
   </menu>
 </interface>
