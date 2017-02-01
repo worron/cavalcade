@@ -2,7 +2,7 @@
 import gi
 import os
 import pickle
-from gi.repository import Gtk, Gdk, GObject, Gio, GLib
+from gi.repository import Gtk, GObject, Gio, GLib
 
 from cavalcade.config import MainConfig, CavaConfig
 from cavalcade.drawing import Spectrum
@@ -84,7 +84,6 @@ class AudioData:
 class MainApp(Gtk.Application):
 	"""Main applicaion class"""
 	__gsignals__ = {
-		"reset-color": (GObject.SIGNAL_RUN_FIRST, None, ()),
 		"tag-image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"default-image-update": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
 		"image-source-switch": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
@@ -183,11 +182,7 @@ class MainApp(Gtk.Application):
 		self.canvas.actions.update(self.settings.actions)
 		set_actions(self.canvas.actions, self.settings.gui["window"])
 
-		# signals
-		self.connect("ac-update", self.on_autocolor_update)
-		self.connect("default-image-update", self.on_default_image_update)
-
-		# accelerator
+		# accelerators
 		self.add_accelerator("space", "player.play", None)
 		self.add_accelerator("<Control>n", "player.next", None)
 
@@ -195,20 +190,6 @@ class MainApp(Gtk.Application):
 		self.canvas.setup()
 		self.cava.start()
 
-	# signal handlers
-	def on_autocolor_update(self, sender, rgba):
-		"""New data from color analyzer"""
-		self.config["color"]["autofg"] = rgba
-		if self.config["color"]["auto"]:
-			self.settings.visualpage.gui["fg_colorbutton"].set_rgba(rgba)
-			self.draw.color_update()
-
-	def on_default_image_update(self, sender, file_):
-		"""Update default background"""
-		self.canvas._rebuild_background()
-		self.emit("reset-color")
-
-	# action handlers
 	def close(self, *args):
 		"""Application exit"""
 		self.quit()

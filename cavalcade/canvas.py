@@ -62,7 +62,8 @@ class Canvas:
 			self.actions["winstate"].add_action(action)
 
 		# signals
-		self._mainapp.connect("tag-image-update", self.on_image_update)
+		self._mainapp.connect("tag-image-update", self.on_tag_image_update)
+		self._mainapp.connect("default-image-update", self.on_default_image_update)
 
 	@property
 	def ready(self):
@@ -239,7 +240,11 @@ class Canvas:
 		else:
 			logger.warning("Wrong window property '%s'" % name)
 
-	def on_image_update(self, sender, bytedata):
+	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		self.tag_image_bytedata = bytedata
+		self._rebuild_background()
+
+	def on_default_image_update(self, sender, file_):
+		"""Update default background"""
 		self._rebuild_background()

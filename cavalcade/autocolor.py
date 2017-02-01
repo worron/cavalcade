@@ -44,7 +44,7 @@ def get_points(img, limit):
 
 
 def allocate(points, n=16, window=4):
-	"""Split points to groups according there color """
+	"""Split points to groups according there color"""
 	band = 1 / n
 	clusters = [Clust() for i in range(n)]
 	for point in points:
@@ -63,25 +63,34 @@ class AutoColor:
 		self._mainapp = mainapp
 		self.config = mainapp.config
 		self.process = None
-		self.default = None
 
 		self.pc, self.cc = multiprocessing.Pipe()  # fix this
 		self.watcher = None
-		self.catcher = self._mainapp.connect("ac-update", self.catch_default_color)
-		self._mainapp.handler_block(self.catcher)
 
-		self._mainapp.connect("reset-color", self.reset_default_color)
-		self._mainapp.connect("tag-image-update", self.on_image_update)
+		self._mainapp.connect("tag-image-update", self.on_tag_image_update)
+		self._mainapp.connect("default-image-update", self.on_default_image_update)
 		self._mainapp.connect("image-source-switch", self.on_image_source_switch)
 
-	def on_image_update(self, sender, bytedata):
+	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		if self.config["image"]["usetag"]:
-			self.color_update(bytedata)
+			file_ = io.BytesIO(bytedata)
+			self.color_update(file_)
 
 	def on_image_source_switch(self, sender, usetag):
-		"""Use default background or image from mp3 tag"""
-		self.color_update(self._mainapp.canvas.tag_image_bytedata if usetag else None)
+		"""Update color from mp3 tag"""
+		if usetag:
+			file_ = io.BytesIO(self._mainapp.canvas.tag_image_bytedata)
+		elif not self.config["image"]["default"].endswith(".svg"):  # fix this
+			file_ = self.config["image"]["default"]
+		else:
+			return
+		self.color_update(file_)
+
+	def on_default_image_update(self, sender, file_):
+		"""Update color from default image"""
+		if not file_.endswith(".svg") and not self.config["image"]["usetag"]:  # fix this
+			self.color_update(file_)
 
 	def calculate(self, file_, options, conn):
 		"""Find the main color of image"""
@@ -102,33 +111,9 @@ class AutoColor:
 			return True
 		else:
 			logger.error("Autocolor multiprocessing error: connection was unexpectedy terminated")
-			self.watcher = None
 
-	def catch_default_color(self, sender, rgba):
-		"""Set new calculated color as default"""
-		self.default = rgba
-		self._mainapp.handler_block(self.catcher)
-
-	def reset_default_color(self, *args):
-		"""Update default color"""
-		self.default = None
-		self.color_update(None)
-
-	def color_update(self, bytedata):
+	def color_update(self, file_):
 		"""Launch new calculation process with given image bytedata"""
-		if bytedata is None:
-			if self.default is None:
-				if not self.config["image"]["default"].endswith(".svg"):  # fix this
-					file_ = self.config["image"]["default"]
-					self._mainapp.handler_unblock(self.catcher)
-				else:
-					return
-			else:
-				self._mainapp.emit("ac-update", self.default)
-				return
-		else:
-			file_ = io.BytesIO(bytedata)
-
 		if self.process is None or not self.process.is_alive():
 			if self.watcher is None:
 				self.watcher = GLib.io_add_watch(self.pc, GLib.IO_IN | GLib.IO_HUP, self.color_setup)

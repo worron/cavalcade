@@ -50,6 +50,9 @@ class VisualPage(GuiBase):
 
 		self.gui["image_open_button"].connect("clicked", self.on_image_open_button_click)
 
+		# misc
+		self._mainapp.connect("ac-update", self.on_autocolor_update)
+
 		# actions
 		auto_action = Gio.SimpleAction.new_stateful(
 			"autocolor", None, GLib.Variant.new_boolean(self.config["color"]["auto"])
@@ -78,6 +81,12 @@ class VisualPage(GuiBase):
 		self.config["color"]["bg"] = button.get_rgba()
 		if self.config["window"]["bgpaint"]:
 			self._mainapp.canvas.set_bg_rgba(self.config["color"]["bg"])
+
+	def on_autocolor_update(self, sender, rgba):
+		self.config["color"]["autofg"] = rgba
+		if self.config["color"]["auto"]:
+			self.gui["fg_colorbutton"].set_rgba(rgba)
+			self._mainapp.draw.color_update()
 
 	def on_scale_spinbutton_changed(self, button):
 		self.config["draw"]["scale"] = float(button.get_value())
