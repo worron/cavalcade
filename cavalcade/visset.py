@@ -16,7 +16,7 @@ class VisualPage(GuiBase):
 			"fg_colorbutton", "zero_spinbutton", "silence_spinbutton", "image_open_button",
 			"bg_colorbutton", "padding_spinbutton", "scale_spinbutton", "top_spinbutton", "bottom_spinbutton",
 			"left_spinbutton", "right_spinbutton", "image_tag_rbutton", "imagelabel",
-			"image_file_rbutton", "mainbox",
+			"image_file_rbutton", "mainbox", "offset-comboboxtext", "offset-spinbutton",
 		)
 		super().__init__("visset.glade", elements=elements)
 
@@ -36,12 +36,17 @@ class VisualPage(GuiBase):
 			self.gui["%s_spinbutton" % key].connect("value-changed", getattr(self, "on_%s_spinbutton_changed" % key))
 
 		# offset
-		for key, value in self.config["offset"].items():
-			self.gui["%s_spinbutton" % key].set_value(value)
-			self.gui["%s_spinbutton" % key].connect("value-changed", self.on_offset_spinbutton_changed, key)
+		self.offset_current = None
+		self.gui["offset-spinbutton"].set_adjustment(Gtk.Adjustment(5, 0, 1000, 5, 0, 0))
 
-		self.gui["imagelabel"].set_text("Image: %s" % name_from_file(self.config["image"]["default"]))
+		for offset in ("Left", "Right", "Top", "Bottom"):
+			self.gui["offset-comboboxtext"].append_text(offset)
+		self.gui["offset-comboboxtext"].connect("changed", self.on_offset_combo_changed)
+		self.gui["offset-comboboxtext"].set_active(0)
 
+		self.gui["offset-spinbutton"].connect("value-changed", self.on_offset_spinbutton_changed)
+
+		# image source
 		image_rb = "image_tag_rbutton" if self.config["image"]["usetag"] else "image_file_rbutton"
 		self.gui[image_rb].set_active(True)
 
@@ -102,9 +107,15 @@ class VisualPage(GuiBase):
 	def on_silence_spinbutton_changed(self, button):
 		self.config["draw"]["silence"] = int(button.get_value())
 
-	def on_offset_spinbutton_changed(self, button, key):
-		self.config["offset"][key] = int(button.get_value())
+	def on_offset_spinbutton_changed(self, button):
+		self.config["offset"][self.offset_current] = int(button.get_value())
 		self._mainapp.draw.size_update()
+
+	def on_offset_combo_changed(self, combo):
+		text = combo.get_active_text()
+		if text is not None:
+			self.offset_current = text.lower()
+			self.gui["offset-spinbutton"].set_value(self.config["offset"][self.offset_current])
 
 	def on_image_rbutton_switch(self, button, active, usetag):
 		if button.get_active():
