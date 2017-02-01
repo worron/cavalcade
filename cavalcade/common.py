@@ -1,8 +1,31 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import os
+import gi
 from gi.repository import Gtk
+from cavalcade.logger import logger
 
 WINDOW_HINTS = ("NORMAL", "DIALOG", "SPLASHSCREEN", "DOCK", "DESKTOP")
+
+
+def import_optional():
+	"""Safe module import"""
+	success = AttributeDict()
+	try:
+		gi.require_version('Gst', '1.0')
+		from gi.repository import Gst  # noqa: F401
+		success.gstreamer = True
+	except Exception:
+		success.gstreamer = False
+		logger.warning("Fail to import Gstreamer module")
+
+	try:
+		from PIL import Image  # noqa: F401
+		success.pillow = True
+	except Exception:
+		success.pillow = False
+		logger.warning("Fail to import Pillow module")
+
+	return success
 
 
 def set_actions(actionpack, widget):
