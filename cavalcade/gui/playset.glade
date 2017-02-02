@@ -17,7 +17,7 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
-    <property name="spacing">2</property>
+    <property name="spacing">3</property>
     <child>
       <object class="GtkSeparator" id="separator1">
         <property name="visible">True</property>
@@ -30,90 +30,77 @@
       </packing>
     </child>
     <child>
-      <object class="GtkToolbar" id="play-toolbar">
+      <object class="GtkBox" id="box1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="toolbar_style">icons</property>
-        <property name="icon_size">4</property>
+        <property name="spacing">12</property>
         <child>
-          <object class="GtkToolButton" id="play-button">
+          <object class="GtkButton" id="play-button">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="resize_mode">immediate</property>
-            <property name="label" translatable="yes">Play</property>
-            <property name="use_underline">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <style>
+              <class name="flat"/>
+            </style>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="homogeneous">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <object class="GtkToolItem" id="toolcustom">
+          <object class="GtkScale" id="seek-scale">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkScale" id="seek-scale">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="margin_left">4</property>
-                <property name="margin_right">4</property>
-                <property name="adjustment">seek_adjustment</property>
-                <property name="round_digits">0</property>
-                <property name="draw_value">False</property>
-              </object>
-            </child>
+            <property name="can_focus">True</property>
+            <property name="adjustment">seek_adjustment</property>
+            <property name="round_digits">0</property>
+            <property name="draw_value">False</property>
           </object>
           <packing>
             <property name="expand">True</property>
-            <property name="homogeneous">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkToolItem" id="toolcustom1">
+          <object class="GtkVolumeButton" id="volumebutton">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkVolumeButton" id="volumebutton">
-                <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="relief">none</property>
+            <property name="focus_on_click">False</property>
+            <property name="orientation">vertical</property>
+            <property name="adjustment">volume_adjustment</property>
+            <property name="icons">audio-volume-muted-symbolic
+audio-volume-high-symbolic
+audio-volume-low-symbolic
+audio-volume-medium-symbolic</property>
+            <child internal-child="plus_button">
+              <object class="GtkButton" id="volumebutton-plus_button2">
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
                 <property name="relief">none</property>
-                <property name="focus_on_click">False</property>
-                <property name="orientation">vertical</property>
-                <property name="adjustment">volume_adjustment</property>
-                <property name="icons">audio-volume-muted-symbolic
-audio-volume-high-symbolic
-audio-volume-low-symbolic
-audio-volume-medium-symbolic</property>
-                <child internal-child="plus_button">
-                  <object class="GtkButton" id="volumebutton-plus_button2">
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <property name="relief">none</property>
-                  </object>
-                </child>
-                <child internal-child="minus_button">
-                  <object class="GtkButton" id="volumebutton-minus_button2">
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <property name="relief">none</property>
-                  </object>
-                </child>
+              </object>
+            </child>
+            <child internal-child="minus_button">
+              <object class="GtkButton" id="volumebutton-minus_button2">
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="relief">none</property>
               </object>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="homogeneous">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>
@@ -136,7 +123,7 @@ audio-volume-medium-symbolic</property>
     </child>
     <child>
       <object class="GtkImage" id="preview-image">
-        <property name="height_request">220</property>
+        <property name="height_request">200</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="margin_top">12</property>

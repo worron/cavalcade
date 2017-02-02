@@ -22,6 +22,10 @@ class PlayerPage(GuiBase):
 
 		# some gui constants
 		self.TRACK_STORE = AttributeDict(INDEX=0, NAME=1, FILE=2)
+		self.PLAY_BUTTON_DATA = {
+			False: Gtk.Image(icon_name="media-playback-start-symbolic"),
+			True: Gtk.Image(icon_name="media-playback-pause-symbolic")
+		}
 		self.ACTION_BUTTON_DATA = dict(
 			list = AttributeDict(
 				images = (Gtk.Image(icon_name="list-add-symbolic"), Gtk.Image(icon_name="send-to-symbolic")),
@@ -63,7 +67,7 @@ class PlayerPage(GuiBase):
 
 		# list action buttons
 		self.set_button_images()
-		self.gui["play-button"].set_icon_name("media-playback-start-symbolic")
+		self.gui["play-button"].set_image(self.PLAY_BUTTON_DATA[False])
 
 		# signals
 		self.gui["play-button"].connect("clicked", self.on_playbutton_click)
@@ -218,7 +222,4 @@ class PlayerPage(GuiBase):
 			self._mainapp.player.add_to_queue(*files)
 
 	def on_playstate_update(self, player, value):
-		icon_name = "media-playback-pause-symbolic" if value else "media-playback-start-symbolic"
-		self.gui["play-button"].set_visible(False)  # Fix this
-		self.gui["play-button"].set_icon_name(icon_name)
-		self.gui["play-button"].set_visible(True)
+		self.gui["play-button"].set_image(self.PLAY_BUTTON_DATA[value])
