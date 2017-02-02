@@ -15,7 +15,8 @@ class VisualPage(GuiBase):
 		elements = (
 			"fg-colorbutton", "zero-spinbutton", "silence-spinbutton", "image-open-button",
 			"bg-colorbutton", "padding-spinbutton", "scale-spinbutton", "image-tag-radiobutton", "image-label",
-			"image-file-radiobutton", "mainbox", "offset-comboboxtext", "offset-spinbutton",
+			"image-file-radiobutton", "mainbox", "offset-comboboxtext", "offset-spinbutton", "value-min-scale",
+			"saturation-min-scale", "ac-window-spinbutton", "ac-bands-spinbutton"
 		)
 		super().__init__("visset.glade", elements=elements)
 
@@ -60,6 +61,17 @@ class VisualPage(GuiBase):
 		self.gui["image-open-button"].connect("clicked", self.on_image_open_button_click)
 		self.gui["image-label"].set_text("Image: %s" % name_from_file(self.config["image"]["default"]))
 
+		# autocolor settings
+		for key in ("saturation", "value"):
+			self.gui["%s-min-scale" % key].set_adjustment(Gtk.Adjustment(0.5, 0, 1, 0.01, 0, 0))
+			self.gui["%s-min-scale" % key].set_value(self.config["autocolor"]["%s_min" % key])
+			self.gui["%s-min-scale" % key].connect("value-changed", self.on_autocolor_scale_changed, key)
+
+		for key in ("window", "bands"):
+			self.gui["ac-%s-spinbutton" % key].set_adjustment(Gtk.Adjustment(5, 0, 1000, 1, 0, 0))
+			self.gui["ac-%s-spinbutton" % key].set_value(self.config["autocolor"][key])
+			self.gui["ac-%s-spinbutton" % key].connect("value-changed", self.on_autocolor_spinbutton_changed, key)
+
 		# misc
 		self._mainapp.connect("ac-update", self.on_autocolor_update)
 
@@ -82,6 +94,15 @@ class VisualPage(GuiBase):
 		self._mainapp.draw.color_update()
 
 	# signal handlers
+	def on_autocolor_spinbutton_changed(self, button, key):
+		value = int(button.get_value())
+		if key == "window":
+			value = min(value, self.config["autocolor"]["bands"])
+		self.config["autocolor"][key] = value
+
+	def on_autocolor_scale_changed(self, scale, key):
+		self.config["autocolor"]["%s_min" % key] = scale.get_value()
+
 	def on_fg_color_set(self, button):
 		key = "autofg" if self.config["color"]["auto"] else "fg"
 		self.config["color"][key] = button.get_rgba()
