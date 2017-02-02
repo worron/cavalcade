@@ -1,9 +1,15 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Gio, GLib
 import cavalcade.pixbuf as pixbuf
 
 from cavalcade.logger import logger
+from cavalcade.common import set_actions
+
+
+def bool_to_srt(*values):
+	"""Translate list of booleans to string"""
+	return ";".join("1" if v else "" for v in values)
 
 
 class Canvas:
@@ -16,6 +22,7 @@ class Canvas:
 		self.default_size = self.config["misc"]["dsize"]
 		self.last_size = (-1, -1)
 		self.tag_image_bytedata = None
+		self.actions = {}
 
 		# window setup
 		self.overlay = Gtk.Overlay()
@@ -29,22 +36,74 @@ class Canvas:
 		self.va = self.scrolled.get_vadjustment()
 		self.ha = self.scrolled.get_hadjustment()
 
-		# build setup
+		# actions
+		self.actions["winstate"] = Gio.SimpleActionGroup()
+
+		ialign_str = bool_to_srt(self.config["image"]["ha"], self.config["image"]["va"])
+		ialign_variant = GLib.Variant.new_string(ialign_str)
+		ialign_action = Gio.SimpleAction.new_stateful("ialign", ialign_variant.get_type(), ialign_variant)
+		ialign_action.connect("change-state", self._on_ialign)
+		self.actions["winstate"].add_action(ialign_action)
+
+		hint_variant = GLib.Variant.new_string(self.config["misc"]["hint"].value_nick.upper())
+		hint_action = Gio.SimpleAction.new_stateful("hint", hint_variant.get_type(), hint_variant)
+		hint_action.connect("change-state", self._on_hint)
+		self.actions["winstate"].add_action(hint_action)
+
+		showimage_action = Gio.SimpleAction.new_stateful(
+			"image", None, GLib.Variant.new_boolean(self.config["image"]["show"])
+		)
+		showimage_action.connect("change-state", self._on_show_image)
+		self.actions["winstate"].add_action(showimage_action)
+
+		for key, value in self.config["window"].items():
+			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
+			action.connect("change-state", self._on_winstate)
+			self.actions["winstate"].add_action(action)
+
+		# signals
+		self._mainapp.connect("tag-image-update", self.on_tag_image_update)
+		self._mainapp.connect("default-image-update", self.on_default_image_update)
+
+	@property
+	def ready(self):
+		return hasattr(self, "window")
+
+	def setup(self):
+		"""Init drawing windwow"""
 		self.rebuild_window()
 		# fix this
 		if not self.config["image"]["show"]:
 			self.overlay.remove(self.scrolled)
 
-		# signals
-		self.overlay.connect("key-press-event", self._on_key_press)
-		self._mainapp.connect("tag-image-update", self.on_image_update)
+	# action handlers
+	def _on_ialign(self, action, value):
+		action.set_state(value)
+		state = [bool(s) for s in value.get_string().split(";")]
+		self.config["image"]["ha"], self.config["image"]["va"] = state
 
-	def _on_key_press(self, widget, event):
-		if self._mainapp.adata.enabled:  # fix this
-			if event.keyval == Gdk.KEY_space:
-				self._mainapp.player.play_pause()
-			elif event.keyval == Gdk.KEY_Right:
-				self._mainapp.player.play_next()
+	def _on_winstate(self, action, value):
+		action.set_state(value)
+		self.set_property(action.get_name(), value.get_boolean())
+
+	def _on_hint(self, action, value):
+		"""Set window type  hint"""
+		action.set_state(value)
+		self.config["misc"]["hint"] = getattr(Gdk.WindowTypeHint, value.get_string())
+		self.rebuild_window()
+
+	def _on_show_image(self, action, value):
+		"""Draw image background or solid paint"""
+		action.set_state(value)
+		show = value.get_boolean()
+
+		if self.config["image"]["show"] != show:
+			self.config["image"]["show"] = show
+			if show:
+				self.overlay.add(self.scrolled)
+				self._rebuild_background()
+			else:
+				self.overlay.remove(self.scrolled)
 
 	# Base window properties
 	def _set_maximize(self, value):
@@ -129,14 +188,16 @@ class Canvas:
 		This may be useful for update specific window properties.
 		"""
 		# destroy old window
-		if hasattr(self, "window"):
+		if self.ready:
 			self.window.remove(self.overlay)
+			self._mainapp.remove_window(self.window)
 			self.window.destroy()
 
 		# init new
-		self.window = Gtk.Window()
+		self.window = Gtk.ApplicationWindow()
 		self.screen = self.window.get_screen()
 		self.window.set_visual(self.screen.get_rgba_visual())
+		self._mainapp.add_window(self.window)
 
 		self.window.set_default_size(*self.default_size)
 
@@ -150,11 +211,26 @@ class Canvas:
 
 		# signals
 		self.window.connect("delete-event", self._mainapp.close)
-		self.draw.area.connect("button-press-event", self._mainapp.on_click)
+		self.draw.area.connect("button-press-event", self.on_click)
 		self.window.connect("check-resize", self._on_size_update)
+
+		set_actions(self.actions, self.window)
 
 		# show
 		self.window.show_all()
+
+	def on_click(self, widget, event):
+		"""Show settings window"""
+		if event.type == Gdk.EventType.BUTTON_PRESS:
+			self.run_action("settings", "hide")
+		elif event.type == Gdk.EventType._2BUTTON_PRESS:
+			self.run_action("settings", "show")
+
+	def run_action(self, group, name):
+		"""Activate action"""
+		action = self.window.get_action_group(group)
+		if action is not None:
+			action.activate_action(name)
 
 	def set_property(self, name, value):
 		"""Set window appearance property"""
@@ -164,22 +240,11 @@ class Canvas:
 		else:
 			logger.warning("Wrong window property '%s'" % name)
 
-	def set_hint(self, value):
-		"""Set window type  hint"""
-		self.config["misc"]["hint"] = value
-		self.rebuild_window()
-
-	def show_image(self, value):
-		"""Draw image background or solid paint"""
-		if self.config["image"]["show"] != value:
-			self.config["image"]["show"] = value
-			if value:
-				self.overlay.add(self.scrolled)
-				self._rebuild_background()
-			else:
-				self.overlay.remove(self.scrolled)
-
-	def on_image_update(self, sender, bytedata):
+	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		self.tag_image_bytedata = bytedata
+		self._rebuild_background()
+
+	def on_default_image_update(self, sender, file_):
+		"""Update default background"""
 		self._rebuild_background()

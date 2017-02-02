@@ -3,7 +3,7 @@ import gi
 import random
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gst, GLib, GObject
+from gi.repository import Gst, GLib, GObject, Gio
 from cavalcade.logger import logger
 
 Gst.init(None)
@@ -41,6 +41,7 @@ class Player(GObject.GObject):
 		self.config = mainapp.config
 		self.playlist = []
 		self.playqueue = []
+		self.actions = {}
 
 		self.is_image_updated = True
 		self.duration = None
@@ -55,12 +56,23 @@ class Player(GObject.GObject):
 		bus.connect("message", self._on_message)
 		bus.connect("message::tag", self._on_message_tag)
 
-		# this is ugly and shuold be fixed
+		# this is ugly and should be fixed
 		# some fake player object is used to get tag image without playing audio file itself
 		self._fake_player = Gst.ElementFactory.make('playbin', 'player')
 		bus = self._fake_player.get_bus()
 		bus.add_signal_watch()
 		bus.connect("message::tag", self._on_fake_message)
+
+		# actions
+		self.actions["player"] = Gio.SimpleActionGroup()
+
+		play_action = Gio.SimpleAction.new("play", None)
+		play_action.connect("activate", self.play_pause)
+		self.actions["player"].add_action(play_action)
+
+		next_action = Gio.SimpleAction.new("next", None)
+		next_action.connect("activate", self.play_next)
+		self.actions["player"].add_action(next_action)
 
 	@property
 	def current(self):
@@ -118,6 +130,8 @@ class Player(GObject.GObject):
 		Set list of audio files for player.
 		Playback queue may be settled as optional argument.
 		"""
+		self.stop()
+
 		if files:
 			self.playlist = files
 
@@ -178,7 +192,7 @@ class Player(GObject.GObject):
 		self.duration = None
 		self.current = None
 
-	def play_next(self):
+	def play_next(self, *args):
 		"""Play next audio file in queue"""
 		current = self.current
 		self.stop()
@@ -199,7 +213,7 @@ class Player(GObject.GObject):
 				self.play_pause()
 			self.emit("queue-update", self.playqueue)  # fix false update if current not in queue
 
-	def play_pause(self):
+	def play_pause(self, *args):
 		"""Play or pause"""
 		if self.current is None:
 			logger.debug("No audio file selected")

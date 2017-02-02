@@ -15,7 +15,7 @@ class CavaPage(GuiBase):
 			"integral_spinbutton", "ignore_spinbutton", "monstercat_switch", "autosens_switch", "style_combobox",
 			"eq_treeview",
 		)
-		super().__init__("cavaset.glade", elements)
+		super().__init__("cavaset.glade", elements=elements)
 
 		# some gui constants
 		self.OUTPUT_STYLE = ("mono", "stereo")

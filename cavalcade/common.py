@@ -1,8 +1,37 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import os
+import gi
 from gi.repository import Gtk
+from cavalcade.logger import logger
 
 WINDOW_HINTS = ("NORMAL", "DIALOG", "SPLASHSCREEN", "DOCK", "DESKTOP")
+
+
+def import_optional():
+	"""Safe module import"""
+	success = AttributeDict()
+	try:
+		gi.require_version('Gst', '1.0')
+		from gi.repository import Gst  # noqa: F401
+		success.gstreamer = True
+	except Exception:
+		success.gstreamer = False
+		logger.warning("Fail to import Gstreamer module")
+
+	try:
+		from PIL import Image  # noqa: F401
+		success.pillow = True
+	except Exception:
+		success.pillow = False
+		logger.warning("Fail to import Pillow module")
+
+	return success
+
+
+def set_actions(actionpack, widget):
+	"""Set actions groups from dictionary to widget"""
+	for key, value in actionpack.items():
+		widget.insert_action_group(key, value)
 
 
 def name_from_file(file_):
@@ -35,10 +64,11 @@ class GuiBase:
 	"""Base for Gtk widget set created with builder"""
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")
 
-	def __init__(self, file_, elements):
-		builder = Gtk.Builder()
-		builder.add_from_file(os.path.join(self.path, file_))
-		self.gui = {element: builder.get_object(element) for element in elements}
+	def __init__(self, *files, elements=[]):
+		self.builder = Gtk.Builder()
+		for file_ in files:
+			self.builder.add_from_file(os.path.join(self.path, file_))
+		self.gui = {element: self.builder.get_object(element) for element in elements}
 
 
 class AttributeDict(dict):

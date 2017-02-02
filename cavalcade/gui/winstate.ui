@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="winstate-menu">
+    <section>
+      <item>
+        <attribute name="action">winstate.below</attribute>
+        <attribute name="label" translatable="yes">Below</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.stick</attribute>
+        <attribute name="label" translatable="yes">Stick</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.maximize</attribute>
+        <attribute name="label" translatable="yes">Maximize</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.fullscreen</attribute>
+        <attribute name="label" translatable="yes">Fullscreen</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.skiptaskbar</attribute>
+        <attribute name="label" translatable="yes">Skip taskbar</attribute>
+      </item>
+      <item>
+        <attribute name="action">winstate.winbyscreen</attribute>
+        <attribute name="label" translatable="yes">Resize window to screen</attribute>
+      </item>
+    </section>
+    <section>
+      <submenu>
+        <attribute name="label" translatable="yes">Color control</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.bgpaint</attribute>
+            <attribute name="label">Solid background</attribute>
+          </item>
+          <item>
+            <attribute name="action">settings.autocolor</attribute>
+            <attribute name="label">Use color analyzer</attribute>
+          </item>
+        </section>
+      </submenu>
+      <submenu>
+        <attribute name="label" translatable="yes">Window hint</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">NORMAL</attribute>
+            <attribute name="label">Normal</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DIALOG</attribute>
+            <attribute name="label">Dialog</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DOCK</attribute>
+            <attribute name="label">Dock</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">DESKTOP</attribute>
+            <attribute name="label">Desktop</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.hint</attribute>
+            <attribute name="target">SPLASHSCREEN</attribute>
+            <attribute name="label">Splashscreen</attribute>
+          </item>
+        </section>
+      </submenu>
+      <submenu>
+        <item>
+          <attribute name="action">winstate.imagebyscreen</attribute>
+          <attribute name="label" translatable="yes">Resize image to screen</attribute>
+        </item>
+        <attribute name="label" translatable="yes">Image alignment</attribute>
+        <section>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">;</attribute>
+            <attribute name="label">Top left</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">1;</attribute>
+            <attribute name="label">Top right</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">;1</attribute>
+            <attribute name="label">Bottom left</attribute>
+          </item>
+          <item>
+            <attribute name="action">winstate.ialign</attribute>
+            <attribute name="target">1;1</attribute>
+            <attribute name="label">Bottom right</attribute>
+          </item>
+        </section>
+      </submenu>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">winstate.image</attribute>
+        <attribute name="label">Show background image</attribute>
+      </item>
+    </section>
+  </menu>
+</interface>

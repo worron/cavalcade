@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from gi.repository import Gtk
+from gi.repository import Gio
 from cavalcade.visset import VisualPage
 from cavalcade.cavaset import CavaPage
 from cavalcade.playset import PlayerPage
@@ -9,39 +9,46 @@ from cavalcade.common import GuiBase
 class SettingsWindow(GuiBase):
 	"""Settings window"""
 	def __init__(self, mainapp):
-		super().__init__("settings.glade", ("window", "mainbox"))
+		elements = (
+			"window", "headerbar", "winstate-menubutton", "stackswitcher", "app-menu", "stack", "winstate-menu",
+			"app-menubutton",
+		)
+		super().__init__("settings.ui", "appmenu.ui", "winstate.ui", elements=elements)
+
+		self.actions = {}
 		self._mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
-
-		# build stack
-		self.stack = Gtk.Stack()
-		self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_LEFT_RIGHT)
-		self.stack.set_transition_duration(500)
+		self.gui["window"].set_application(mainapp)
+		self.actions["settings"] = Gio.SimpleActionGroup()
 
 		# add visual page
-		self.visualpage = VisualPage(self._mainapp, self.gui["window"])
-		self.stack.add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
+		self.visualpage = VisualPage(self)
+		self.gui["stack"].add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
 		# add cava page
 		self.cavapage = CavaPage(self._mainapp)
-		self.stack.add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
+		self.gui["stack"].add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
-		# setup stack
-		stack_switcher = Gtk.StackSwitcher(halign=Gtk.Align.CENTER)
-		stack_switcher.set_stack(self.stack)
+		# setup menu buttons
+		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
+		self.gui["app-menubutton"].set_menu_model(self.gui["app-menu"])
 
-		self.gui["mainbox"].pack_start(stack_switcher, False, True, 0)
-		self.gui["mainbox"].pack_start(self.stack, True, True, 0)
+		# actions
+		hide_action = Gio.SimpleAction.new("hide", None)
+		hide_action.connect("activate", self.hide)
+		self.actions["settings"].add_action(hide_action)
+
+		show_action = Gio.SimpleAction.new("show", None)
+		show_action.connect("activate", self.show)
+		self.actions["settings"].add_action(show_action)
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)
-		self.visualpage.gui["hide_button"].connect("clicked", self.hide)
-		self.visualpage.gui["exit_button"].connect("clicked", self._mainapp.close)
 
-	def set_player_page(self):
+	def add_player_page(self):
 		"""Optional player page"""
 		self.playerpage = PlayerPage(self._mainapp)
-		self.stack.add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
+		self.gui["stack"].add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
 	def show(self, *args):
 		"""Show settings winndow"""
