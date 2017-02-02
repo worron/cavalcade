@@ -2,17 +2,6 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
-  <object class="GtkImage" id="list_image">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="tooltip_text" translatable="yes">Show playlist.</property>
-    <property name="stock">gtk-justify-fill</property>
-  </object>
-  <object class="GtkImage" id="queue_image">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-goto-bottom</property>
-  </object>
   <object class="GtkAdjustment" id="seek_adjustment">
     <property name="upper">999</property>
     <property name="step_increment">1</property>
@@ -41,13 +30,13 @@
       </packing>
     </child>
     <child>
-      <object class="GtkToolbar" id="playtoolbar">
+      <object class="GtkToolbar" id="play-toolbar">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="toolbar_style">icons</property>
         <property name="icon_size">4</property>
         <child>
-          <object class="GtkToolButton" id="playbutton">
+          <object class="GtkToolButton" id="play-button">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="halign">center</property>
@@ -66,7 +55,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkScale" id="seekscale">
+              <object class="GtkScale" id="seek-scale">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_left">4</property>
@@ -146,7 +135,7 @@ audio-volume-medium-symbolic</property>
       </packing>
     </child>
     <child>
-      <object class="GtkImage" id="preview_image">
+      <object class="GtkImage" id="preview-image">
         <property name="height_request">220</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
@@ -179,7 +168,7 @@ audio-volume-medium-symbolic</property>
         <property name="margin_bottom">8</property>
         <property name="spacing">12</property>
         <child>
-          <object class="GtkSearchEntry" id="list_search_entry">
+          <object class="GtkSearchEntry" id="list-searchentry">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hexpand">True</property>
@@ -198,14 +187,20 @@ audio-volume-medium-symbolic</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkRadioButton" id="list_rbutton">
+              <object class="GtkRadioButton" id="list-radiobutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="image">list_image</property>
+                <property name="valign">center</property>
                 <property name="xalign">0</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">False</property>
+                <child>
+                  <object class="GtkImage" id="list-image">
+                    <property name="can_focus">False</property>
+                    <property name="icon_name">view-list-symbolic</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -214,17 +209,22 @@ audio-volume-medium-symbolic</property>
               </packing>
             </child>
             <child>
-              <object class="GtkRadioButton" id="queue_rbutton">
+              <object class="GtkRadioButton" id="queue-radiobutton">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="tooltip_text" translatable="yes">Show playback queue.</property>
-                <property name="image">queue_image</property>
+                <property name="valign">center</property>
                 <property name="xalign">0.5</property>
-                <property name="yalign">0.44999998807907104</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">False</property>
-                <property name="group">list_rbutton</property>
+                <property name="group">list-radiobutton</property>
+                <child>
+                  <object class="GtkImage" id="queue-image">
+                    <property name="can_focus">False</property>
+                    <property name="icon_name">media-playlist-consecutive-symbolic</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -249,10 +249,13 @@ audio-volume-medium-symbolic</property>
             <property name="can_focus">False</property>
             <property name="spacing">6</property>
             <child>
-              <object class="GtkButton" id="solo_action_button">
+              <object class="GtkButton" id="solo-action-button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <style>
+                  <class name="flat"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -261,10 +264,13 @@ audio-volume-medium-symbolic</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="mass_action_button">
+              <object class="GtkButton" id="mass-action-button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <style>
+                  <class name="flat"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -293,12 +299,12 @@ audio-volume-medium-symbolic</property>
         <property name="hscrollbar_policy">never</property>
         <property name="shadow_type">in</property>
         <child>
-          <object class="GtkTreeView" id="playlist_treeview">
+          <object class="GtkTreeView" id="playlist-treeview">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="headers_visible">False</property>
             <child internal-child="selection">
-              <object class="GtkTreeSelection" id="playlist_selection"/>
+              <object class="GtkTreeSelection" id="playlist-selection"/>
             </child>
           </object>
         </child>

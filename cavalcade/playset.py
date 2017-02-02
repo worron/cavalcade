@@ -14,9 +14,9 @@ class PlayerPage(GuiBase):
 		self.playqueue = []
 
 		elements = (
-			"mainbox", "playbutton", "seekscale", "playlist_treeview", "playlist_selection", "preview_image",
-			"volumebutton", "list_search_entry", "queue_rbutton", "list_rbutton", "solo_action_button",
-			"mass_action_button", "playtoolbar",
+			"mainbox", "play-button", "seek-scale", "playlist-treeview", "playlist-selection", "preview-image",
+			"volumebutton", "list-searchentry", "queue-radiobutton", "list-radiobutton", "solo-action-button",
+			"mass-action-button",
 		)
 		super().__init__("playset.glade", elements=elements)
 
@@ -24,22 +24,22 @@ class PlayerPage(GuiBase):
 		self.TRACK_STORE = AttributeDict(INDEX=0, NAME=1, FILE=2)
 		self.ACTION_BUTTON_DATA = dict(
 			list = AttributeDict(
-				images = (Gtk.Image(stock=Gtk.STOCK_ADD), Gtk.Image(stock=Gtk.STOCK_GO_FORWARD)),
+				images = (Gtk.Image(icon_name="list-add-symbolic"), Gtk.Image(icon_name="send-to-symbolic")),
 				tooltip = ("Add track to playback queue.", "Add all to playback queue.")
 			),
 			queue = AttributeDict(
-				images = (Gtk.Image(stock=Gtk.STOCK_REMOVE), Gtk.Image(stock=Gtk.STOCK_CLEAR)),
+				images = (Gtk.Image(icon_name="list-remove-symbolic"), Gtk.Image(icon_name="list-remove-all-symbolic")),
 				tooltip = ("Remove track from playback queue.", "Clear playback queue.")
 			)
 		)
 
 		# get preview wigget height
-		pz = self.gui["preview_image"].get_preferred_size()[1]
+		pz = self.gui["preview-image"].get_preferred_size()[1]
 		self.preview_size = pz.height - 2
 		self.update_default_preview()
 
 		# playlist view setup
-		self.treeview = self.gui["playlist_treeview"]
+		self.treeview = self.gui["playlist-treeview"]
 		self.treelock = TreeViewHolder(self.treeview)
 		for i, title in enumerate(("Index", "Name", "File")):
 			column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.END), text=i)
@@ -55,26 +55,26 @@ class PlayerPage(GuiBase):
 		self.treeview.set_model(self.storefilter)
 
 		# list view button
-		active_rbutton = "queue_rbutton" if self._mainapp.config["player"]["showqueue"] else "list_rbutton"
+		active_rbutton = "queue-radiobutton" if self._mainapp.config["player"]["showqueue"] else "list-radiobutton"
 		self.gui[active_rbutton].set_active(True)
 
-		self.gui["queue_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, True)
-		self.gui["list_rbutton"].connect("notify::active", self.on_listview_rbutton_switch, False)
+		self.gui["queue-radiobutton"].connect("notify::active", self.on_listview_rbutton_switch, True)
+		self.gui["list-radiobutton"].connect("notify::active", self.on_listview_rbutton_switch, False)
 
 		# list action buttons
 		self.set_button_images()
-		self.gui["playbutton"].set_icon_name(Gtk.STOCK_MEDIA_PLAY)
+		self.gui["play-button"].set_icon_name("media-playback-start-symbolic")
 
 		# signals
-		self.gui["playbutton"].connect("clicked", self.on_playbutton_click)
-		self.gui["mass_action_button"].connect("clicked", self.on_mass_button_click)
-		self.gui["solo_action_button"].connect("clicked", self.on_solo_button_click)
-		self.gui["playlist_treeview"].connect("row_activated", self.on_track_activated)
+		self.gui["play-button"].connect("clicked", self.on_playbutton_click)
+		self.gui["mass-action-button"].connect("clicked", self.on_mass_button_click)
+		self.gui["solo-action-button"].connect("clicked", self.on_solo_button_click)
+		self.gui["playlist-treeview"].connect("row_activated", self.on_track_activated)
 		self.gui["volumebutton"].connect("value-changed", self.on_volumebuton_changed)
-		self.gui['list_search_entry'].connect("activate", self.on_search_active)
-		self.gui['list_search_entry'].connect("icon-release", self.on_search_reset)
-		self.seek_handler_id = self.gui["seekscale"].connect("value-changed", self.on_seekscale_changed)
-		self.sel_handler_id = self.gui['playlist_selection'].connect("changed", self.on_track_selection_changed)
+		self.gui["list-searchentry"].connect("activate", self.on_search_active)
+		self.gui["list-searchentry"].connect("icon-release", self.on_search_reset)
+		self.seek_handler_id = self.gui["seek-scale"].connect("value-changed", self.on_seekscale_changed)
+		self.sel_handler_id = self.gui["playlist-selection"].connect("changed", self.on_track_selection_changed)
 
 		self._mainapp.player.connect("progress", self.on_audio_progress)
 		self._mainapp.player.connect("playlist-update", self.on_playlist_update)
@@ -95,7 +95,7 @@ class PlayerPage(GuiBase):
 	def set_button_images(self):
 		"""Update action buttons images according current state"""
 		data = self.ACTION_BUTTON_DATA["queue" if self._mainapp.config["player"]["showqueue"] else "list"]
-		for i, button_name in enumerate(("solo_action_button", "mass_action_button")):
+		for i, button_name in enumerate(("solo-action-button", "mass-action-button")):
 			self.gui[button_name].set_image(data.images[i])
 			self.gui[button_name].set_tooltip_text(data.tooltip[i])
 
@@ -117,14 +117,14 @@ class PlayerPage(GuiBase):
 			index = files.index(self.current)
 			self.treeview.set_cursor(index)
 		else:
-			self.gui["playlist_selection"].unselect_all()
+			self.gui["playlist-selection"].unselect_all()
 
 	def refilter_by_search(self):
 		"""Filter current track list by search text"""
-		self.search_text = self.gui['list_search_entry'].get_text()
-		with self.gui["playlist_selection"].handler_block(self.sel_handler_id):
+		self.search_text = self.gui["list-searchentry"].get_text()
+		with self.gui["playlist-selection"].handler_block(self.sel_handler_id):
 			self.storefilter.refilter()
-			self.gui["playlist_selection"].unselect_all()
+			self.gui["playlist-selection"].unselect_all()
 
 	def rebuild_store(self, data):
 		"""Update audio track store"""
@@ -155,7 +155,7 @@ class PlayerPage(GuiBase):
 		self._mainapp.player.play_pause()
 
 	def on_seekscale_changed(self, widget):
-		value = self.gui["seekscale"].get_value()
+		value = self.gui["seek-scale"].get_value()
 		self._mainapp.player.seek(value)
 
 	def on_volumebuton_changed(self, widget, value):
@@ -163,16 +163,16 @@ class PlayerPage(GuiBase):
 		self._mainapp.player.set_volume(value)
 
 	def on_audio_progress(self, player, value):
-		with self.gui["seekscale"].handler_block(self.seek_handler_id):
-			self.gui["seekscale"].set_value(value)
+		with self.gui["seek-scale"].handler_block(self.seek_handler_id):
+			self.gui["seek-scale"].set_value(value)
 
 	def on_current_change(self, player, current):
 		self.current = current
 		if current is not None:
-			self.gui["playbutton"].set_tooltip_text("Playing: %s" % name_from_file(current))
+			self.gui["play-button"].set_tooltip_text("Playing: %s" % name_from_file(current))
 			self.hilight_current()
 		else:
-			self.gui["playbutton"].set_tooltip_text("Playing: none")
+			self.gui["play-button"].set_tooltip_text("Playing: none")
 
 	def on_track_selection_changed(self, selection):
 		model, sel = selection.get_selected()
@@ -182,27 +182,27 @@ class PlayerPage(GuiBase):
 
 	def on_preview_update(self, player, bytedata):
 		pb = pixbuf.from_bytes_at_scale(bytedata, -1, self.preview_size) if bytedata is not None else self.preview
-		self.gui["preview_image"].set_from_pixbuf(pb)
+		self.gui["preview-image"].set_from_pixbuf(pb)
 
 	def on_search_active(self, *args):
 		self.refilter_by_search()
 		self.hilight_current()
 
 	def on_search_reset(self, *args):
-		self.gui['list_search_entry'].set_text("")
+		self.gui["list-searchentry"].set_text("")
 		self.on_search_active()
 
 	def on_listview_rbutton_switch(self, button, active, showqueue):
 		if button.get_active():
 			self._mainapp.config["player"]["showqueue"] = showqueue
-			self.gui['list_search_entry'].set_text("")
+			self.gui["list-searchentry"].set_text("")
 			self.refilter_by_search()
 			data = self.playqueue if showqueue else self.playlist
 			self.rebuild_store(data)
 			self.set_button_images()
 
 	def on_solo_button_click(self, *args):
-		model, sel = self.gui["playlist_selection"].get_selected()
+		model, sel = self.gui["playlist-selection"].get_selected()
 		if sel is not None:
 			file_ = model[sel][self.TRACK_STORE.FILE]
 			if self._mainapp.config["player"]["showqueue"]:
@@ -218,6 +218,7 @@ class PlayerPage(GuiBase):
 			self._mainapp.player.add_to_queue(*files)
 
 	def on_playstate_update(self, player, value):
-		self.gui["playbutton"].set_visible(False)  # Fix this
-		self.gui["playbutton"].set_icon_name(Gtk.STOCK_MEDIA_PAUSE if value else Gtk.STOCK_MEDIA_PLAY)
-		self.gui["playbutton"].set_visible(True)
+		icon_name = "media-playback-pause-symbolic" if value else "media-playback-start-symbolic"
+		self.gui["play-button"].set_visible(False)  # Fix this
+		self.gui["play-button"].set_icon_name(icon_name)
+		self.gui["play-button"].set_visible(True)
