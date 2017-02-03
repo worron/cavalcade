@@ -44,18 +44,20 @@ class MainApp(Gtk.Application):
 
 		# startup
 		if not hasattr(self, "canvas"):
+			# setup logeer
 			log_level = options.lookup_value("debug").get_string() if options.contains("debug") else "DEBUG"
 			logger.setLevel(log_level)
+
+			# main app launch
 			self._do_startup()
+			self._parse_args(args, options)
 
-		# parse args
-		self.adata.load(args)
-		if options.contains("restore"):
-			self.adata.restore()
-		self.adata.send_to_player()
+			# some special hadlers on startup
+			if not options.contains("play") and self.imported.pillow and self.config["color"]["auto"]:
+				self.autocolor.color_update(self.config["image"]["default"])
+			return 0
 
-		if options.contains("play"):
-			self.canvas.run_action("player", "play")
+		self._parse_args(args, options)
 
 		return 0
 
@@ -121,6 +123,16 @@ class MainApp(Gtk.Application):
 		# start work
 		self.canvas.setup()
 		self.cava.start()
+
+	def _parse_args(self, args, options):
+		"""Parse command line arguments """
+		self.adata.load(args)
+		if options.contains("restore"):
+			self.adata.restore()
+		self.adata.send_to_player()
+
+		if options.contains("play"):
+			self.canvas.run_action("player", "play")
 
 	def close(self, *args):
 		"""Application exit"""

@@ -10,6 +10,10 @@ from PIL import Image
 from cavalcade.logger import logger
 
 
+def bytes_to_file(bytes_):
+	return io.BytesIO(bytes_) if bytes_ is not None else None
+
+
 class Clust:
 	"""Group of color points"""
 	def __init__(self, points = []):
@@ -74,22 +78,20 @@ class AutoColor:
 	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		if self.config["image"]["usetag"]:
-			file_ = io.BytesIO(bytedata)
+			file_ = bytes_to_file(bytedata)
 			self.color_update(file_)
 
 	def on_image_source_switch(self, sender, usetag):
 		"""Update color from mp3 tag"""
 		if usetag:
-			file_ = io.BytesIO(self._mainapp.canvas.tag_image_bytedata)
-		elif not self.config["image"]["default"].endswith(".svg"):  # fix this
-			file_ = self.config["image"]["default"]
+			file_ = bytes_to_file(self._mainapp.canvas.tag_image_bytedata)
 		else:
-			return
+			file_ = self.config["image"]["default"]
 		self.color_update(file_)
 
 	def on_default_image_update(self, sender, file_):
 		"""Update color from default image"""
-		if not file_.endswith(".svg") and not self.config["image"]["usetag"]:  # fix this
+		if not self.config["image"]["usetag"]:
 			self.color_update(file_)
 
 	def calculate(self, file_, options, conn):
@@ -114,6 +116,9 @@ class AutoColor:
 
 	def color_update(self, file_):
 		"""Launch new calculation process with given image bytedata"""
+		if file_ is None or isinstance(file_, str) and file_.endswith(".svg"):  # fix this
+			return
+
 		if self.process is None or not self.process.is_alive():
 			if self.watcher is None:
 				self.watcher = GLib.io_add_watch(self.pc, GLib.IO_IN | GLib.IO_HUP, self.color_setup)
