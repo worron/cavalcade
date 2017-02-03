@@ -35,6 +35,10 @@ class MainApp(Gtk.Application):
 			"Restore previous player session", None
 		)
 		self.add_main_option(
+			"quit", ord("q"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+			"Exit program", None
+		)
+		self.add_main_option(
 			"debug", ord("d"), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
 			"Set log level", "LOG_LEVEL"
 		)
@@ -120,6 +124,7 @@ class MainApp(Gtk.Application):
 		# accelerators
 		self.add_accelerator("space", "player.play", None)
 		self.add_accelerator("<Control>n", "player.next", None)
+		self.add_accelerator("<Control>q", "app.quit", None)
 
 		# start work
 		self.canvas.setup()
@@ -134,6 +139,9 @@ class MainApp(Gtk.Application):
 
 		if options.contains("play"):
 			self.canvas.run_action("player", "play")
+
+		if options.contains("quit"):
+			self.close()
 
 	def close(self, *args):
 		"""Application exit"""
