@@ -1,17 +1,8 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import os
 import pickle
-# from gi.repository import Gtk, GObject, Gio, GLib
 
-# from cavalcade.config import MainConfig, CavaConfig
-# from cavalcade.drawing import Spectrum
-# from cavalcade.cava import Cava
-# from cavalcade.settings import SettingsWindow
-# from cavalcade.player import Player
 from cavalcade.logger import logger
-# from cavalcade.autocolor import AutoColor
-# from cavalcade.canvas import Canvas
-# from cavalcade.common import set_actions, import_optional
 
 
 class AudioData:
@@ -25,10 +16,15 @@ class AudioData:
 
 	def load(self, args):
 		"""Get audio files from command arguments list """
-		audio = [file_ for file_ in args if file_.endswith(".mp3")]
+		audio, broken = [], []
+		for item in args:
+			audio.append(item) if item.endswith(".mp3") else broken.append(item)
+
 		if audio:
 			self.files = audio
 			self.updated = True
+		if broken:
+			logger.warning("Can't load this files:\n%s" % "\n".join(broken))
 
 	def save(self):
 		"""Save current playlist"""
