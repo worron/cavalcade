@@ -74,6 +74,7 @@ class AutoColor:
 		self._mainapp.connect("tag-image-update", self.on_tag_image_update)
 		self._mainapp.connect("default-image-update", self.on_default_image_update)
 		self._mainapp.connect("image-source-switch", self.on_image_source_switch)
+		self._mainapp.connect("autocolor-refresh", self.on_image_source_switch)
 
 	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""

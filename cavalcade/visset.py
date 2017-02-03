@@ -16,7 +16,7 @@ class VisualPage(GuiBase):
 			"fg-colorbutton", "zero-spinbutton", "silence-spinbutton", "image-open-button",
 			"bg-colorbutton", "padding-spinbutton", "scale-spinbutton", "image-tag-radiobutton", "image-label",
 			"image-file-radiobutton", "mainbox", "offset-comboboxtext", "offset-spinbutton", "value-min-scale",
-			"saturation-min-scale", "ac-window-spinbutton", "ac-bands-spinbutton"
+			"saturation-min-scale", "ac-window-spinbutton", "ac-bands-spinbutton", "refresh-autocolor-button",
 		)
 		super().__init__("visset.glade", elements=elements)
 
@@ -74,6 +74,7 @@ class VisualPage(GuiBase):
 
 		# misc
 		self._mainapp.connect("ac-update", self.on_autocolor_update)
+		self.gui["refresh-autocolor-button"].connect("clicked", self.on_autocolor_refresh_clicked)
 
 		# actions
 		auto_action = Gio.SimpleAction.new_stateful(
@@ -94,6 +95,10 @@ class VisualPage(GuiBase):
 		self._mainapp.draw.color_update()
 
 	# signal handlers
+	def on_autocolor_refresh_clicked(self, *args):
+		if self.config["color"]["auto"]:
+			self._mainapp.emit("autocolor-refresh", self.config["image"]["usetag"])
+
 	def on_autocolor_spinbutton_changed(self, button, key):
 		value = int(button.get_value())
 		if key == "window":

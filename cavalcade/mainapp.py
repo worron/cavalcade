@@ -19,6 +19,7 @@ class MainApp(Gtk.Application):
 		"tag-image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"default-image-update": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
 		"image-source-switch": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
+		"autocolor-refresh": (GObject.SIGNAL_RUN_FIRST, None, (bool,)),
 		"ac-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 	}
 
