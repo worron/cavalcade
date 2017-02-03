@@ -6,19 +6,15 @@
     <property name="default_height">500</property>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="headerbar">
-        <property name="show-close-button">True</property>
-        <property name="decoration-layout">menu:</property>
+        <!-- <property name="show-close-button">True</property> -->
+        <!-- <property name="decoration-layout">menu:</property> -->
         <child type="title">
           <object class="GtkStackSwitcher" id="stackswitcher">
-            <property name="margin_top">8</property>
-            <property name="margin_bottom">4</property>
             <property name="stack">stack</property>
           </object>
         </child>
         <child>
           <object class="GtkMenuButton" id="app-menubutton">
-            <property name="margin_top">8</property>
-            <property name="margin_bottom">4</property>
             <child>
               <object class="GtkImage" id="menu-icon">
                 <property name="icon-name">open-menu-symbolic</property>
@@ -31,8 +27,6 @@
         </child>
         <child>
           <object class="GtkMenuButton" id="winstate-menubutton">
-            <property name="margin_top">8</property>
-            <property name="margin_bottom">4</property>
             <child>
               <object class="GtkImage" id="system-icon">
                 <property name="icon-name">emblem-system-symbolic</property>
@@ -49,9 +43,9 @@
       <object class="GtkStack" id="stack">
         <property name="transition-type">6</property>
         <property name="transition-duration">500</property>
-        <property name="margin_left">18</property>
-        <property name="margin_right">18</property>
-        <property name="margin_bottom">18</property>
+        <property name="margin_left">12</property>
+        <property name="margin_right">12</property>
+        <property name="margin_bottom">12</property>
       </object>
     </child>
   </object>
