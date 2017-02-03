@@ -1,8 +1,8 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 from gi.repository import Gio
-from cavalcade.visset import VisualPage
-from cavalcade.cavaset import CavaPage
-from cavalcade.playset import PlayerPage
+from cavalcade.visualpage import VisualPage
+from cavalcade.cavapage import CavaPage
+from cavalcade.playerpage import PlayerPage
 from cavalcade.common import GuiBase
 
 

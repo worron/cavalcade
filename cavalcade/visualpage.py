@@ -18,7 +18,7 @@ class VisualPage(GuiBase):
 			"image-file-radiobutton", "mainbox", "offset-comboboxtext", "offset-spinbutton", "value-min-scale",
 			"saturation-min-scale", "ac-window-spinbutton", "ac-bands-spinbutton", "refresh-autocolor-button",
 		)
-		super().__init__("visset.glade", elements=elements)
+		super().__init__("visualpage.glade", elements=elements)
 
 		# image file filter
 		self.image_filter = Gtk.FileFilter()

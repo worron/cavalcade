@@ -18,7 +18,7 @@ class PlayerPage(GuiBase):
 			"volumebutton", "list-searchentry", "queue-radiobutton", "list-radiobutton", "solo-action-button",
 			"mass-action-button", "shuffle-button",
 		)
-		super().__init__("playset.glade", elements=elements)
+		super().__init__("playerpage.glade", elements=elements)
 
 		# some gui constants
 		self.TRACK_STORE = AttributeDict(INDEX=0, NAME=1, FILE=2)

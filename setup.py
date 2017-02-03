@@ -21,7 +21,7 @@ setup(
 	url = "https://github.com/worron/cavalcade",
 	packages = ["cavalcade", "cavalcade.gui", "cavalcade.data"],
 	install_requires = ["setuptools"],
-	package_data = {"cavalcade.gui": ["*.glade"], "cavalcade.data": ["*.ini", "*.svg"]},
+	package_data = {"cavalcade.gui": ["*.glade", "*.ui"], "cavalcade.data": ["*.ini", "*.svg"]},
 	entry_points = {
 		"console_scripts": ["cavalcade=cavalcade.run:run"],
 	},
