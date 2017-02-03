@@ -155,21 +155,6 @@ audio-volume-medium-symbolic</property>
         <property name="margin_bottom">8</property>
         <property name="spacing">12</property>
         <child>
-          <object class="GtkSearchEntry" id="list-searchentry">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hexpand">True</property>
-            <property name="primary_icon_name">edit-find-symbolic</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="primary_icon_sensitive">False</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkBox" id="listbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
@@ -227,6 +212,29 @@ audio-volume-medium-symbolic</property>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkToggleButton" id="shuffle-button">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Shuffle player tracks.</property>
+            <child>
+              <object class="GtkImage" id="shuffle-image">
+                <property name="can_focus">False</property>
+                <property name="icon_name">media-playlist-shuffle-symbolic</property>
+              </object>
+            </child>
+            <style>
+              <class name="flat"/>
+            </style>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -269,7 +277,23 @@ audio-volume-medium-symbolic</property>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="pack_type">end</property>
             <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSearchEntry" id="list-searchentry">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hexpand">True</property>
+            <property name="primary_icon_name">edit-find-symbolic</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>

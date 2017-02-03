@@ -16,7 +16,7 @@ class PlayerPage(GuiBase):
 		elements = (
 			"mainbox", "play-button", "seek-scale", "playlist-treeview", "playlist-selection", "preview-image",
 			"volumebutton", "list-searchentry", "queue-radiobutton", "list-radiobutton", "solo-action-button",
-			"mass-action-button",
+			"mass-action-button", "shuffle-button",
 		)
 		super().__init__("playset.glade", elements=elements)
 
@@ -77,6 +77,7 @@ class PlayerPage(GuiBase):
 		self.gui["volumebutton"].connect("value-changed", self.on_volumebuton_changed)
 		self.gui["list-searchentry"].connect("activate", self.on_search_active)
 		self.gui["list-searchentry"].connect("icon-release", self.on_search_reset)
+		self.gui["shuffle-button"].connect("toggled", self.on_shuffle_button_toggle)
 		self.seek_handler_id = self.gui["seek-scale"].connect("value-changed", self.on_seekscale_changed)
 		self.sel_handler_id = self.gui["playlist-selection"].connect("changed", self.on_track_selection_changed)
 
@@ -91,8 +92,12 @@ class PlayerPage(GuiBase):
 
 		# gui setup
 		self.gui["volumebutton"].set_value(self._mainapp.config["player"]["volume"])
+		self.gui["shuffle-button"].set_active(self._mainapp.config["player"]["shuffle"])
 
 	# support
+	def on_shuffle_button_toggle(self, button):
+		self._mainapp.config["player"]["shuffle"] = button.get_active()
+
 	def update_default_preview(self, *args):
 		self.preview = pixbuf.from_file_at_scale(self._mainapp.config["image"]["default"], -1, self.preview_size)
 

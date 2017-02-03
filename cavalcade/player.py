@@ -136,12 +136,9 @@ class Player(GObject.GObject):
 			self.playlist = files
 
 			self.playqueue = list(queue if queue else files)
-			if self.config["player"]["shuffle"]:
-				random.shuffle(self.playqueue)
-
 			self.emit("playlist-update", self.playlist)
 			self.emit("queue-update", self.playqueue)
-			self.load_file(self.playqueue[0])
+			self.load_file(random.choice(self.playqueue) if self.config["player"]["shuffle"] else self.playqueue[0])
 
 	def load_file(self, file_):
 		"""Set audio file to play"""
@@ -206,7 +203,9 @@ class Player(GObject.GObject):
 			else:
 				i = 1
 			if self.playqueue:
-				if i < len(self.playqueue):
+				if self.config["player"]["shuffle"]:
+					self.load_file(random.choice(self.playqueue))
+				elif i < len(self.playqueue):
 					self.load_file(self.playqueue[i])
 				else:
 					self.load_file(self.playqueue[0])
