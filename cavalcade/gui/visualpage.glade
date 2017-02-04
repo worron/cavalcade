@@ -97,7 +97,7 @@
               <object class="GtkLabel" id="barlabel4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Silence iter</property>
+                <property name="label" translatable="yes">Silence</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -172,7 +172,7 @@
               <object class="GtkLabel" id="barlabel3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Zero height</property>
+                <property name="label" translatable="yes">Zero</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -286,7 +286,7 @@
             <property name="can_focus">False</property>
             <property name="margin_top">6</property>
             <property name="margin_bottom">12</property>
-            <property name="label" translatable="yes">Auto Color</property>
+            <property name="label" translatable="yes">Color Setup</property>
             <attributes>
               <attribute name="weight" value="bold"/>
             </attributes>
@@ -344,7 +344,7 @@
                   <object class="GtkLabel" id="autocolorlabel1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">AC bands</property>
+                    <property name="label" translatable="yes">Bands</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -382,7 +382,7 @@
                   <object class="GtkLabel" id="autocolorlabel2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">AC window</property>
+                    <property name="label" translatable="yes">Window</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -437,20 +437,25 @@
       </packing>
     </child>
     <child>
-      <object class="GtkBox" id="colorbox3">
+      <object class="GtkBox" id="colorbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
         <child>
-          <object class="GtkLabel" id="colorlabel3">
+          <object class="GtkButton" id="refresh-autocolor-button">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_top">6</property>
-            <property name="margin_bottom">12</property>
-            <property name="label" translatable="yes">User Color</property>
-            <attributes>
-              <attribute name="weight" value="bold"/>
-            </attributes>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Update autocolor value.</property>
+            <child>
+              <object class="GtkImage" id="refresh-image">
+                <property name="can_focus">False</property>
+                <property name="icon_name">view-refresh-symbolic</property>
+              </object>
+            </child>
+            <style>
+              <class name="flat"/>
+            </style>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -459,94 +464,45 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="colorbox">
+          <object class="GtkLabel" id="colorlabel1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">18</property>
-            <property name="homogeneous">True</property>
-            <child>
-              <object class="GtkBox" id="colorbox1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="spacing">12</property>
-                <child>
-                  <object class="GtkLabel" id="colorlabel1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Foreground</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="fg-colorbutton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Set custom drawing color.</property>
-                    <property name="use_alpha">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="colorbox2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="spacing">12</property>
-                <child>
-                  <object class="GtkLabel" id="colorlabel2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Background</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkColorButton" id="bg-colorbutton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Set custom background color.</property>
-                    <property name="use_alpha">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
+            <property name="label" translatable="yes">Manual Color Setup</property>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkColorButton" id="bg-colorbutton">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Custom background color.</property>
+            <property name="use_alpha">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkColorButton" id="fg-colorbutton">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="tooltip_text" translatable="yes">Custom drawing color.</property>
+            <property name="use_alpha">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">3</property>
           </packing>
         </child>
       </object>
@@ -573,15 +529,15 @@
         <property name="can_focus">False</property>
         <property name="spacing">12</property>
         <child>
-          <object class="GtkButton" id="refresh-autocolor-button">
+          <object class="GtkButton" id="image-open-button">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="tooltip_text" translatable="yes">Update autocolor value.</property>
+            <property name="tooltip_text" translatable="yes">Select default background image.</property>
             <child>
-              <object class="GtkImage" id="refresh-image">
+              <object class="GtkImage" id="folder-image">
                 <property name="can_focus">False</property>
-                <property name="icon_name">view-refresh-symbolic</property>
+                <property name="icon_name">folder-symbolic</property>
               </object>
             </child>
             <style>
@@ -591,7 +547,6 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -653,28 +608,6 @@
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="pack_type">end</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="image-open-button">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="tooltip_text" translatable="yes">Select default background image.</property>
-            <child>
-              <object class="GtkImage" id="folder-image">
-                <property name="can_focus">False</property>
-                <property name="icon_name">folder-symbolic</property>
-              </object>
-            </child>
-            <style>
-              <class name="flat"/>
-            </style>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>

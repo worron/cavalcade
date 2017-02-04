@@ -123,11 +123,11 @@ audio-volume-medium-symbolic</property>
     </child>
     <child>
       <object class="GtkImage" id="preview-image">
-        <property name="height_request">200</property>
+        <property name="height_request">210</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="margin_top">12</property>
-        <property name="margin_bottom">12</property>
+        <property name="margin_top">6</property>
+        <property name="margin_bottom">6</property>
         <property name="stock">gtk-missing-image</property>
       </object>
       <packing>

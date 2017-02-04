@@ -2,8 +2,8 @@
 <interface>
   <object class="GtkApplicationWindow" id="window">
     <property name="window_position">mouse</property>
-    <property name="default_width">420</property>
-    <property name="default_height">500</property>
+    <!-- <property name="default_width">420</property> -->
+    <!-- <property name="default_height">500</property> -->
     <child type="titlebar">
       <object class="GtkHeaderBar" id="headerbar">
         <!-- <property name="show-close-button">True</property> -->
@@ -43,6 +43,7 @@
       <object class="GtkStack" id="stack">
         <property name="transition-type">6</property>
         <property name="transition-duration">500</property>
+        <property name="margin_top">6</property>
         <property name="margin_left">12</property>
         <property name="margin_right">12</property>
         <property name="margin_bottom">12</property>
