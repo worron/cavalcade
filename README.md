@@ -29,13 +29,14 @@ For proper install launch `setup.py` script.
 
 ####Usage
 To use spectrum audio visualizer launch cavalcade without any arguments.  
-To use cavalcade as player launch it with `--play` option and list of files:
+To use cavalcade as player launch it with list of files:
 ```bash
-$ cavalcade --play audio.mp3
+$ cavalcade audio.mp3
 ```
 Use help command to get list of all available arguments:
 ```bash
 $ cavalcade --help
 ```
 
-Double click on window to show settings dialog.
+Double click on window to show settings dialog.  
+Program hotkeys can be set with user config file `~/.config/cavalcade/main.ini`.
