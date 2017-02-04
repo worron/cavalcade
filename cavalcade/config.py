@@ -6,9 +6,10 @@ import shutil
 from configparser import ConfigParser
 from gi.repository import Gdk
 from cavalcade.logger import logger
-from cavalcade.common import AttributeDict, WINDOW_HINTS
+from cavalcade.common import AttributeDict, WINDOW_HINTS, AccelCheck
 
 GTK_WINDOW_TYPE_HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
+accel = AccelCheck()
 
 
 def str_to_rgba(hex_):
@@ -41,6 +42,7 @@ class ConfigBase(dict):
 			float: lambda section, option: self.parser.getfloat(section, option),
 			"ilist": lambda section, option: [int(v.strip()) for v in self.parser.get(section, option).split(";")],
 			"hint": lambda section, option: getattr(Gdk.WindowTypeHint, self.parser.get(section, option)),
+			"accel": lambda section, option: self.parser.get(section, option),
 			Gdk.RGBA: lambda section, option: str_to_rgba(self.parser.get(section, option)),
 		}
 
@@ -52,6 +54,7 @@ class ConfigBase(dict):
 			float: lambda value: "{:.2f}".format(value),
 			"ilist": lambda value: ";".join(str(i) for i in value),
 			"hint": lambda value: value.value_nick.upper(),
+			"accel": lambda value: value,
 			Gdk.RGBA: lambda value: rgba_to_str(value),
 		}
 
@@ -209,6 +212,13 @@ class MainConfig(ConfigBase):
 				misc = dict(
 					hint = AttributeDict(type="hint", valid=GTK_WINDOW_TYPE_HINTS),
 					dsize = AttributeDict(type="ilist"),
+				),
+				keys = dict(
+					exit = AttributeDict(type="accel", valid=accel),
+					next = AttributeDict(type="accel", valid=accel),
+					play = AttributeDict(type="accel", valid=accel),
+					show = AttributeDict(type="accel", valid=accel),
+					hide = AttributeDict(type="accel", valid=accel),
 				),
 			)
 		)

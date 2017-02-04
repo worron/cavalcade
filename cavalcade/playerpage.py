@@ -6,7 +6,7 @@ from cavalcade.common import GuiBase, TreeViewHolder, name_from_file, AttributeD
 
 
 class PlayerPage(GuiBase):
-	"""Settings window"""
+	"""Player setting page"""
 	def __init__(self, mainapp):
 		self._mainapp = mainapp
 		self.current = None

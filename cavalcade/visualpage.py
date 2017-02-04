@@ -5,7 +5,7 @@ from gi.repository import Gtk, GLib, Gio
 
 
 class VisualPage(GuiBase):
-	"""Settings window"""
+	"""Visual setting page"""
 	def __init__(self, settings):
 		self._mainapp = settings._mainapp
 		self.window = settings.gui["window"]

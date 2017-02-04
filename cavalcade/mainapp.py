@@ -122,9 +122,11 @@ class MainApp(Gtk.Application):
 		set_actions(self.canvas.actions, self.settings.gui["window"])
 
 		# accelerators
-		self.add_accelerator("space", "player.play", None)
-		self.add_accelerator("<Control>n", "player.next", None)
-		self.add_accelerator("<Control>q", "app.quit", None)
+		self.add_accelerator(self.config["keys"]["play"], "player.play", None)
+		self.add_accelerator(self.config["keys"]["next"], "player.next", None)
+		self.add_accelerator(self.config["keys"]["exit"], "app.quit", None)
+		self.add_accelerator(self.config["keys"]["show"], "settings.show", None)
+		self.add_accelerator(self.config["keys"]["hide"], "settings.hide", None)
 
 		# start work
 		self.canvas.setup()

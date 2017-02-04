@@ -1,7 +1,7 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
 import os
 import gi
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 from cavalcade.logger import logger
 
 WINDOW_HINTS = ("NORMAL", "DIALOG", "SPLASHSCREEN", "DOCK", "DESKTOP")
@@ -91,3 +91,9 @@ class TreeViewHolder():
 
 	def __exit__(self, type, value, traceback):
 		self.treeview.set_model(self.store)
+
+
+class AccelCheck:
+	def __contains__(self, item):
+		key, mod = Gtk.accelerator_parse(item)
+		return any((key != 0, mod != Gdk.ModifierType(0)))
