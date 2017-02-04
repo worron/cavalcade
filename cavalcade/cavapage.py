@@ -17,6 +17,16 @@ class CavaPage(GuiBase):
 		)
 		super().__init__("cavapage.glade", elements=elements)
 
+		# set gui data
+		self.gui["bars_spinbutton"].set_adjustment(Gtk.Adjustment(20, 20, 64, 1, 0, 0))
+		self.gui["framerate_spinbutton"].set_adjustment(Gtk.Adjustment(30, 12, 60, 1, 0, 0))
+		self.gui["sensitivity_spinbutton"].set_adjustment(Gtk.Adjustment(50, 10, 200, 5, 0, 0))
+		self.gui["ignore_spinbutton"].set_adjustment(Gtk.Adjustment(0, 0, 50, 1, 0, 0))
+		self.gui["gravity_spinbutton"].set_adjustment(Gtk.Adjustment(1, 0, 20, 0.5, 0, 0))
+		self.gui["integral_spinbutton"].set_adjustment(Gtk.Adjustment(0.5, 0, 0.99, 0.01, 0, 0))
+		self.gui["higher_cutoff_freq_spinbutton"].set_adjustment(Gtk.Adjustment(50, 50, 20000, 10, 0, 0))
+		self.gui["lower_cutoff_freq_spinbutton"].set_adjustment(Gtk.Adjustment(50, 50, 20000, 10, 0, 0))
+
 		# some gui constants
 		self.OUTPUT_STYLE = ("mono", "stereo")
 		self.EQ_STORE = AttributeDict(LABEL=0, VALUE=1)

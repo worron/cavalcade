@@ -2,77 +2,11 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
-  <object class="GtkAdjustment" id="bars_adjustment">
-    <property name="lower">20</property>
-    <property name="upper">64</property>
-    <property name="value">20</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="framerate_adjustment">
-    <property name="lower">12</property>
-    <property name="upper">60</property>
-    <property name="value">30</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="gravity_adjustment">
-    <property name="upper">9</property>
-    <property name="value">1</property>
-    <property name="step_increment">0.10000000000000001</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="higher_cutoff_freq_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">20000</property>
-    <property name="value">12000</property>
-    <property name="step_increment">10</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="ignore_adjustment">
-    <property name="upper">50</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="integral_adjustment">
-    <property name="upper">0.98999999999999999</property>
-    <property name="value">0.69999999999999996</property>
-    <property name="step_increment">0.01</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="lower_cutoff_freq_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">20000</property>
-    <property name="value">100</property>
-    <property name="step_increment">10</property>
-    <property name="page_increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="sensitivity_adjustment">
-    <property name="lower">10</property>
-    <property name="upper">200</property>
-    <property name="step_increment">5</property>
-    <property name="page_increment">10</property>
-  </object>
   <object class="GtkBox" id="mainbox">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <property name="spacing">10</property>
-    <child>
-      <object class="GtkButton" id="restart_button">
-        <property name="label" translatable="yes">Restart CAVA</property>
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
-        <property name="tooltip_text" translatable="yes">Restart CAVA utility for applying changes.</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="pack_type">end</property>
-        <property name="position">0</property>
-      </packing>
-    </child>
     <child>
       <object class="GtkSeparator" id="separator1">
         <property name="visible">True</property>
@@ -81,7 +15,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">1</property>
+        <property name="position">0</property>
       </packing>
     </child>
     <child>
@@ -90,17 +24,18 @@
         <property name="can_focus">False</property>
         <property name="hexpand">True</property>
         <property name="row_spacing">8</property>
-        <property name="column_spacing">20</property>
+        <property name="column_spacing">18</property>
         <property name="column_homogeneous">True</property>
         <child>
           <object class="GtkBox" id="genbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="genlabel1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Bars number</property>
+                <property name="label" translatable="yes">Bars</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -110,12 +45,11 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="bars_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">The number of bars.</property>
                 <property name="text" translatable="yes">1,0</property>
-                <property name="adjustment">bars_adjustment</property>
-                <property name="digits">1</property>
                 <property name="value">1</property>
               </object>
               <packing>
@@ -135,6 +69,7 @@
           <object class="GtkBox" id="genbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="genlabel2">
                 <property name="visible">True</property>
@@ -149,12 +84,11 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="sensitivity_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Sensitivity level.</property>
                 <property name="text" translatable="yes">1,0</property>
-                <property name="adjustment">sensitivity_adjustment</property>
-                <property name="digits">1</property>
                 <property name="value">1</property>
               </object>
               <packing>
@@ -174,6 +108,7 @@
           <object class="GtkBox" id="genbox3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="genlabel3">
                 <property name="visible">True</property>
@@ -188,12 +123,11 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="framerate_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Framerate.</property>
                 <property name="text" translatable="yes">10,0</property>
-                <property name="adjustment">framerate_adjustment</property>
-                <property name="digits">1</property>
                 <property name="value">10</property>
               </object>
               <packing>
@@ -213,6 +147,7 @@
           <object class="GtkBox" id="smootbox3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="smootlabel3">
                 <property name="visible">True</property>
@@ -227,13 +162,11 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="ignore_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">In bar height, bars that would have been lower that this will not be drawn.</property>
                 <property name="text" translatable="yes">9,00</property>
-                <property name="adjustment">ignore_adjustment</property>
-                <property name="digits">2</property>
-                <property name="value">9</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -252,7 +185,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">2</property>
+        <property name="position">1</property>
       </packing>
     </child>
     <child>
@@ -263,107 +196,7 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">3</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkGrid" id="gengrid1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="column_spacing">20</property>
-        <property name="column_homogeneous">True</property>
-        <child>
-          <object class="GtkBox" id="genbox4">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkLabel" id="genlabel4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Lower freq</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton" id="lower_cutoff_freq_spinbutton">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="tooltip_text" translatable="yes">Lower cutoff frequency.</property>
-                <property name="text" translatable="yes">12,00</property>
-                <property name="adjustment">lower_cutoff_freq_adjustment</property>
-                <property name="value">12</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="genbox5">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <child>
-              <object class="GtkLabel" id="genlabel5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Higher freq</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSpinButton" id="higher_cutoff_freq_spinbutton">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="tooltip_text" translatable="yes">Higher cutoff frequency.</property>
-                <property name="text" translatable="yes">12,00</property>
-                <property name="adjustment">higher_cutoff_freq_adjustment</property>
-                <property name="value">12</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack_type">end</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">4</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="separator3">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">5</property>
+        <property name="position">2</property>
       </packing>
     </child>
     <child>
@@ -371,12 +204,13 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="row_spacing">8</property>
-        <property name="column_spacing">20</property>
+        <property name="column_spacing">18</property>
         <property name="column_homogeneous">True</property>
         <child>
           <object class="GtkBox" id="smootbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="smootlabel2">
                 <property name="visible">True</property>
@@ -391,11 +225,11 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="integral_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Multiplier for the integral smoothing calculations.</property>
                 <property name="text" translatable="yes">9,00</property>
-                <property name="adjustment">integral_adjustment</property>
                 <property name="digits">2</property>
                 <property name="value">9</property>
               </object>
@@ -416,6 +250,7 @@
           <object class="GtkBox" id="smootbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="smootlabel1">
                 <property name="visible">True</property>
@@ -430,13 +265,12 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="gravity_spinbutton">
+                <property name="width_request">100</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Set gravity multiplier for "drop off". Higher values means bars will drop faster.</property>
                 <property name="text" translatable="yes">12,00</property>
-                <property name="adjustment">gravity_adjustment</property>
                 <property name="digits">2</property>
-                <property name="value">12</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -455,6 +289,7 @@
           <object class="GtkBox" id="smootbox4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="smootlabel4">
                 <property name="visible">True</property>
@@ -491,6 +326,7 @@
           <object class="GtkBox" id="smootbox5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">12</property>
             <child>
               <object class="GtkLabel" id="smootlabel5">
                 <property name="visible">True</property>
@@ -527,31 +363,56 @@
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">6</property>
+        <property name="position">3</property>
       </packing>
     </child>
     <child>
-      <object class="GtkSeparator" id="separator4">
+      <object class="GtkSeparator" id="separator3">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">7</property>
+        <property name="position">4</property>
       </packing>
     </child>
     <child>
-      <object class="GtkGrid" id="outputgrid">
+      <object class="GtkGrid" id="gengrid1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="column_spacing">18</property>
         <property name="column_homogeneous">True</property>
         <child>
-          <object class="GtkLabel" id="outputlabel1">
+          <object class="GtkBox" id="genbox4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="halign">start</property>
-            <property name="label" translatable="yes">Output Style</property>
+            <child>
+              <object class="GtkLabel" id="genlabel4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Lower</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="lower_cutoff_freq_spinbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Lower cutoff frequency.</property>
+                <property name="text" translatable="yes">12,00</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -559,15 +420,35 @@
           </packing>
         </child>
         <child>
-          <object class="GtkComboBoxText" id="style_combobox">
+          <object class="GtkBox" id="genbox5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="tooltip_text" translatable="yes">Stereo mirrors both channels with low frequencies in center.
-Mono averages both channels and outputs left to right lowest to highest frequencies.</property>
-            <items>
-              <item translatable="yes">Mono</item>
-              <item translatable="yes">Stereo</item>
-            </items>
+            <child>
+              <object class="GtkLabel" id="genlabel5">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Higher</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="higher_cutoff_freq_spinbutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="tooltip_text" translatable="yes">Higher cutoff frequency.</property>
+                <property name="text" translatable="yes">12,00</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -578,7 +459,91 @@ Mono averages both channels and outputs left to right lowest to highest frequenc
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">8</property>
+        <property name="position">5</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator" id="separator4">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">6</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkGrid" id="outputgrid">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="column_spacing">18</property>
+        <property name="column_homogeneous">True</property>
+        <child>
+          <object class="GtkLabel" id="outputlabel1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="halign">start</property>
+            <property name="label" translatable="yes">Cava Output Setup</property>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="spacing">12</property>
+            <child>
+              <object class="GtkComboBoxText" id="style_combobox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="tooltip_text" translatable="yes">Stereo mirrors both channels with low frequencies in center.
+Mono averages both channels and outputs left to right lowest to highest frequencies.</property>
+                <items>
+                  <item translatable="yes">Mono</item>
+                  <item translatable="yes">Stereo</item>
+                </items>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="restart_button">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Restart CAVA utility for applying changes.</property>
+                <child>
+                  <object class="GtkImage" id="refresh-image">
+                    <property name="can_focus">False</property>
+                    <property name="icon_name">view-refresh-symbolic</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">7</property>
       </packing>
     </child>
     <child>
@@ -589,7 +554,7 @@ Mono averages both channels and outputs left to right lowest to highest frequenc
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">9</property>
+        <property name="position">8</property>
       </packing>
     </child>
     <child>
@@ -613,18 +578,7 @@ Mono averages both channels and outputs left to right lowest to highest frequenc
       <packing>
         <property name="expand">True</property>
         <property name="fill">True</property>
-        <property name="position">10</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="separator6">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="expand">False</property>
-        <property name="fill">True</property>
-        <property name="position">11</property>
+        <property name="position">9</property>
       </packing>
     </child>
   </object>
