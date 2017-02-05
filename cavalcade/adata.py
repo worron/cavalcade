@@ -8,8 +8,12 @@ from cavalcade.logger import logger
 class AudioData:
 	"""Player session managment helper"""
 	def __init__(self, mainapp):
+		self.path = os.path.expanduser("~/.local/share/cavalcade")
+		if not os.path.exists(self.path):
+			os.makedirs(self.path)
+		self.store = os.path.join(self.path, "store")
+
 		self._mainapp = mainapp
-		self.store = os.path.join(self._mainapp.config.path, "store")
 		self.files = []
 		self.queue = None
 		self.updated = False
