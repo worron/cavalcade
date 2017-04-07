@@ -2,6 +2,7 @@
 <interface>
   <object class="GtkApplicationWindow" id="window">
     <property name="window_position">mouse</property>
+    <property name="type_hint">dialog</property>
     <!-- <property name="default_width">420</property> -->
     <!-- <property name="default_height">500</property> -->
     <child type="titlebar">
