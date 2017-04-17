@@ -134,6 +134,7 @@ class CavaConfig(ConfigBase):
 					method = AttributeDict(type=str, valid=["raw"]),
 					raw_target = AttributeDict(type=str),
 					style = AttributeDict(type=str),
+					bit_format = AttributeDict(type=str, valid=["16bit", "8bit"]),
 				),
 				smoothing = dict(
 					gravity = AttributeDict(type=float),

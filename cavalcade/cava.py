@@ -29,6 +29,9 @@ class Cava:
 		self.env = dict(os.environ)
 		self.env["LC_ALL"] = "en_US.UTF-8"  # not sure if it's necessary
 
+		is_16bit = self.cavaconfig["output"]["bit_format"] == "16bit"
+		self.bytetype, self.bytesize, self.bytenorm = ("H", 2, 65535) if is_16bit else ("B", 1, 255)
+
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)
 
@@ -51,13 +54,13 @@ class Cava:
 
 	def _read_output(self):
 		fifo = open(self.path, "rb")
-		chunk = 2 * self.cavaconfig["general"]["bars"]  # 2 bytes for unsigned short
-		fmt = "H" * self.cavaconfig["general"]["bars"]  # pack of unsigned short
+		chunk = self.bytesize * self.cavaconfig["general"]["bars"]  # number of bytes for given format
+		fmt = self.bytetype * self.cavaconfig["general"]["bars"]  # pack of given format
 		while True:
 			data = fifo.read(chunk)
 			if len(data) < chunk:
 				break
-			sample = [i / 65535 for i in struct.unpack(fmt, data)]
+			sample = [i / self.bytenorm for i in struct.unpack(fmt, data)]
 			GLib.idle_add(self.data_handler, sample)
 		fifo.close()
 		GLib.idle_add(self._on_stop)
