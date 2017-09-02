@@ -17,10 +17,10 @@ def image_data_from_message(message):
 	if not is_ok:
 		return None
 
-	gstbuffer = sample.get_buffer()
-	mapinfo = gstbuffer.map(Gst.MapFlags.READ)[1]
-	data = mapinfo.data
-	gstbuffer.unmap(mapinfo)
+	gstreamer_buffer = sample.get_buffer()
+	map_info = gstreamer_buffer.map(Gst.MapFlags.READ)[1]
+	data = map_info.data
+	gstreamer_buffer.unmap(map_info)
 	return data
 
 
@@ -111,6 +111,7 @@ class Player(GObject.GObject):
 			logger.warning("Couldn't fetch current song position to update slider")
 		return True
 
+	# noinspection PyUnusedLocal
 	def _on_message(self, bus, message):
 		if message.type == Gst.MessageType.EOS:
 			self.play_next()  # this one should do all clear
@@ -119,6 +120,7 @@ class Player(GObject.GObject):
 			err, debug = message.parse_error()
 			logger.error("Playback error %s\n%s" % (err, debug))
 
+	# noinspection PyUnusedLocal
 	def _on_message_tag(self, bus, message):
 		if not self.is_image_updated:
 			self.is_image_updated = True
@@ -177,7 +179,7 @@ class Player(GObject.GObject):
 			self.emit("queue-update", self.playqueue)
 
 	def seek(self, value):
-		"""Playback progress mainpulation"""
+		"""Playback progress manipulation"""
 		if self.duration is not None:
 			point = int(self.duration * value / 1000)
 			self.player.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT, point)
@@ -189,6 +191,7 @@ class Player(GObject.GObject):
 		self.duration = None
 		self.current = None
 
+	# noinspection PyUnusedLocal
 	def play_next(self, *args):
 		"""Play next audio file in queue"""
 		current = self.current
@@ -212,6 +215,7 @@ class Player(GObject.GObject):
 				self.play_pause()
 			self.emit("queue-update", self.playqueue)  # fix false update if current not in queue
 
+	# noinspection PyUnusedLocal
 	def play_pause(self, *args):
 		"""Play or pause"""
 		if self.current is None:
@@ -229,10 +233,11 @@ class Player(GObject.GObject):
 		"""Volume manipulation"""
 		self.player.set_property('volume', value)
 
-	def _fake_tag_reader(self, file_):
+	def fake_tag_reader(self, file_):
 		self._fake_player.set_property('uri', 'file:///' + file_)
 		self._fake_player.set_state(Gst.State.PAUSED)
 
+	# noinspection PyUnusedLocal
 	def _on_fake_message(self, bus, message):
 		data = image_data_from_message(message)
 		self.emit("preview-update", data)

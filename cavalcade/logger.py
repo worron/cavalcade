@@ -9,7 +9,7 @@ RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[0;%dm"
 BOLD_SEQ = "\033[1m"
 
-MESSPAT = (
+MESSAGE_PATTERN = (
 	"$COLOR$BOLD%(levelname)s: $RESET$COLOR%(asctime)s %(filename)s:%(funcName)s():L%(lineno)d "
 	"$RESET%(message)s"
 )
@@ -28,6 +28,6 @@ class ColoredFormatter(Formatter):
 logger = getLogger(__name__)
 
 stream_handler = StreamHandler()
-color_formatter = ColoredFormatter(MESSPAT)
+color_formatter = ColoredFormatter(MESSAGE_PATTERN)
 stream_handler.setFormatter(color_formatter)
 logger.addHandler(stream_handler)

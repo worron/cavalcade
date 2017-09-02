@@ -14,8 +14,10 @@ def bytes_to_file(bytes_):
 	return io.BytesIO(bytes_) if bytes_ is not None else None
 
 
-class Clust:
+class Cluster:
 	"""Group of color points"""
+
+	# noinspection PyDefaultArgument
 	def __init__(self, points = []):
 		self.points = []
 		self.mass = 0
@@ -36,7 +38,7 @@ class Clust:
 
 
 def get_points(img, limit):
-	"""Tramsform image to pack of color points"""
+	"""Transform image to pack of color points"""
 	points = []
 	w, h = img.size
 	for count, color in img.getcolors(w * h):
@@ -50,13 +52,13 @@ def get_points(img, limit):
 def allocate(points, n=16, window=4):
 	"""Split points to groups according there color"""
 	band = 1 / n
-	clusters = [Clust() for i in range(n)]
+	clusters = [Cluster() for _ in range(n)]
 	for point in points:
 		i = int(point.hsv[0] // band)
 		clusters[i].add(point)
 	clusters_l = clusters + clusters[:window - 1]
 	bands = [clusters_l[i:i + window] for i in range(n)]
-	rebanded = [Clust(sum([c.points for c in band], [])) for band in bands]
+	rebanded = [Cluster(sum([c.points for c in band], [])) for band in bands]
 	return rebanded
 
 
@@ -76,12 +78,15 @@ class AutoColor:
 		self._mainapp.connect("image-source-switch", self.on_image_source_switch)
 		self._mainapp.connect("autocolor-refresh", self.on_image_source_switch)
 
+	# noinspection PyUnusedLocal
 	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		if self.config["image"]["usetag"]:
 			file_ = bytes_to_file(bytedata)
+			# noinspection PyTypeChecker
 			self.color_update(file_)
 
+	# noinspection PyUnusedLocal
 	def on_image_source_switch(self, sender, usetag):
 		"""Update color from mp3 tag"""
 		if usetag:
@@ -90,12 +95,14 @@ class AutoColor:
 			file_ = self.config["image"]["default"]
 		self.color_update(file_)
 
+	# noinspection PyUnusedLocal
 	def on_default_image_update(self, sender, file_):
 		"""Update color from default image"""
 		if not self.config["image"]["usetag"]:
 			self.color_update(file_)
 
-	def calculate(self, file_, options, conn):
+	@staticmethod
+	def calculate(file_, options, conn):
 		"""Find the main color of image"""
 		img = Image.open(file_)
 		img.thumbnail((options["isize"][0], options["isize"][1]))
@@ -113,7 +120,7 @@ class AutoColor:
 			self._mainapp.emit("ac-update", rgba)
 			return True
 		else:
-			logger.error("Autocolor multiprocessing error: connection was unexpectedy terminated")
+			logger.error("Autocolor multiprocessing error: connection was unexpectedly terminated")
 
 	def color_update(self, file_):
 		"""Launch new calculation process with given image bytedata"""
@@ -128,4 +135,4 @@ class AutoColor:
 			)
 			self.process.start()
 		else:
-			logger.error("Autocolor threading error: previus process still running, refusing to start new one")
+			logger.error("Autocolor threading error: previous process still running, refusing to start new one")

@@ -10,6 +10,7 @@ gi.require_version('Gtk', '3.0')
 if __name__ == "__main__":
 	sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
+# noinspection PyPep8
 from cavalcade.mainapp import MainApp
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)

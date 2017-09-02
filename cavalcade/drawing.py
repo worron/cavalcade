@@ -4,7 +4,7 @@ from cavalcade.common import AttributeDict
 
 
 class Spectrum:
-	"""Spectrum drawning"""
+	"""Spectrum drawing"""
 	def __init__(self, config, cavaconfig):
 		self.silence_value = 0
 		self.config = config
@@ -37,6 +37,7 @@ class Spectrum:
 			self.audio_sample = [0] * self.sizes.number
 			self.area.queue_draw()
 
+	# noinspection PyUnusedLocal
 	def redraw(self, widget, cr):
 		"""Draw spectrum graph"""
 		cr.set_source_rgba(*self.color)
@@ -49,6 +50,7 @@ class Spectrum:
 			dx += width + self.sizes.padding
 		cr.fill()
 
+	# noinspection PyUnusedLocal
 	def size_update(self, *args):
 		"""Update drawing geometry"""
 		self.sizes.number = self.cavaconfig["general"]["bars"]
@@ -61,7 +63,7 @@ class Spectrum:
 		tw = (self.sizes.area.width - self.config["offset"]["left"]) - self.sizes.padding * (self.sizes.number - 1)
 		self.sizes.bar.width = max(int(tw / self.sizes.number), 1)
 		self.sizes.bar.height = self.sizes.area.height - self.config["offset"]["top"]
-		self.sizes.wcpi = tw % self.sizes.number  # width correnction point index
+		self.sizes.wcpi = tw % self.sizes.number  # width correction point index
 
 	def color_update(self):
 		"""Set drawing color according current settings"""

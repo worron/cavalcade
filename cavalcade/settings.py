@@ -16,7 +16,7 @@ class SettingsWindow(GuiBase):
 		super().__init__("settings.ui", "appmenu.ui", "winstate.ui", elements=elements)
 
 		self.actions = {}
-		self._mainapp = mainapp
+		self.mainapp = mainapp
 		self.gui["window"].set_keep_above(True)
 		self.gui["window"].set_application(mainapp)
 		self.actions["settings"] = Gio.SimpleActionGroup()
@@ -26,7 +26,7 @@ class SettingsWindow(GuiBase):
 		self.gui["stack"].add_titled(self.visualpage.gui["mainbox"], "visset", "Visual")
 
 		# add cava page
-		self.cavapage = CavaPage(self._mainapp)
+		self.cavapage = CavaPage(self.mainapp)
 		self.gui["stack"].add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
 		# setup menu buttons
@@ -47,14 +47,17 @@ class SettingsWindow(GuiBase):
 
 	def add_player_page(self):
 		"""Optional player page"""
-		self.playerpage = PlayerPage(self._mainapp)
+		# noinspection PyAttributeOutsideInit
+		self.playerpage = PlayerPage(self.mainapp)
 		self.gui["stack"].add_titled(self.playerpage.gui["mainbox"], "playset", "Player")
 
+	# noinspection PyUnusedLocal
 	def show(self, *args):
-		"""Show settings winndow"""
+		"""Show settings window"""
 		self.gui["window"].show_all()
 
+	# noinspection PyUnusedLocal
 	def hide(self, *args):
-		"""Hide settings winndow"""
+		"""Hide settings window"""
 		self.gui["window"].hide()
 		return True

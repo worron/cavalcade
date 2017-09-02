@@ -12,6 +12,7 @@ def bool_to_srt(*values):
 	return ";".join("1" if v else "" for v in values)
 
 
+# noinspection PyUnusedLocal
 class Canvas:
 	"""Main window manager"""
 	def __init__(self, mainapp):
@@ -50,11 +51,11 @@ class Canvas:
 		hint_action.connect("change-state", self._on_hint)
 		self.actions["winstate"].add_action(hint_action)
 
-		showimage_action = Gio.SimpleAction.new_stateful(
+		show_image_action = Gio.SimpleAction.new_stateful(
 			"image", None, GLib.Variant.new_boolean(self.config["image"]["show"])
 		)
-		showimage_action.connect("change-state", self._on_show_image)
-		self.actions["winstate"].add_action(showimage_action)
+		show_image_action.connect("change-state", self._on_show_image)
+		self.actions["winstate"].add_action(show_image_action)
 
 		for key, value in self.config["window"].items():
 			action = Gio.SimpleAction.new_stateful(key, None, GLib.Variant.new_boolean(value))
@@ -70,7 +71,7 @@ class Canvas:
 		return hasattr(self, "window")
 
 	def setup(self):
-		"""Init drawing windwow"""
+		"""Init drawing window"""
 		self.rebuild_window()
 		# fix this
 		if not self.config["image"]["show"]:
@@ -101,7 +102,7 @@ class Canvas:
 			self.config["image"]["show"] = show
 			if show:
 				self.overlay.add(self.scrolled)
-				self._rebuild_background()
+				self.rebuild_background()
 			else:
 				self.overlay.remove(self.scrolled)
 
@@ -136,9 +137,9 @@ class Canvas:
 		action()
 
 	def _set_imagebyscreen(self, value):
-		"""Resize backgroung image to screen size despite current window size"""
+		"""Resize background image to screen size despite current window size"""
 		self.config["window"]["imagebyscreen"] = value
-		self._rebuild_background()
+		self.rebuild_background()
 
 		if self.config["image"]["va"]:
 			self.va.set_upper(self.screen.get_height())
@@ -155,10 +156,10 @@ class Canvas:
 
 	def _screen_size(self):
 		"""Get current screen size"""
-		return (self.screen.get_width(), self.screen.get_height())
+		return self.screen.get_width(), self.screen.get_height()
 
-	def _rebuild_background(self):
-		"""Update backgrond according currrent state"""
+	def rebuild_background(self):
+		"""Update background according current state"""
 		size = self._screen_size() if self.config["window"]["imagebyscreen"] else self.last_size
 		if not self.config["image"]["usetag"] or self.tag_image_bytedata is None:
 			pb = pixbuf.from_file_at_scale(self.config["image"]["default"], *size)
@@ -166,6 +167,7 @@ class Canvas:
 			pb = pixbuf.from_bytes_at_scale(self.tag_image_bytedata, *size)
 		self.image.set_from_pixbuf(pb)
 
+	# noinspection PyUnusedLocal
 	def _on_size_update(self, *args):
 		"""Update window state on size changes"""
 		size = self.window.get_size()
@@ -176,7 +178,7 @@ class Canvas:
 					self.va.set_value(self.screen.get_height() if self.config["image"]["va"] else 0)
 					self.ha.set_value(self.screen.get_width() if self.config["image"]["ha"] else 0)
 				else:
-					self._rebuild_background()
+					self.rebuild_background()
 
 	def set_bg_rgba(self, rgba):
 		"""Set window background color"""
@@ -194,7 +196,9 @@ class Canvas:
 			self.window.destroy()
 
 		# init new
+		# noinspection PyAttributeOutsideInit
 		self.window = Gtk.ApplicationWindow()
+		# noinspection PyAttributeOutsideInit
 		self.screen = self.window.get_screen()
 		self.window.set_visual(self.screen.get_rgba_visual())
 		self._mainapp.add_window(self.window)
@@ -219,8 +223,10 @@ class Canvas:
 		# show
 		self.window.show_all()
 
+	# noinspection PyUnusedLocal
 	def on_click(self, widget, event):
 		"""Show settings window"""
+		# noinspection PyProtectedMember
 		if event.type == Gdk.EventType.BUTTON_PRESS:
 			self.run_action("settings", "hide")
 		elif event.type == Gdk.EventType._2BUTTON_PRESS:
@@ -240,11 +246,13 @@ class Canvas:
 		else:
 			logger.warning("Wrong window property '%s'" % name)
 
+	# noinspection PyUnusedLocal
 	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		self.tag_image_bytedata = bytedata
-		self._rebuild_background()
+		self.rebuild_background()
 
+	# noinspection PyUnusedLocal
 	def on_default_image_update(self, sender, file_):
 		"""Update default background"""
-		self._rebuild_background()
+		self.rebuild_background()

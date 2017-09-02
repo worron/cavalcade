@@ -28,9 +28,9 @@ def import_optional():
 	return success
 
 
-def set_actions(actionpack, widget):
+def set_actions(action_pack, widget):
 	"""Set actions groups from dictionary to widget"""
-	for key, value in actionpack.items():
+	for key, value in action_pack.items():
 		widget.insert_action_group(key, value)
 
 
@@ -64,7 +64,7 @@ class GuiBase:
 	"""Base for Gtk widget set created with builder"""
 	path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui")
 
-	def __init__(self, *files, elements=[]):
+	def __init__(self, *files, elements=tuple()):
 		self.builder = Gtk.Builder()
 		for file_ in files:
 			self.builder.add_from_file(os.path.join(self.path, file_))
@@ -80,8 +80,8 @@ class AttributeDict(dict):
 		self[attr] = value
 
 
-class TreeViewHolder():
-	"""Disconnect treeview store for rebiuld"""
+class TreeViewHolder:
+	"""Disconnect treeview store for rebuild"""
 	def __init__(self, treeview):
 		self.treeview = treeview
 
@@ -89,7 +89,7 @@ class TreeViewHolder():
 		self.store = self.treeview.get_model()
 		self.treeview.set_model(None)
 
-	def __exit__(self, type, value, traceback):
+	def __exit__(self, type_, value, traceback):
 		self.treeview.set_model(self.store)
 
 

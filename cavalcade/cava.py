@@ -23,14 +23,14 @@ class Cava:
 		self.cavaconfig = mainapp.cavaconfig
 		self.path = self.cavaconfig["output"]["raw_target"]
 		self.data_handler = mainapp.draw.update
-		self.command = ["cava", "-p", self.cavaconfig._file]
+		self.command = ["cava", "-p", self.cavaconfig.file]
 		self.state = self.NONE
 
 		self.env = dict(os.environ)
 		self.env["LC_ALL"] = "en_US.UTF-8"  # not sure if it's necessary
 
 		is_16bit = self.cavaconfig["output"]["bit_format"] == "16bit"
-		self.bytetype, self.bytesize, self.bytenorm = ("H", 2, 65535) if is_16bit else ("B", 1, 255)
+		self.byte_type, self.byte_size, self.byte_norm = ("H", 2, 65535) if is_16bit else ("B", 1, 255)
 
 		if not os.path.exists(self.path):
 			os.mkfifo(self.path)
@@ -47,20 +47,20 @@ class Cava:
 			logger.exception("Fail to launch cava")
 
 	def _start_reader_thread(self):
-		logger.debug("Acticate cava stream handler")
+		logger.debug("Activate cava stream handler")
 		self.thread = threading.Thread(target=self._read_output)
 		self.thread.daemon = True
 		self.thread.start()
 
 	def _read_output(self):
 		fifo = open(self.path, "rb")
-		chunk = self.bytesize * self.cavaconfig["general"]["bars"]  # number of bytes for given format
-		fmt = self.bytetype * self.cavaconfig["general"]["bars"]  # pack of given format
+		chunk = self.byte_size * self.cavaconfig["general"]["bars"]  # number of bytes for given format
+		fmt = self.byte_type * self.cavaconfig["general"]["bars"]  # pack of given format
 		while True:
 			data = fifo.read(chunk)
 			if len(data) < chunk:
 				break
-			sample = [i / self.bytenorm for i in struct.unpack(fmt, data)]
+			sample = [i / self.byte_norm for i in struct.unpack(fmt, data)]
 			GLib.idle_add(self.data_handler, sample)
 		fifo.close()
 		GLib.idle_add(self._on_stop)
@@ -71,10 +71,10 @@ class Cava:
 			if not self.thread.isAlive():
 				self.start()
 			else:
-				logger.error("Can't restart cava, old hadler still alive")
+				logger.error("Can't restart cava, old handler still alive")
 		elif self.state == self.RUNNING:
 			self.state = self.NONE
-			logger.error("Cava process was unexpectedy terminated.")
+			logger.error("Cava process was unexpectedly terminated.")
 			# self.restart()  # May cause infinity loop, need more check
 
 	def start(self):

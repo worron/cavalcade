@@ -6,7 +6,7 @@ from cavalcade.logger import logger
 
 
 class AudioData:
-	"""Player session managment helper"""
+	"""Player session management helper"""
 	def __init__(self, mainapp):
 		self.path = os.path.expanduser("~/.local/share/cavalcade")
 		if not os.path.exists(self.path):
@@ -50,7 +50,7 @@ class AudioData:
 			self.queue = playdata["queue"]
 			self.updated = True
 		else:
-			logger.warning("Cann't restore previous player session")
+			logger.warning("Can't restore previous player session")
 
 	def send_to_player(self):
 		"""Update playlist"""

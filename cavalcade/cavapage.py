@@ -68,6 +68,7 @@ class CavaPage(GuiBase):
 			self.eq_store.append(["Frequency band %d" % (i + 1), value])
 
 	# gui handlers
+	# noinspection PyUnusedLocal
 	def on_restart_button_click(self, button):
 		if self._mainapp.cavaconfig.is_fallback:
 			logger.error("This changes not permitted while system config file active.")
@@ -91,5 +92,6 @@ class CavaPage(GuiBase):
 		self._mainapp.cava.restart()
 		self._mainapp.draw.size_update()
 
+	# noinspection PyUnusedLocal
 	def on_eq_edited(self, widget, path, text):
 		self.eq_store[path][self.EQ_STORE.VALUE] = float(text)

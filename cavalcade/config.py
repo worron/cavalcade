@@ -14,8 +14,8 @@ accel = AccelCheck()
 
 def str_to_rgba(hex_):
 	"""Translate color from hex string to Gdk.RGBA"""
-	purehex = hex_.lstrip("#")
-	nums = [int(purehex[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
+	pure_hex = hex_.lstrip("#")
+	nums = [int(pure_hex[i:i + 2], 16) / 255.0 for i in range(0, 7, 2)]
 	return Gdk.RGBA(*nums)
 
 
@@ -29,9 +29,10 @@ class ConfigBase(dict):
 	system_location = (os.path.join(os.path.dirname(os.path.abspath(__file__)), "data"),)
 	path = os.path.expanduser("~/.config/cavalcade")
 
-	def __init__(self, name, pattern={}):
+	def __init__(self, name, pattern=None):
+		super().__init__()
 		self.name = name
-		self.pattern = pattern
+		self.pattern = pattern if pattern is not None else {}
 		self.is_fallback = False
 
 		# read functions
@@ -73,17 +74,17 @@ class ConfigBase(dict):
 		if not os.path.exists(self.path):
 			os.makedirs(self.path)
 
-		self._file = os.path.join(self.path, self.name)
+		self.file = os.path.join(self.path, self.name)
 
-		if not os.path.isfile(self._file):
-			shutil.copyfile(self.defconfig, self._file)
-			logger.info("New configuration file was created:\n%s" % self._file)
+		if not os.path.isfile(self.file):
+			shutil.copyfile(self.defconfig, self.file)
+			logger.info("New configuration file was created:\n%s" % self.file)
 
 	def _load_config_file(self):
 		"""Read raw config data"""
 		self.parser = ConfigParser()
 		try:
-			self.parser.read(self._file)
+			self.parser.read(self.file)
 			self.read_data()
 			logger.debug("User config '%s' successfully loaded." % self.name)
 		except Exception:
@@ -105,7 +106,7 @@ class ConfigBase(dict):
 					raise Exception("Bad value for '%s' in '%s'" % (option, section))
 
 	def write_data(self):
-		"""Transform user specified data to raw config parser stirngs"""
+		"""Transform user specified data to raw config parser strings"""
 		for section in self.pattern.keys():
 			for option, pattern in self.pattern[section].items():
 				writer = self.writer[pattern.type]
@@ -113,7 +114,7 @@ class ConfigBase(dict):
 
 	def save_data(self):
 		"""Save settings to file"""
-		with open(self._file, 'w') as configfile:
+		with open(self.file, 'w') as configfile:
 			self.parser.write(configfile)
 
 

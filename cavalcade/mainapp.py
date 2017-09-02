@@ -14,7 +14,7 @@ from cavalcade.common import set_actions, import_optional
 
 
 class MainApp(Gtk.Application):
-	"""Main applicaion class"""
+	"""Main application class"""
 	__gsignals__ = {
 		"tag-image-update": (GObject.SIGNAL_RUN_FIRST, None, (object,)),
 		"default-image-update": (GObject.SIGNAL_RUN_FIRST, None, (str,)),
@@ -49,7 +49,7 @@ class MainApp(Gtk.Application):
 
 		# startup
 		if not hasattr(self, "canvas"):
-			# setup logeer
+			# setup logger
 			log_level = options.lookup_value("debug").get_string() if options.contains("debug") else "DEBUG"
 			logger.setLevel(log_level)
 
@@ -57,7 +57,7 @@ class MainApp(Gtk.Application):
 			self._do_startup()
 			self._parse_args(args, options)
 
-			# some special hadlers on startup
+			# some special handlers on startup
 			if not options.contains("play") and self.imported.pillow and self.config["color"]["auto"]:
 				self.autocolor.color_update(self.config["image"]["default"])
 			return 0
@@ -145,6 +145,7 @@ class MainApp(Gtk.Application):
 		if options.contains("quit"):
 			self.close()
 
+	# noinspection PyUnusedLocal
 	def close(self, *args):
 		"""Application exit"""
 		self.quit()
