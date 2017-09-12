@@ -69,11 +69,17 @@ def debuginfo(input_log=True, output_log=True):
 
 			# print function name
 			stream_handler.setFormatter(function_formatter)
-			logger.debug("$BOLD$CYAN%s%s $RESET$CYAN%s:%s:L%s]", _tab * _tabbing, "FUNCTION", filename, name, lineno)
+			logger.debug(
+				"$BOLD$CYAN%s%s %s:$MAGENTA%s$CYAN:L%s",
+				_tab * _tabbing, "FUNCTION", filename, name, lineno
+			)
 
 			# print function arguments
 			if input_log:
-				logger.debug("$BOLD$CYAN%s%s $RESET%s", _tab * _tabbing, "INPUT:  ", params)
+				logger.debug(
+					"$BOLD$CYAN%s%s $MAGENTA%s$CYAN: $RESET%s",
+					_tab * _tabbing, "INPUT", name, params
+				)
 			stream_handler.setFormatter(color_formatter)
 
 			# run original function
@@ -84,9 +90,11 @@ def debuginfo(input_log=True, output_log=True):
 			# print function result
 			stream_handler.setFormatter(function_formatter)
 			if output_log:
-				logger.debug("$BOLD$CYAN%s%s $RESET%s", _tab * _tabbing, "OUTPUT: ", repr(returned_value))
-			else:
-				logger.debug("$BOLD$CYAN%s%s$RESET %s", _tab * _tabbing, "FINISHED", name)
+				logger.debug(
+					"$BOLD$CYAN%s%s $MAGENTA%s$CYAN: $RESET%s",
+					_tab * _tabbing, "OUTPUT", name, repr(returned_value)
+				)
+			logger.debug("$BOLD$CYAN%s%s $MAGENTA%s", _tab * _tabbing, "FINISHED", name)
 			stream_handler.setFormatter(color_formatter)
 
 			return returned_value
