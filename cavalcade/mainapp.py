@@ -31,6 +31,10 @@ class MainApp(Gtk.Application):
 			"Start audio playing on launch", None
 		)
 		self.add_main_option(
+			"version", ord("v"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+			"Show application version", None
+		)
+		self.add_main_option(
 			"restore", ord("r"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
 			"Restore previous player session", None
 		)
@@ -38,51 +42,53 @@ class MainApp(Gtk.Application):
 			"quit", ord("q"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
 			"Exit program", None
 		)
+		# this is fake one, real log level set on script launch (see run.py)
 		self.add_main_option(
-			"debug", ord("d"), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+			"log-level", ord("l"), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
 			"Set log level", "LOG_LEVEL"
 		)
+
+		self.connect("handle-local-options", self._on_handle_local_options)
+
+	def do_activate(self):
+		if not hasattr(self, "canvas"):
+			self._do_startup()
+
+		self.canvas.window.present()
 
 	def do_command_line(self, command_line):
 		args = command_line.get_arguments()[1:]
 		options = command_line.get_options_dict()
 
-		# startup
-		if not hasattr(self, "canvas"):
-			# setup logger
-			log_level = options.lookup_value("debug").get_string() if options.contains("debug") else "DEBUG"
-			logger.setLevel(log_level)
-
-			# main app launch
-			self._do_startup()
-			self._parse_args(args, options)
-
-			# some special handlers on startup
-			if not options.contains("play") and self.imported.pillow and self.config["color"]["auto"]:
-				self.autocolor.color_update(self.config["image"]["default"])
+		# show version and exit
+		if options.contains("version"):
 			return 0
 
+		# main app launch
+		self.activate()
 		self._parse_args(args, options)
+
+		# some special handlers on startup
+		if not options.contains("play") and self.imported.pillow and self.config["color"]["auto"]:
+			self.autocolor.color_update(self.config["image"]["default"])
 
 		return 0
 
 	def do_shutdown(self):
-		self.cava.close()
-		self.adata.save()
+		if hasattr(self, "canvas"):
+			self.cava.close()
+			self.adata.save()
 
-		if not self.config.is_fallback:
-			self.config.write_data()
-		else:
-			logger.warning("User config is not available, all settings changes will be lost")
+			if not self.config.is_fallback:
+				self.config.write_data()
+			else:
+				logger.warning("User config is not available, all settings changes will be lost")
 
 		logger.info("Exit cavalcade")
 		Gtk.Application.do_shutdown(self)
 
 	def _do_startup(self):
-		"""
-		Main initialization function.
-		Use this one to make all setup AFTER command line parsing completed.
-		"""
+		"""Main initialization function"""
 		# check modules
 		logger.info("Start cavalcade")
 		self.imported = import_optional()
@@ -132,8 +138,15 @@ class MainApp(Gtk.Application):
 		self.canvas.setup()
 		self.cava.start()
 
+	# noinspection PyMethodMayBeStatic
+	def _on_handle_local_options(self, _, options):
+		"""GUI handler"""
+		if options.contains("version"):
+			print("version")
+		return -1
+
 	def _parse_args(self, args, options):
-		"""Parse command line arguments """
+		"""Parse command line arguments"""
 		self.adata.load(args)
 		if options.contains("restore"):
 			self.adata.restore()
