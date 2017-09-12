@@ -42,7 +42,7 @@ class VisualPage(GuiBase):
 
 		# offset
 		self.offset_current = None
-		self.gui["offset-spinbutton"].set_adjustment(Gtk.Adjustment(5, 0, 1000, 5, 0, 0))
+		self.gui["offset-spinbutton"].set_adjustment(Gtk.Adjustment(5, 0, 999, 5, 0, 0))
 
 		for offset in ("Left", "Right", "Top", "Bottom"):
 			self.gui["offset-comboboxtext"].append_text(offset)
