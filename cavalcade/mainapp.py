@@ -9,7 +9,7 @@ from cavalcade.player import Player
 from cavalcade.logger import logger
 from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
-from cavalcade.adata import AudioData
+from cavalcade.adata import AudioData, SavedColors
 from cavalcade.common import set_actions, import_optional
 
 
@@ -78,6 +78,7 @@ class MainApp(Gtk.Application):
 		if hasattr(self, "canvas"):
 			self.cava.close()
 			self.adata.save()
+			self.palette.save()
 
 			if not self.config.is_fallback:
 				self.config.write_data()
@@ -99,6 +100,7 @@ class MainApp(Gtk.Application):
 
 		# init app structure
 		self.adata = AudioData(self)  # audio files manager
+		self.palette = SavedColors(self)  # custom colors list
 		self.draw = Spectrum(self.config, self.cavaconfig)  # graph widget
 		self.cava = Cava(self)  # cava wrapper
 		self.settings = SettingsWindow(self)  # settings window

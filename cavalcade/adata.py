@@ -2,18 +2,54 @@
 import os
 import pickle
 
-from cavalcade.logger import logger
+from cavalcade.logger import logger, debuginfo
 
 
-class AudioData:
-	"""Player session management helper"""
-	def __init__(self, mainapp):
+class Storage:
+	"""Base class for saving data between sessions"""
+	def __init__(self, mainapp, filename):
 		self.path = os.path.expanduser("~/.local/share/cavalcade")
 		if not os.path.exists(self.path):
 			os.makedirs(self.path)
-		self.store = os.path.join(self.path, "store")
+		self.store = os.path.join(self.path, filename)
 
 		self._mainapp = mainapp
+
+
+class SavedColors(Storage):
+	"""Player session management helper"""
+	def __init__(self, mainapp):
+		super().__init__(mainapp, "colors")
+
+		if os.path.isfile(self.store):
+			with open(self.store, "rb") as fp:
+				self.colors = pickle.load(fp)
+		else:
+			self.colors = {}
+
+		logger.debug("Saved colors: %s", self.colors)
+
+	@debuginfo()
+	def add_color(self, file_, color):
+		self.colors[file_] = color
+		return self.colors
+
+	@debuginfo()
+	def find_color(self, file_):
+		return self.colors.get(file_)
+
+	def save(self):
+		"""Save current custom colors"""
+		with open(self.store, "wb") as fp:
+			pickle.dump(self.colors, fp)
+		logger.debug("Saved colors: %s", self.colors)
+
+
+class AudioData(Storage):
+	"""Player session management helper"""
+	def __init__(self, mainapp):
+		super().__init__(mainapp, "audio")
+
 		self.files = []
 		self.queue = None
 		self.updated = False

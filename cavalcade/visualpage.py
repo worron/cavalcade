@@ -1,6 +1,6 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from cavalcade.common import GuiBase, name_from_file
-from cavalcade.common import gtk_open_file
+from cavalcade.common import GuiBase, name_from_file, gtk_open_file
+from cavalcade.logger import logger
 from gi.repository import Gtk, GLib, Gio
 
 
@@ -17,6 +17,7 @@ class VisualPage(GuiBase):
 			"bg-colorbutton", "padding-spinbutton", "scale-spinbutton", "image-tag-radiobutton", "image-label",
 			"image-file-radiobutton", "mainbox", "offset-comboboxtext", "offset-spinbutton", "value-min-scale",
 			"saturation-min-scale", "ac-window-spinbutton", "ac-bands-spinbutton", "refresh-autocolor-button",
+			"save-color-button",
 		)
 		super().__init__("visualpage.glade", elements=elements)
 
@@ -59,6 +60,7 @@ class VisualPage(GuiBase):
 		self.gui["image-file-radiobutton"].connect("notify::active", self.on_image_source_button_switch, False)
 
 		self.gui["image-open-button"].connect("clicked", self.on_image_open_button_click)
+		self.gui["save-color-button"].connect("clicked", self.on_save_color_button_click)
 		self.gui["image-label"].set_text("Image: %s" % name_from_file(self.config["image"]["default"]))
 
 		# autocolor settings
@@ -156,3 +158,13 @@ class VisualPage(GuiBase):
 			self.gui["image-label"].set_text("Image: %s" % name_from_file(file_))
 			self.config["image"]["default"] = file_
 			self.mainapp.emit("default-image-update", file_)
+
+	# noinspection PyUnusedLocal
+	def on_save_color_button_click(self, *args):
+		if not self.mainapp.imported.gstreamer or self.mainapp.player.current is None:
+			logger.warning("No audio file active")
+			return
+
+		rgba = self.gui["fg-colorbutton"].get_rgba()
+		color = (rgba.red, rgba.green, rgba.blue)
+		self.mainapp.palette.add_color(self.mainapp.player.current, color)

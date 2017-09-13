@@ -82,9 +82,15 @@ class AutoColor:
 	def on_tag_image_update(self, sender, bytedata):
 		"""New image from mp3 tag"""
 		if self.config["image"]["usetag"]:
-			file_ = bytes_to_file(bytedata)
-			# noinspection PyTypeChecker
-			self.color_update(file_)
+			# dirty trick
+			saved_color = self._mainapp.palette.find_color(self._mainapp.player.current)
+			if saved_color is not None:
+				rgba = Gdk.RGBA(*saved_color, self.config["color"]["autofg"].alpha)
+				self._mainapp.emit("ac-update", rgba)
+			else:
+				file_ = bytes_to_file(bytedata)
+				# noinspection PyTypeChecker
+				self.color_update(file_)
 
 	# noinspection PyUnusedLocal
 	def on_image_source_switch(self, sender, usetag):
