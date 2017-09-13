@@ -6,11 +6,11 @@ from gi.repository import Gtk, GLib, Gio
 
 class VisualPage(GuiBase):
 	"""Visual setting page"""
-	def __init__(self, settings):
-		self.mainapp = settings.mainapp
+	def __init__(self, mainapp, settings):
+		self._mainapp = mainapp
+		self._settings = settings
 		self.window = settings.gui["window"]
-		self.config = settings.mainapp.config
-		self.settings = settings
+		self.config = self._mainapp.config
 
 		elements = (
 			"fg-colorbutton", "zero-spinbutton", "silence-spinbutton", "image-open-button",
@@ -75,7 +75,7 @@ class VisualPage(GuiBase):
 			self.gui["ac-%s-spinbutton" % key].connect("value-changed", self.on_autocolor_spinbutton_changed, key)
 
 		# misc
-		self.mainapp.connect("ac-update", self.on_autocolor_update)
+		self._mainapp.connect("ac-update", self.on_autocolor_update)
 		self.gui["refresh-autocolor-button"].connect("clicked", self.on_autocolor_refresh_clicked)
 
 		# actions
@@ -83,7 +83,7 @@ class VisualPage(GuiBase):
 			"autocolor", None, GLib.Variant.new_boolean(self.config["color"]["auto"])
 		)
 		auto_action.connect("change-state", self.on_autocolor_switch)
-		self.settings.actions["settings"].add_action(auto_action)
+		self._settings.actions["settings"].add_action(auto_action)
 
 	# action handlers
 	def on_autocolor_switch(self, action, value):
@@ -94,13 +94,13 @@ class VisualPage(GuiBase):
 
 		color = self.config["color"]["autofg"] if autocolor else self.config["color"]["fg"]
 		self.gui["fg-colorbutton"].set_rgba(color)
-		self.mainapp.draw.color_update()
+		self._mainapp.draw.color_update()
 
 	# signal handlers
 	# noinspection PyUnusedLocal
 	def on_autocolor_refresh_clicked(self, *args):
 		if self.config["color"]["auto"]:
-			self.mainapp.emit("autocolor-refresh", self.config["image"]["usetag"])
+			self._mainapp.emit("autocolor-refresh", self.config["image"]["usetag"])
 
 	def on_autocolor_spinbutton_changed(self, button, key):
 		value = int(button.get_value())
@@ -114,29 +114,29 @@ class VisualPage(GuiBase):
 	def on_fg_color_set(self, button):
 		key = "autofg" if self.config["color"]["auto"] else "fg"
 		self.config["color"][key] = button.get_rgba()
-		self.mainapp.draw.color_update()
+		self._mainapp.draw.color_update()
 
 	def on_bg_color_set(self, button):
 		self.config["color"]["bg"] = button.get_rgba()
 		if self.config["window"]["bgpaint"]:
-			self.mainapp.canvas.set_bg_rgba(self.config["color"]["bg"])
+			self._mainapp.canvas.set_bg_rgba(self.config["color"]["bg"])
 
 	# noinspection PyUnusedLocal
 	def on_autocolor_update(self, sender, rgba):
 		self.config["color"]["autofg"] = rgba
 		if self.config["color"]["auto"]:
 			self.gui["fg-colorbutton"].set_rgba(rgba)
-			self.mainapp.draw.color_update()
+			self._mainapp.draw.color_update()
 
 	def on_draw_spinbutton_changed(self, button, key):
 		type_ = float if key == "scale" else int
 		self.config["draw"][key] = type_(button.get_value())
 		if key in ("padding", "zero"):
-			self.mainapp.draw.size_update()
+			self._mainapp.draw.size_update()
 
 	def on_offset_spinbutton_changed(self, button):
 		self.config["offset"][self.offset_current] = int(button.get_value())
-		self.mainapp.draw.size_update()
+		self._mainapp.draw.size_update()
 
 	def on_offset_combo_changed(self, combo):
 		text = combo.get_active_text()
@@ -148,8 +148,8 @@ class VisualPage(GuiBase):
 	def on_image_source_button_switch(self, button, active, usetag):
 		if button.get_active():
 			self.config["image"]["usetag"] = usetag
-			self.mainapp.canvas.rebuild_background()
-			self.mainapp.emit("image-source-switch", usetag)
+			self._mainapp.canvas.rebuild_background()
+			self._mainapp.emit("image-source-switch", usetag)
 
 	# noinspection PyUnusedLocal
 	def on_image_open_button_click(self, *args):
@@ -157,14 +157,14 @@ class VisualPage(GuiBase):
 		if is_ok:
 			self.gui["image-label"].set_text("Image: %s" % name_from_file(file_))
 			self.config["image"]["default"] = file_
-			self.mainapp.emit("default-image-update", file_)
+			self._mainapp.emit("default-image-update", file_)
 
 	# noinspection PyUnusedLocal
 	def on_save_color_button_click(self, *args):
-		if not self.mainapp.imported.gstreamer or self.mainapp.player.current is None:
+		if not self._mainapp.imported.gstreamer or self._mainapp.player.current is None:
 			logger.warning("No audio file active")
 			return
 
 		rgba = self.gui["fg-colorbutton"].get_rgba()
 		color = (rgba.red, rgba.green, rgba.blue)
-		self.mainapp.palette.add_color(self.mainapp.player.current, color)
+		self._mainapp.palette.add_color(self._mainapp.player.current, color)
