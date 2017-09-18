@@ -13,9 +13,15 @@
     </section>
     <section>
       <item>
+        <attribute name="action">settings.colors</attribute>
+        <attribute name="label" translatable="yes">Saved Colors</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
         <attribute name="action">settings.hide</attribute>
         <attribute name="label" translatable="yes">Hide</attribute>
-    </item>
+      </item>
       <item>
         <attribute name="action">app.quit</attribute>
         <attribute name="label" translatable="yes">Quit</attribute>

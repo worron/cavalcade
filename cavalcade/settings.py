@@ -3,6 +3,7 @@ from gi.repository import Gio
 from cavalcade.visualpage import VisualPage
 from cavalcade.cavapage import CavaPage
 from cavalcade.playerpage import PlayerPage
+from cavalcade.colordata import ColorsWindow
 from cavalcade.common import GuiBase
 
 
@@ -29,6 +30,10 @@ class SettingsWindow(GuiBase):
 		self.cavapage = CavaPage(self._mainapp)
 		self.gui["stack"].add_titled(self.cavapage.gui["mainbox"], "cavaset", "CAVA")
 
+		# add colors dialog
+		self.colors = ColorsWindow(self._mainapp)
+		self.colors.gui["window"].set_transient_for(self.gui["window"])
+
 		# setup menu buttons
 		self.gui["winstate-menubutton"].set_menu_model(self.gui["winstate-menu"])
 		self.gui["app-menubutton"].set_menu_model(self.gui["app-menu"])
@@ -41,6 +46,10 @@ class SettingsWindow(GuiBase):
 		show_action = Gio.SimpleAction.new("show", None)
 		show_action.connect("activate", self.show)
 		self.actions["settings"].add_action(show_action)
+
+		colors_action = Gio.SimpleAction.new("colors", None)
+		colors_action.connect("activate", self.colors.show)
+		self.actions["settings"].add_action(colors_action)
 
 		# signals
 		self.gui["window"].connect("delete-event", self.hide)

@@ -35,6 +35,13 @@ class SavedColors(Storage):
 		return self.colors
 
 	@debuginfo()
+	def delete_color(self, file_):
+		if file_ in self.colors:
+			del self.colors[file_]
+		else:
+			logger.warning("Wrong color database key %s" % file_)
+
+	@debuginfo()
 	def find_color(self, file_):
 		return self.colors.get(file_)
 
