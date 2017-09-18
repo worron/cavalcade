@@ -1,5 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
-from gi.repository import Gtk, Pango
+from gi.repository import Gtk, Pango, GdkPixbuf
 from cavalcade.common import GuiBase, TreeViewHolder, AttributeDict
 
 # TODO: make color list update on every new color added?
@@ -17,19 +17,24 @@ class ColorsWindow(GuiBase):
 		self.search_text = None
 
 		# some gui constants
-		self.COLOR_STORE = AttributeDict(INDEX=0, FILE=1, COLOR=2)
+		self.COLOR_STORE = AttributeDict(INDEX=0, FILE=1, COLOR=2, ICON=3)
+		self.PB = AttributeDict(bits=8, width=64, height=16, column_width = 88)
 
 		# colors view setup
 		self.treeview = self.gui["colors-treeview"]
 		self.treelock = TreeViewHolder(self.treeview)
-		for i, title in enumerate(("Index", "File", "Color")):
-			column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.START), text=i)
-			column.set_resizable(True)
+		for i, title in enumerate(("Index", "File", "Color", "Icon")):
+			if i != self.COLOR_STORE.ICON:
+				column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.START), text=i)
+				column.set_resizable(True)
+				column.set_expand(True)
+			else:
+				column = Gtk.TreeViewColumn(title, Gtk.CellRendererPixbuf(width=self.PB.column_width), pixbuf=i)
 			self.treeview.append_column(column)
-			if i == self.COLOR_STORE.INDEX:
+			if i in (self.COLOR_STORE.INDEX, self.COLOR_STORE.COLOR):
 				column.set_visible(False)
 
-		self.store = Gtk.ListStore(int, str, str)
+		self.store = Gtk.ListStore(int, str, str, GdkPixbuf.Pixbuf)
 		self.store_filter = self.store.filter_new()
 		self.store_filter.set_visible_func(self.colors_filter_func)
 		self.search_text = None
@@ -52,7 +57,12 @@ class ColorsWindow(GuiBase):
 		with self.treelock:
 			self.store.clear()
 			for i, (file_, color) in enumerate(data.items()):
-				self.store.append([i, file_, str(color)])
+				pixbuf = GdkPixbuf.Pixbuf.new(
+					GdkPixbuf.Colorspace.RGB, False,
+					self.PB.bits, self.PB.width, self.PB.height
+				)
+				pixbuf.fill(int("%02X%02X%02XFF" % tuple(int(i*255) for i in color), 16))  # fix this
+				self.store.append([i, file_, "%.2f %.2f %.2f" % color, pixbuf])
 
 	# noinspection PyUnusedLocal
 	def colors_filter_func(self, model, treeiter, data):

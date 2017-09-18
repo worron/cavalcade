@@ -76,6 +76,7 @@
               <object class="GtkTreeView" id="colors-treeview">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="headers_visible">False</property>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection" id="colors-selection"/>
                 </child>
