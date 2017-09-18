@@ -23,6 +23,7 @@ class ColorsWindow(GuiBase):
 		# colors view setup
 		self.treeview = self.gui["colors-treeview"]
 		self.treelock = TreeViewHolder(self.treeview)
+
 		for i, title in enumerate(("Index", "File", "Color", "Icon")):
 			if i != self.COLOR_STORE.ICON:
 				column = Gtk.TreeViewColumn(title, Gtk.CellRendererText(ellipsize=Pango.EllipsizeMode.START), text=i)
@@ -30,9 +31,9 @@ class ColorsWindow(GuiBase):
 				column.set_expand(True)
 			else:
 				column = Gtk.TreeViewColumn(title, Gtk.CellRendererPixbuf(width=self.PB.column_width), pixbuf=i)
+
 			self.treeview.append_column(column)
-			if i in (self.COLOR_STORE.INDEX, self.COLOR_STORE.COLOR):
-				column.set_visible(False)
+			column.set_visible(i in (self.COLOR_STORE.FILE, self.COLOR_STORE.ICON))
 
 		self.store = Gtk.ListStore(int, str, str, GdkPixbuf.Pixbuf)
 		self.store_filter = self.store.filter_new()
@@ -56,6 +57,7 @@ class ColorsWindow(GuiBase):
 		"""Update colors store"""
 		with self.treelock:
 			self.store.clear()
+
 			for i, (file_, color) in enumerate(data.items()):
 				pixbuf = GdkPixbuf.Pixbuf.new(
 					GdkPixbuf.Colorspace.RGB, False,
