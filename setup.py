@@ -10,10 +10,11 @@ $ cat log.txt | xargs rm -rf
 """
 
 from setuptools import setup
+from cavalcade.version import get_current as get_current_version
 
 setup(
 	name = "cavalcade",
-	version = "0.6.dev1",
+	version = get_current_version(),
 	description = "GUI wrapper for C.A.V.A. utility",
 	LICENSE = "GPL",
 	author = "worron",
