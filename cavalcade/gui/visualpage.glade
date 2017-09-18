@@ -451,7 +451,7 @@
             <child>
               <object class="GtkImage" id="save-image">
                 <property name="can_focus">False</property>
-                <property name="icon_name">document-save</property>
+                <property name="icon_name">document-save-symbolic</property>
               </object>
             </child>
             <style>
