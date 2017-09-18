@@ -11,6 +11,7 @@ from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
 from cavalcade.adata import AudioData, SavedColors
 from cavalcade.common import set_actions, import_optional
+from cavalcade.version import get_current as get_current_version
 
 
 class MainApp(Gtk.Application):
@@ -144,7 +145,7 @@ class MainApp(Gtk.Application):
 	def _on_handle_local_options(self, _, options):
 		"""GUI handler"""
 		if options.contains("version"):
-			print("version")
+			print(get_current_version())
 		return -1
 
 	def _parse_args(self, args, options):
