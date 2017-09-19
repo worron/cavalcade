@@ -49,7 +49,7 @@ class SavedColors(Storage):
 		"""Save current custom colors"""
 		with open(self.store, "wb") as fp:
 			pickle.dump(self.colors, fp)
-		logger.debug("Saved colors: %s", self.colors)
+		logger.debug("Saved colors:\n%s", self.colors)
 
 
 class AudioData(Storage):
@@ -62,7 +62,7 @@ class AudioData(Storage):
 		self.updated = False
 
 	def load(self, args):
-		"""Get audio files from command arguments list """
+		"""Get audio files from command arguments list"""
 		audio, broken = [], []
 		for item in args:
 			audio.append(item) if item.endswith(".mp3") else broken.append(item)
@@ -76,9 +76,11 @@ class AudioData(Storage):
 	def save(self):
 		"""Save current playlist"""
 		if self._mainapp.imported.gstreamer:
-			with open(self.store, "wb") as fp:
+			with open(self.store, "r+b") as fp:
 				playdata = {"list": self._mainapp.player.playlist, "queue": self._mainapp.player.playqueue}
-				pickle.dump(playdata, fp)
+				if playdata["list"]:
+					logger.debug("File list to save:\n%s" % str(playdata))
+					pickle.dump(playdata, fp)
 
 	def restore(self):
 		"""Restore playlist from previous session"""
@@ -89,6 +91,7 @@ class AudioData(Storage):
 			playdata = None
 
 		if playdata is not None:
+			logger.debug("Restore audio files list:\n%s" % str(playdata["list"]))
 			self.files = playdata["list"]
 			self.queue = playdata["queue"]
 			self.updated = True
