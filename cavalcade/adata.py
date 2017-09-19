@@ -57,6 +57,10 @@ class AudioData(Storage):
 	def __init__(self, mainapp):
 		super().__init__(mainapp, "audio")
 
+		if not os.path.isfile(self.store):
+			with open(self.store, "wb") as fp:
+				pickle.dump({"list": [], "queue": []}, fp)
+
 		self.files = []
 		self.queue = None
 		self.updated = False
@@ -81,6 +85,8 @@ class AudioData(Storage):
 				if playdata["list"]:
 					logger.debug("File list to save:\n%s" % str(playdata))
 					pickle.dump(playdata, fp)
+		else:
+			logger.debug("No playlist was saved")
 
 	def restore(self):
 		"""Restore playlist from previous session"""
