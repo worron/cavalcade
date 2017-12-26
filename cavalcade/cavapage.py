@@ -22,8 +22,8 @@ class CavaPage(GuiBase):
 		self.gui["framerate_spinbutton"].set_adjustment(Gtk.Adjustment(30, 12, 60, 1, 0, 0))
 		self.gui["sensitivity_spinbutton"].set_adjustment(Gtk.Adjustment(50, 10, 200, 5, 0, 0))
 		self.gui["ignore_spinbutton"].set_adjustment(Gtk.Adjustment(0, 0, 50, 1, 0, 0))
-		self.gui["gravity_spinbutton"].set_adjustment(Gtk.Adjustment(1, 0, 20, 0.5, 0, 0))
-		self.gui["integral_spinbutton"].set_adjustment(Gtk.Adjustment(0.5, 0, 0.99, 0.01, 0, 0))
+		self.gui["gravity_spinbutton"].set_adjustment(Gtk.Adjustment(100, 0, 999, 10, 0, 0))
+		self.gui["integral_spinbutton"].set_adjustment(Gtk.Adjustment(50, 0, 100, 1, 0, 0))
 		self.gui["higher_cutoff_freq_spinbutton"].set_adjustment(Gtk.Adjustment(50, 50, 20000, 10, 0, 0))
 		self.gui["lower_cutoff_freq_spinbutton"].set_adjustment(Gtk.Adjustment(50, 50, 20000, 10, 0, 0))
 
@@ -35,9 +35,10 @@ class CavaPage(GuiBase):
 		self.gui["restart_button"].connect("clicked", self.on_restart_button_click)
 		self.int_sp_buttons = (
 			("general", "framerate"), ("general", "bars"), ("general", "sensitivity"),
-			("general", "higher_cutoff_freq"), ("general", "lower_cutoff_freq"), ("smoothing", "ignore")
+			("general", "higher_cutoff_freq"), ("general", "lower_cutoff_freq"), ("smoothing", "ignore"),
+			("smoothing", "integral"), ("smoothing", "gravity")
 		)
-		self.float_sp_buttons = (("smoothing", "integral"), ("smoothing", "gravity"))
+		self.float_sp_buttons = ()
 		self.bool_switches = (("smoothing", "monstercat"), ("general", "autosens"))
 
 		for section, key in self.int_sp_buttons + self.float_sp_buttons:
@@ -46,7 +47,7 @@ class CavaPage(GuiBase):
 		for section, key in self.bool_switches:
 			self.gui[key + "_switch"].set_active(self._mainapp.cavaconfig[section][key])
 
-		self.gui["style_combobox"].set_active(self.OUTPUT_STYLE.index(self._mainapp.cavaconfig["output"]["style"]))
+		self.gui["style_combobox"].set_active(self.OUTPUT_STYLE.index(self._mainapp.cavaconfig["output"]["channels"]))
 
 		# setup equalizer
 		self.eq_store = Gtk.ListStore(str, float)
@@ -84,7 +85,7 @@ class CavaPage(GuiBase):
 		for section, key in self.bool_switches:
 			self._mainapp.cavaconfig[section][key] = self.gui[key + "_switch"].get_active()
 
-		self._mainapp.cavaconfig["output"]["style"] = self.gui["style_combobox"].get_active_text().lower()
+		self._mainapp.cavaconfig["output"]["channels"] = self.gui["style_combobox"].get_active_text().lower()
 		self._mainapp.cavaconfig["eq"] = [line[self.EQ_STORE.VALUE] for line in self.eq_store]
 
 		# update settings with current data

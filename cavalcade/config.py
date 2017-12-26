@@ -134,12 +134,12 @@ class CavaConfig(ConfigBase):
 				output = dict(
 					method = AttributeDict(type=str, valid=["raw"]),
 					raw_target = AttributeDict(type=str),
-					style = AttributeDict(type=str),
+					channels = AttributeDict(type=str),
 					bit_format = AttributeDict(type=str, valid=["16bit", "8bit"]),
 				),
 				smoothing = dict(
-					gravity = AttributeDict(type=float),
-					integral = AttributeDict(type=float),
+					gravity = AttributeDict(type=int),
+					integral = AttributeDict(type=int),
 					ignore = AttributeDict(type=int),
 					monstercat = AttributeDict(type=bool),
 				),

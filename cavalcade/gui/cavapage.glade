@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.20.0 -->
+<!-- Generated with glade 3.20.2 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkBox" id="mainbox">
@@ -230,7 +230,6 @@
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Multiplier for the integral smoothing calculations.</property>
                 <property name="text" translatable="yes">9,00</property>
-                <property name="digits">2</property>
                 <property name="value">9</property>
               </object>
               <packing>
@@ -270,7 +269,6 @@
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Set gravity multiplier for "drop off". Higher values means bars will drop faster.</property>
                 <property name="text" translatable="yes">12,00</property>
-                <property name="digits">1</property>
               </object>
               <packing>
                 <property name="expand">False</property>
