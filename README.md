@@ -8,7 +8,7 @@ Python wrapper for [C.A.V.A.](https://github.com/karlstav/cava) utility with his
 #### Dependencies
 
 ###### Base
-* C.A.V.A.
+* C.A.V.A. >= 0.6
 * GTK+ >=3.18
 * Python >=3.5
 * Cairo
