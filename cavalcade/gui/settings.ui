@@ -21,6 +21,9 @@
                 <property name="icon-name">open-menu-symbolic</property>
               </object>
             </child>
+            <style>
+              <class name="flat"/>
+            </style>
           </object>
           <packing>
             <property name="pack-type">start</property>
@@ -33,6 +36,9 @@
                 <property name="icon-name">emblem-system-symbolic</property>
               </object>
             </child>
+            <style>
+              <class name="flat"/>
+            </style>
           </object>
           <packing>
             <property name="pack-type">end</property>
