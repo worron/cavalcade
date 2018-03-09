@@ -5,9 +5,7 @@ from cavalcade.config import MainConfig, CavaConfig
 from cavalcade.drawing import Spectrum
 from cavalcade.cava import Cava
 from cavalcade.settings import SettingsWindow
-from cavalcade.player import Player
 from cavalcade.logger import logger
-from cavalcade.autocolor import AutoColor
 from cavalcade.canvas import Canvas
 from cavalcade.adata import AudioData, SavedColors
 from cavalcade.common import set_actions, import_optional
@@ -109,12 +107,16 @@ class MainApp(Gtk.Application):
 
 		# optional image analyzer
 		if self.imported.pillow:
+			from cavalcade.autocolor import AutoColor
+
 			self.autocolor = AutoColor(self)
 		else:
 			logger.info("Starting without auto color detection function")
 
 		# optional gstreamer player
 		if self.imported.gstreamer:
+			from cavalcade.player import Player
+
 			self.player = Player(self)
 			self.settings.add_player_page()
 			self.canvas.actions.update(self.player.actions)
