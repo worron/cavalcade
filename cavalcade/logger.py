@@ -46,6 +46,7 @@ logger.addHandler(stream_handler)
 def is_debug(inst):
 	return inst.getEffectiveLevel() == logging.DEBUG
 
+
 # noinspection PyArgumentList
 logger.is_debug = types.MethodType(is_debug, logger)
 
