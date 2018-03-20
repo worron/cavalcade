@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Cavalcade
+Comment=CAVA GUI
+Exec=cavalcade
+Terminal=false
+Icon=cavalcade
+Type=Application
+Categories=AudioVideo;Audio;GTK
+StartupNotify=false
