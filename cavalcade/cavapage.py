@@ -18,7 +18,7 @@ class CavaPage(GuiBase):
 		super().__init__("cavapage.glade", elements=elements)
 
 		# set gui data
-		self.gui["bars_spinbutton"].set_adjustment(Gtk.Adjustment(20, 20, 64, 1, 0, 0))
+		self.gui["bars_spinbutton"].set_adjustment(Gtk.Adjustment(20, 20, 200, 1, 0, 0))
 		self.gui["framerate_spinbutton"].set_adjustment(Gtk.Adjustment(30, 12, 60, 1, 0, 0))
 		self.gui["sensitivity_spinbutton"].set_adjustment(Gtk.Adjustment(50, 10, 200, 5, 0, 0))
 		self.gui["ignore_spinbutton"].set_adjustment(Gtk.Adjustment(0, 0, 50, 1, 0, 0))
