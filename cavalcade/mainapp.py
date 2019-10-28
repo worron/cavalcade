@@ -1,4 +1,5 @@
 # -*- Mode: Python; indent-tabs-mode: t; python-indent: 4; tab-width: 4 -*-
+import signal
 from gi.repository import Gtk, GObject, Gio, GLib
 
 from cavalcade.config import MainConfig, CavaConfig
@@ -24,6 +25,9 @@ class MainApp(Gtk.Application):
 
 	def __init__(self):
 		super().__init__(application_id="com.github.worron.cavalcade", flags=Gio.ApplicationFlags.HANDLES_COMMAND_LINE)
+
+		signal.signal(signal.SIGINT, self.gracefully_close)
+		signal.signal(signal.SIGTERM, self.gracefully_close)
 
 		self.add_main_option(
 			"play", ord("p"), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
@@ -162,6 +166,15 @@ class MainApp(Gtk.Application):
 
 		if options.contains("quit"):
 			self.close()
+
+	# noinspection PyUnusedLocal
+	def gracefully_close(self, signum, frame):
+		"""
+		Termination signals handler.
+		Nothing else but regular exit actually.
+		"""
+		logger.info("Exit on %d signal" % signum)
+		self.quit()
 
 	# noinspection PyUnusedLocal
 	def close(self, *args):
