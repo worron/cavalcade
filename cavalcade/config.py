@@ -214,6 +214,8 @@ class MainConfig(ConfigBase):
 				misc = dict(
 					hint = AttributeDict(type="hint", valid=GTK_WINDOW_TYPE_HINTS),
 					dsize = AttributeDict(type="ilist"),
+					cursor_hide_timeout = AttributeDict(type=int),
+
 				),
 				keys = dict(
 					exit = AttributeDict(type="accel", valid=accel),

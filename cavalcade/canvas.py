@@ -66,6 +66,12 @@ class Canvas:
 		self._mainapp.connect("tag-image-update", self.on_tag_image_update)
 		self._mainapp.connect("default-image-update", self.on_default_image_update)
 
+		# cursor control
+		self._is_cursor_hidden = False
+		self._cursor_hide_timer = None
+		self._cursor_hide_timeout = self.config["misc"]["cursor_hide_timeout"] * 1000
+		self._launch_cursor_hide_timer()
+
 	@property
 	def ready(self):
 		return hasattr(self, "window")
@@ -76,6 +82,34 @@ class Canvas:
 		# fix this
 		if not self.config["image"]["show"]:
 			self.overlay.remove(self.scrolled)
+
+	def _launch_cursor_hide_timer(self):
+		if self._cursor_hide_timer:
+			GLib.source_remove(self._cursor_hide_timer)
+
+		self._cursor_hide_timer = GLib.timeout_add(self._cursor_hide_timeout, self._hide_cursor)
+
+	def _hide_cursor(self):
+		window = self.window.get_window()
+
+		if window:
+			window.set_cursor(Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR))
+			self._is_cursor_hidden = True
+			self._cursor_hide_timer = None
+
+	def _restore_cursor(self):
+		window = self.window.get_window()
+
+		if window:
+			cursor = Gdk.Cursor.new_from_name(window.get_display(), 'default')
+			window.set_cursor(cursor)
+			self._is_cursor_hidden = False
+
+	def _on_motion_notify_event(self, _widget, _event):
+		if self._is_cursor_hidden:
+			self._restore_cursor()
+
+		self._launch_cursor_hide_timer()
 
 	# action handlers
 	def _on_ialign(self, action, value):
@@ -216,7 +250,10 @@ class Canvas:
 		# signals
 		self.window.connect("delete-event", self._mainapp.close)
 		self.draw.area.connect("button-press-event", self.on_click)
+		self.draw.area.connect('motion-notify-event', self._on_motion_notify_event)
 		self.window.connect("check-resize", self._on_size_update)
+
+		self.draw.area.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
 
 		set_actions(self.actions, self.window)
 
