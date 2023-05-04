@@ -9,6 +9,7 @@ from cavalcade.logger import logger
 from cavalcade.common import AttributeDict, WINDOW_HINTS, AccelCheck
 
 GTK_WINDOW_TYPE_HINTS = [getattr(Gdk.WindowTypeHint, hint) for hint in WINDOW_HINTS]
+DEFAULT_WALLPAPER_FILE = "DefaultWallpaper.svg"
 accel = AccelCheck()
 
 
@@ -229,11 +230,18 @@ class MainConfig(ConfigBase):
 
 	def read_data(self):
 		super().read_data()
+		self._validate_default_bg()
 
+	def _validate_default_bg(self):
 		if not self["image"]["default"]:
-			self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), "DefaultWallpaper.svg")
+			logger.info("Default wallpaper not defined, setting config option to fallback value.")
+			self._set_fallback_bg()
 		elif not os.path.isfile(self["image"]["default"]):
-			raise Exception("Wrong default image file")
+			logger.warning("Default wallpaper file not valid, resetting config option to fallback value.")
+			self._set_fallback_bg()
+
+	def _set_fallback_bg(self):
+		self["image"]["default"] = os.path.join(os.path.dirname(self.defconfig), DEFAULT_WALLPAPER_FILE)
 
 	def write_data(self):
 		super().write_data()
