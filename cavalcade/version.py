@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-_FALLBACK_VERSION = "0.6"
-_DEVELOPMENT_BRANCH = "devel"
+_FALLBACK_VERSION = "0.8"
+# _DEVELOPMENT_BRANCH = "devel"
 _MASTER_BRANCH = "master"
 
 
@@ -22,10 +22,11 @@ def get_current():
 		if branch == _MASTER_BRANCH or n == "0":
 			# TODO: does it possible to proper count commit on master branch?
 			version = v
-		elif branch == _DEVELOPMENT_BRANCH:
-			version = "%.1f.dev%s-%s" % (float(v) + 0.1, n, commit)
 		else:
-			version = "%s-%s-%s" % (v, branch, commit)
+			# Just assuming we are working on next version
+			# if git branch is different from master
+			next_version = float(v) + 0.1
+			version = "%.1f.dev%s+%s" % (next_version, n, commit)
 	except Exception as e:
 		# use plain print instead of logger to avoid potential error on setup
 		print("Can't read git output:\n%s", e)
