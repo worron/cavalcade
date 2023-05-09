@@ -20,15 +20,20 @@ And all necessary python bindings e.g. python3-gi, python3-cairo.
 * Python Pillow
 
 #### Installation
-This is pure python package, so you can try it without install:
+This is pure python package, so you can try it without install
 ```bash
 $ git clone https://github.com/worron/cavalcade.git ~/cavalcade
 $ python3 ~/cavalcade/cavalcade/run.py
 ```
-For proper install launch `setup.py` script.
+For proper install regular `pip` routine recommended
+```bash
+$ git clone https://github.com/worron/cavalcade.git ~/cavalcade
+$ cd cavalcade
+$ pip install .
+```
 
 #### Usage
-To use spectrum audio visualizer launch cavalcade without any arguments.  
+To use spectrum audio visualizer launch cavalcade without any arguments.
 To use cavalcade as player launch it with list of files:
 ```bash
 $ cavalcade audio.mp3
@@ -38,5 +43,5 @@ Use help command to get list of all available arguments:
 $ cavalcade --help
 ```
 
-Double click on window to show settings dialog.  
+Double click on window to show settings dialog.
 Program hotkeys can be set with user config file `~/.config/cavalcade/main.ini`.

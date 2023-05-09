@@ -4,9 +4,9 @@
 """
 Installation routines.
 Install:
-$ python3 setup.py install --record log.txt
+$ pip install .
 Uninstall:
-$ cat log.txt | xargs rm -rf
+$ pip uninstall cavalcade
 """
 
 from setuptools import setup
