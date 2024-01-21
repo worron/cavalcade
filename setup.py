@@ -16,7 +16,7 @@ setup(
 	name = "cavalcade",
 	version = get_current_version(),
 	description = "GUI wrapper for C.A.V.A. utility",
-	license = "GPL",
+	license = "GPL-3.0-or-later",
 	author = "worron",
 	author_email = "worrongm@gmail.com",
 	url = "https://github.com/worron/cavalcade",
